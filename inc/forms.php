@@ -223,3 +223,32 @@ function brightnest_contact_form() {
 	</form>
 	<?php
 }
+
+/**
+ * Short callback form (name, phone, service) used on the homepage.
+ */
+function brightnest_quick_form() {
+	$services = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => -1, 'orderby' => 'menu_order', 'order' => 'ASC', 'fields' => 'ids' ) );
+	?>
+	<form class="bn-qform" id="bn-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+		<?php echo brightnest_form_notice(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+		<input type="hidden" name="action" value="bn_request">
+		<input type="hidden" name="bn_type" value="booking">
+		<input type="hidden" name="bn_redirect" value="<?php echo esc_url( home_url( '/' ) ); ?>">
+		<?php wp_nonce_field( 'bn_request', 'bn_nonce' ); ?>
+		<div class="bn-hp" aria-hidden="true"><input type="text" name="bn_website" tabindex="-1" autocomplete="off"></div>
+		<label class="screen-reader-text" for="bn-q-name"><?php esc_html_e( 'Your name', 'brightnest' ); ?></label>
+		<input id="bn-q-name" name="bn_name" required autocomplete="name" placeholder="<?php esc_attr_e( 'Your name', 'brightnest' ); ?>">
+		<label class="screen-reader-text" for="bn-q-phone"><?php esc_html_e( 'Mobile number', 'brightnest' ); ?></label>
+		<input id="bn-q-phone" name="bn_phone" type="tel" required autocomplete="tel" placeholder="<?php esc_attr_e( 'Mobile number', 'brightnest' ); ?>">
+		<label class="screen-reader-text" for="bn-q-service"><?php esc_html_e( 'Service', 'brightnest' ); ?></label>
+		<select id="bn-q-service" name="bn_service" required>
+			<option value=""><?php esc_html_e( 'Choose a service', 'brightnest' ); ?></option>
+			<?php foreach ( $services as $sid ) : ?>
+				<option><?php echo esc_html( wp_strip_all_tags( html_entity_decode( get_the_title( $sid ) ) ) ); ?></option>
+			<?php endforeach; ?>
+		</select>
+		<button type="submit" class="bn-btn bn-btn-primary"><?php esc_html_e( 'Request a call back', 'brightnest' ); ?></button>
+	</form>
+	<?php
+}

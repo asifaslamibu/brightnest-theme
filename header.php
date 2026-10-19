@@ -19,16 +19,18 @@
 <div class="bn-topbar">
 	<div class="bn-container bn-topbar-inner">
 		<div class="bn-topbar-left">
-			<span><?php echo brightnest_icon( 'clock', 15 ); // phpcs:ignore ?> <?php echo esc_html( brightnest_opt( 'hours' ) ); ?></span>
-			<span class="bn-hide-sm"><?php echo brightnest_icon( 'pin', 15 ); // phpcs:ignore ?> <?php echo esc_html( implode( ' · ', brightnest_cities() ) ); ?></span>
+			<?php foreach ( array_filter( array( brightnest_opt( 'phone' ), brightnest_opt( 'phone2' ) ) ) as $bn_ph ) : ?>
+				<a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $bn_ph ) ); ?>"><?php echo brightnest_icon( 'phone', 14 ); // phpcs:ignore ?> <?php echo esc_html( $bn_ph ); ?></a>
+			<?php endforeach; ?>
+			<?php if ( brightnest_opt( 'email' ) ) : ?>
+				<a class="bn-hide-sm" href="mailto:<?php echo esc_attr( brightnest_opt( 'email' ) ); ?>"><?php echo brightnest_icon( 'mail', 14 ); // phpcs:ignore ?> <?php echo esc_html( brightnest_opt( 'email' ) ); ?></a>
+			<?php endif; ?>
 		</div>
-		<div class="bn-topbar-right">
-			<?php if ( brightnest_opt( 'phone' ) ) : ?>
-				<a href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo brightnest_icon( 'phone', 15 ); // phpcs:ignore ?> <?php echo esc_html( brightnest_opt( 'phone' ) ); ?></a>
-			<?php endif; ?>
+		<div class="bn-topbar-social bn-hide-sm">
 			<?php if ( brightnest_whatsapp_url() ) : ?>
-				<a class="bn-hide-sm" href="<?php echo esc_url( brightnest_whatsapp_url() ); ?>" target="_blank" rel="noopener"><?php echo brightnest_icon( 'whatsapp', 15 ); // phpcs:ignore ?> WhatsApp</a>
+				<a href="<?php echo esc_url( brightnest_whatsapp_url() ); ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><?php echo brightnest_icon( 'whatsapp', 15 ); // phpcs:ignore ?></a>
 			<?php endif; ?>
+			<?php echo brightnest_social_links(); // phpcs:ignore ?>
 		</div>
 	</div>
 </div>
@@ -39,9 +41,8 @@
 			<?php if ( has_custom_logo() ) : ?>
 				<?php the_custom_logo(); ?>
 			<?php else : ?>
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="bn-logo-text">
-					<span class="bn-logo-mark"><?php echo brightnest_icon( 'home', 20 ); // phpcs:ignore ?></span>
-					<span><?php bloginfo( 'name' ); ?></span>
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="bn-logo-img">
+					<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo.png' ); ?>" width="720" height="200" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 				</a>
 			<?php endif; ?>
 		</div>
@@ -62,6 +63,9 @@
 		</nav>
 
 		<div class="bn-header-actions">
+			<?php if ( brightnest_opt( 'phone' ) ) : ?>
+				<a class="bn-header-phone bn-hide-sm" href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo brightnest_icon( 'phone', 18 ); // phpcs:ignore ?> <span><?php echo esc_html( brightnest_opt( 'phone' ) ); ?></span></a>
+			<?php endif; ?>
 			<a class="bn-btn bn-btn-primary bn-hide-sm" href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php esc_html_e( 'Book a service', 'brightnest' ); ?></a>
 			<button class="bn-nav-toggle" type="button" aria-controls="bn-nav" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open menu', 'brightnest' ); ?>">
 				<span class="bn-open"><?php echo brightnest_icon( 'menu', 24 ); // phpcs:ignore ?></span>

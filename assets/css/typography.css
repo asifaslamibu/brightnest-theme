@@ -1,0 +1,52 @@
+/* ==========================================================================
+   Typography — Justlife-style type system, loaded last on every page.
+   Hanken Grotesk (HK Grotesk) in two weights only: 400 and 700.
+   Body 16/24 · H1 44 · H2 30 · H3 22/18 · small 13 · buttons 16 bold, capitalised.
+   ========================================================================== */
+
+body {
+	font-size: 16px;
+	line-height: 1.5;
+	font-weight: 400;
+	letter-spacing: .01em;
+}
+
+h1, h2, h3, h4, h5, h6 { font-weight: 700; letter-spacing: normal; }
+h1 { line-height: 1.4; }
+h2 { line-height: 1.34; }
+h3, h4 { line-height: 1.4; }
+
+/* Page titles: 44px like the Justlife hero. */
+.bn-page-hero h1, .bn-sv-hero h1, .bn-ar-hero h1, .bn-404 h1 { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.3; }
+
+/* Checkout title is compact on Justlife (≈24px). */
+.bn-co-title { font-size: clamp(20px, 2.2vw, 24px); line-height: 1.35; }
+
+/* Section headings: 30px. */
+.bn-h2, .bn-sv-h2, .bn-jx-head h2, .bn-pm-h2, .bn-section-head .bn-h2,
+.bn-sv-cta h2, .bn-jx-app h2 { font-size: clamp(24px, 2.6vw, 30px); line-height: 1.34; }
+
+/* Card / sub-headings: 22px and 18px. */
+.bn-h3, .bn-co-q, .bn-sv-book-head strong { line-height: 1.35; }
+.bn-sc-body h3, .bn-jx-reason-grid h3, .bn-co-item h3, .bn-card-title { font-size: 18px; }
+
+/* Lead paragraphs: 18px, like Justlife's intro lines. */
+.bn-lead, .bn-sv-lead, .bn-jx-head p { font-size: 18px; line-height: 1.55; }
+
+/* Small text: 13px. */
+small, .bn-muted small, .bn-form-note, .bn-co-err, .bn-sc-foot small, .bn-breadcrumbs { font-size: 13px; }
+
+/* Buttons: 16px, bold, every word capitalised. */
+.bn-btn, .bn-co-next, .bn-co-add, .bn-svc-book, .bn-jx-here, .bn-sv-subnav-cta, button.bn-btn {
+	font-size: 16px; font-weight: 700; letter-spacing: normal; text-transform: capitalize;
+}
+.bn-btn-sm { font-size: 14px; }
+
+/* Form fields: 16px regular (also stops iOS zooming into inputs). */
+input:not([type=checkbox]):not([type=radio]), select, textarea {
+	font-size: 16px !important; font-weight: 400; letter-spacing: .006em;
+}
+
+/* Menu and footer links stay regular weight, as on Justlife. */
+.bn-menu a, .bn-footer a, .bn-jx-tile-name, .bn-topbar a { font-weight: 400; }
+.bn-menu .current-menu-item > a { font-weight: 700; }

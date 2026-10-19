@@ -3,22 +3,25 @@
    ========================================================================== */
 
 :root {
-	--bn-primary: #0f5bd8;
-	--bn-primary-dark: #0a3f9e;
-	--bn-primary-soft: #e8f0ff;
-	--bn-accent: #12b886;
+	--bn-primary: #262d72;
+	--bn-brand: #f25c05;
+	--bn-primary-dark: #1a1f55;
+	--bn-primary-soft: #eceefa;
+	--bn-accent: #10b981;
+	--bn-cta: #cf4a00;
+	--bn-cta-dark: #b33f00;
 	--bn-amber: #f5a524;
-	--bn-ink: #0f172a;
+	--bn-ink: #1c2156;
 	--bn-text: #334155;
 	--bn-muted: #64748b;
 	--bn-line: #e5e9f2;
-	--bn-soft: #f5f8fc;
+	--bn-soft: #f6f8fa;
 	--bn-white: #fff;
 	--bn-radius: 16px;
 	--bn-radius-sm: 10px;
 	--bn-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);
 	--bn-shadow-lg: 0 20px 50px rgba(15, 23, 42, .12);
-	--bn-font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--bn-font: "Hanken Grotesk", "HK Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 	--bn-container: 1200px;
 }
 
@@ -39,10 +42,10 @@ body {
 img { max-width: 100%; height: auto; display: block; }
 a { color: var(--bn-primary); text-decoration: none; }
 a:hover { color: var(--bn-primary-dark); }
-h1, h2, h3, h4 { color: var(--bn-ink); line-height: 1.2; margin: 0 0 .5em; font-weight: 800; letter-spacing: -.02em; }
+h1, h2, h3, h4 { color: var(--bn-ink); line-height: 1.2; margin: 0 0 .5em; font-weight: 700; letter-spacing: normal; }
 p { margin: 0 0 1em; }
 button, input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: 3px solid rgba(15, 91, 216, .45); outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 3px solid rgba(38, 45, 114, .45); outline-offset: 2px; border-radius: 6px; }
 
 .screen-reader-text {
 	position: absolute !important; width: 1px; height: 1px; overflow: hidden;
@@ -65,8 +68,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 	white-space: nowrap;
 }
 .bn-btn:hover { transform: translateY(-1px); }
-.bn-btn-primary { background: var(--bn-primary); color: #fff; box-shadow: 0 6px 16px rgba(15, 91, 216, .25); }
-.bn-btn-primary:hover { background: var(--bn-primary-dark); color: #fff; }
+.bn-btn-primary { background: linear-gradient(180deg, #e2560a, var(--bn-cta)); color: #fff; box-shadow: 0 6px 16px rgba(207, 74, 0, .25); }
+.bn-btn-primary:hover { background: var(--bn-cta-dark); color: #fff; }
 .bn-btn-ghost { background: #fff; color: var(--bn-ink); border-color: var(--bn-line); }
 .bn-btn-ghost:hover { border-color: var(--bn-primary); color: var(--bn-primary); }
 .bn-btn-light { background: #fff; color: var(--bn-primary-dark); }
@@ -96,11 +99,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bn-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 74px; }
 
 .bn-logo img { max-height: 48px; width: auto; }
-.bn-logo-text { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: var(--bn-ink); letter-spacing: -.02em; }
+.bn-logo-text { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: var(--bn-ink); letter-spacing: normal; }
 .bn-logo-text:hover { color: var(--bn-ink); }
 .bn-logo-mark {
 	width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; color: #fff;
-	background: linear-gradient(135deg, var(--bn-primary), var(--bn-accent));
+	background: var(--bn-brand);
 }
 .bn-logo-light, .bn-logo-light:hover { color: #fff; }
 
@@ -200,12 +203,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bn-h3 { font-size: 22px; }
 
 /* Tones ------------------------------------------------------------------ */
-.bn-tone-blue   { background: linear-gradient(135deg, #e0ecff, #f1f6ff); color: #1d4ed8; }
-.bn-tone-teal   { background: linear-gradient(135deg, #d5f5ee, #effcf8); color: #0f8f6a; }
-.bn-tone-amber  { background: linear-gradient(135deg, #fff0d6, #fff8eb); color: #c07a06; }
-.bn-tone-violet { background: linear-gradient(135deg, #ece6ff, #f6f3ff); color: #6d42d9; }
-.bn-tone-rose   { background: linear-gradient(135deg, #ffe2e8, #fff3f5); color: #d03463; }
-.bn-tone-green  { background: linear-gradient(135deg, #e0f7d9, #f3fcf0); color: #3c8f1f; }
 .bn-hero-tile span { color: var(--bn-ink); }
 
 /* Category grid ---------------------------------------------------------- */
@@ -437,7 +434,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* 404 -------------------------------------------------------------------- */
 .bn-404 { text-align: center; }
 .bn-404-code {
-	font-size: clamp(90px, 18vw, 160px); font-weight: 800; line-height: 1; letter-spacing: -.05em;
+	font-size: clamp(90px, 18vw, 160px); font-weight: 800; line-height: 1; letter-spacing: normal;
 	background: linear-gradient(135deg, var(--bn-primary), var(--bn-accent)); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .bn-404 .bn-lead { margin: 0 auto 28px; }
@@ -569,4 +566,27 @@ button, input, select, textarea { font: inherit; color: inherit; }
 	.bn-cta { padding: 28px 22px; border-radius: 20px; }
 	.bn-cta-actions, .bn-cta-actions .bn-btn { width: 100%; }
 	.bn-footer-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+.bn-legal-note { padding: 12px 16px; border-radius: 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 14px; }
+
+/* Alert dialog (e.g. "We do not currently operate in this area.") */
+.bn-alert { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 20px; background: rgba(15, 23, 42, .55); }
+.bn-alert-box { width: min(380px, 100%); padding: 28px 24px 22px; border-radius: 20px; background: #fff; text-align: center; box-shadow: var(--bn-shadow-lg); animation: bn-alert-in .18s ease-out; }
+.bn-alert-box h2 { margin: 0 0 8px; font-size: 20px; color: #b91c1c; }
+.bn-alert-box p { margin: 0 0 20px; color: var(--bn-text); }
+.bn-alert-box .bn-btn { width: 100%; justify-content: center; }
+@keyframes bn-alert-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+
+/* Responsive safety net: content never pushes the page wider than the screen. */
+html, body { max-width: 100%; overflow-x: clip; }
+.bn-prose, .bn-prose * , h1, h2, h3, .bn-sc h3, .bn-card h3 { overflow-wrap: anywhere; }
+.bn-prose img, .bn-prose iframe, .bn-prose video, .bn-prose embed { max-width: 100%; height: auto; }
+.bn-prose table { display: block; max-width: 100%; overflow-x: auto; }
+.bn-prose pre { max-width: 100%; overflow-x: auto; }
+input, select, textarea, button { max-width: 100%; }
+
+/* Image-less cards: one calm, on-brand placeholder (no rainbow gradients). */
+.bn-tone-blue, .bn-tone-teal, .bn-tone-amber, .bn-tone-violet, .bn-tone-rose, .bn-tone-green {
+	background: #f1f2f6; color: var(--bn-primary);
 }

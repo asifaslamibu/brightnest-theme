@@ -33,6 +33,7 @@ if ( ! $bn_ok ) :
 endif;
 
 $bn_groups  = brightnest_service_options( $bn_sid );
+$bn_hourly  = brightnest_hourly_config( $bn_sid );
 $bn_rating  = get_post_meta( $bn_sid, '_bn_rating', true );
 $bn_reviews = get_post_meta( $bn_sid, '_bn_review_count', true );
 $bn_cur     = brightnest_opt( 'currency' );
@@ -42,31 +43,120 @@ $bn_price   = function ( $n ) {
 ?>
 
 <div class="bn-co" data-checkout>
+	<?php $bn_has_search = ! $bn_hourly && count( brightnest_service_items( $bn_sid ) ) > 10; ?>
+	<?php // Like Justlife: step line, title and rating sit above the cards. ?>
+	<div class="bn-container bn-co-top">
+		<div class="bn-co-stepline">
+			<button type="button" class="bn-co-back" data-back aria-label="<?php esc_attr_e( 'Back', 'brightnest' ); ?>"><?php echo brightnest_icon( 'arrow-left', 22 ); // phpcs:ignore ?></button>
+			<span class="bn-co-stepnum"><?php esc_html_e( 'Step', 'brightnest' ); ?> <span data-step-num>1</span> <?php esc_html_e( 'of', 'brightnest' ); ?> 4</span>
+			<span class="bn-co-steptitle" data-step-title></span>
+		</div>
+		<div class="bn-co-progress" aria-hidden="true" hidden><span data-progress></span></div>
+		<div class="bn-co-titlerow">
+			<h1 class="bn-co-title"><?php echo esc_html( get_the_title( $bn_sid ) ); ?></h1>
+			<?php if ( $bn_has_search ) : ?>
+				<button type="button" class="bn-co-searchbtn" data-search-open aria-label="<?php esc_attr_e( 'Search options', 'brightnest' ); ?>"><?php echo brightnest_icon( 'search', 20 ); // phpcs:ignore ?></button>
+			<?php endif; ?>
+		</div>
+		<?php if ( '' !== $bn_rating ) : ?>
+			<p class="bn-co-rating"><?php echo brightnest_icon( 'star', 15 ); // phpcs:ignore ?> <strong><?php echo esc_html( number_format_i18n( (float) $bn_rating, 2 ) ); ?></strong>
+				<?php if ( $bn_reviews ) : ?><span>(<?php echo esc_html( number_format_i18n( (int) $bn_reviews ) ); ?> <?php esc_html_e( 'bookings', 'brightnest' ); ?>)</span><?php endif; ?>
+			</p>
+		<?php endif; ?>
+		<?php $bn_areas = brightnest_service_areas( $bn_sid ); ?>
+		<?php // The area (and so the prices) comes from the customer's location. ?>
+		<button type="button" class="bn-co-locpill" data-loc-open>
+			<span class="bn-co-locpill-ic"><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?></span>
+			<span class="bn-co-locpill-text">
+				<strong data-loc-label data-empty="<?php esc_attr_e( 'Set your location to see prices', 'brightnest' ); ?>"><?php esc_html_e( 'Set your location to see prices', 'brightnest' ); ?></strong>
+				<small>· <b data-co-area-name></b></small>
+			</span>
+			<span class="bn-co-locpill-change"><?php esc_html_e( 'Change', 'brightnest' ); ?></span>
+		</button>
+		<div class="bn-co-area" hidden>
+			<label for="bn-co-area"><?php esc_html_e( 'Service area', 'brightnest' ); ?></label>
+			<select id="bn-co-area" data-area>
+				<?php foreach ( $bn_areas as $bn_city => $bn_ar ) : ?>
+					<option value="<?php echo esc_attr( $bn_city ); ?>"><?php echo esc_html( $bn_city . ( $bn_ar['on'] ? '' : ' (' . __( 'not available', 'brightnest' ) . ')' ) ); ?></option>
+				<?php endforeach; ?>
+			</select>
+		</div>
+		<p class="bn-co-unavail" data-area-off role="alert" hidden></p>
+	</div>
+
 	<div class="bn-container bn-co-grid">
 
 		<div class="bn-co-main">
-			<div class="bn-co-head">
-				<div class="bn-co-stepline">
-					<button type="button" class="bn-co-back" data-back aria-label="<?php esc_attr_e( 'Back', 'brightnest' ); ?>"><?php echo brightnest_icon( 'arrow-left', 22 ); // phpcs:ignore ?></button>
-					<span class="bn-co-stepnum"><?php esc_html_e( 'Step', 'brightnest' ); ?> <span data-step-num>1</span> <?php esc_html_e( 'of', 'brightnest' ); ?> 4</span>
-					<span class="bn-co-steptitle" data-step-title></span>
-				</div>
-				<div class="bn-co-progress" aria-hidden="true"><span data-progress></span></div>
-				<h1 class="bn-co-title"><?php echo esc_html( get_the_title( $bn_sid ) ); ?></h1>
-				<?php if ( '' !== $bn_rating ) : ?>
-					<p class="bn-co-rating"><?php echo brightnest_icon( 'star', 15 ); // phpcs:ignore ?> <strong><?php echo esc_html( number_format_i18n( (float) $bn_rating, 2 ) ); ?></strong>
-						<?php if ( $bn_reviews ) : ?><span class="bn-muted">(<?php echo esc_html( number_format_i18n( (int) $bn_reviews ) ); ?> <?php esc_html_e( 'bookings', 'brightnest' ); ?>)</span><?php endif; ?>
-					</p>
-				<?php endif; ?>
-			</div>
 
 			<!-- STEP 1: options -->
 			<section class="bn-co-step" data-step="1" aria-label="<?php esc_attr_e( 'Select options', 'brightnest' ); ?>">
+				<?php $bn_freqs = brightnest_service_frequencies( $bn_sid ); ?>
+				<?php if ( $bn_freqs ) : ?>
+					<div class="bn-co-block">
+						<h2 class="bn-co-q"><?php esc_html_e( 'How often do you need your professional?', 'brightnest' ); ?></h2>
+						<div class="bn-co-seg" data-freq role="radiogroup" aria-label="<?php esc_attr_e( 'Frequency', 'brightnest' ); ?>">
+							<?php foreach ( $bn_freqs as $bn_fi => $bn_fr ) : ?>
+								<button type="button" class="bn-co-choice <?php echo 0 === $bn_fi ? 'is-active' : ''; ?>" data-value="<?php echo esc_attr( $bn_fr[0] ); ?>"><?php echo esc_html( $bn_fr[0] ); ?>
+									<?php if ( $bn_fr[1] > 0 ) : ?><small class="bn-co-save"><?php echo esc_html( sprintf( /* translators: %s: percent */ __( 'Save %s%%', 'brightnest' ), $bn_price( $bn_fr[1] ) ) ); ?></small><?php endif; ?>
+								</button>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				<?php endif; ?>
+				<?php if ( $bn_hourly ) : ?>
+					<div class="bn-co-block">
+						<h2 class="bn-co-q"><?php echo esc_html( $bn_hourly['q_hours'] ); ?></h2>
+						<div class="bn-co-pills" data-hourly="hours">
+							<?php foreach ( $bn_hourly['hours'] as $bn_h ) : ?><button type="button" class="bn-co-pill" data-value="<?php echo esc_attr( $bn_h ); ?>"><?php echo esc_html( $bn_h ); ?></button><?php endforeach; ?>
+						</div>
+					</div>
+					<div class="bn-co-block">
+						<h2 class="bn-co-q"><?php echo esc_html( $bn_hourly['q_pros'] ); ?></h2>
+						<div class="bn-co-pills" data-hourly="pros">
+							<?php foreach ( $bn_hourly['pros'] as $bn_p ) : ?><button type="button" class="bn-co-pill" data-value="<?php echo esc_attr( $bn_p ); ?>"><?php echo esc_html( $bn_p ); ?></button><?php endforeach; ?>
+						</div>
+					</div>
+					<?php if ( $bn_hourly['mat_on'] ) : ?>
+						<div class="bn-co-block">
+							<h2 class="bn-co-q"><?php echo esc_html( $bn_hourly['q_mat'] ); ?></h2>
+							<div class="bn-co-pills bn-co-pills-wide" data-hourly="materials">
+								<button type="button" class="bn-co-pill" data-value="0"><?php esc_html_e( 'No, I have them', 'brightnest' ); ?></button>
+								<button type="button" class="bn-co-pill" data-value="1"><?php esc_html_e( 'Yes, please', 'brightnest' ); ?>
+									<?php if ( $bn_hourly['materials'] > 0 ) : ?><small>+<span data-money="<?php echo esc_attr( $bn_hourly['materials'] ); ?>" data-hourly-mat><?php echo esc_html( $bn_cur . ' ' . $bn_price( $bn_hourly['materials'] ) ); ?></span>/<?php esc_html_e( 'hr', 'brightnest' ); ?></small><?php endif; ?></button>
+							</div>
+						</div>
+					<?php endif; ?>
+					<?php $bn_guide = brightnest_service_guide( $bn_sid ); ?>
+					<?php if ( $bn_guide ) : ?>
+						<details class="bn-co-guide">
+							<summary><?php esc_html_e( 'How long should I book for?', 'brightnest' ); ?></summary>
+							<table>
+								<thead><tr><th><?php esc_html_e( 'Home size', 'brightnest' ); ?></th><th><?php esc_html_e( 'Suggested duration', 'brightnest' ); ?></th></tr></thead>
+								<tbody>
+									<?php foreach ( $bn_guide as $bn_gr ) : ?><tr><td><?php echo esc_html( $bn_gr[0] ); ?></td><td><?php echo esc_html( $bn_gr[1] ); ?></td></tr><?php endforeach; ?>
+								</tbody>
+							</table>
+						</details>
+					<?php endif; ?>
+				<?php else : ?>
+				<?php if ( $bn_has_search ) : ?>
+					<div class="bn-co-search" data-search-box hidden>
+						<?php echo brightnest_icon( 'search', 18 ); // phpcs:ignore ?>
+						<input type="search" data-opt-search placeholder="<?php esc_attr_e( 'Search options, e.g. manicure', 'brightnest' ); ?>" aria-label="<?php esc_attr_e( 'Search options', 'brightnest' ); ?>">
+					</div>
+					<p class="bn-co-noresult" data-opt-none hidden><?php esc_html_e( 'No options match your search.', 'brightnest' ); ?></p>
+				<?php endif; ?>
+				<?php $bn_thumb = get_the_post_thumbnail_url( $bn_sid, 'medium' ); ?>
 				<?php if ( count( $bn_groups ) > 1 ) : ?>
 					<nav class="bn-co-tabs" data-tabs aria-label="<?php esc_attr_e( 'Categories', 'brightnest' ); ?>">
 						<?php foreach ( $bn_groups as $bn_gi => $bn_g ) : ?>
 							<a href="#bn-group-<?php echo esc_attr( $bn_gi ); ?>" class="bn-co-tab <?php echo 0 === $bn_gi ? 'is-active' : ''; ?>" data-tab="<?php echo esc_attr( $bn_gi ); ?>">
-								<span class="bn-co-tab-icon bn-tone-<?php echo esc_attr( brightnest_tone( $bn_g['name'] ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $bn_sid ), 26 ); // phpcs:ignore ?></span>
+								<?php $bn_timg = ! empty( $bn_g['img'] ) ? $bn_g['img'] : $bn_thumb; ?>
+								<?php if ( $bn_timg ) : ?>
+									<span class="bn-co-tab-icon"><img src="<?php echo esc_url( $bn_timg ); ?>" alt="" loading="lazy"></span>
+								<?php else : ?>
+									<span class="bn-co-tab-icon bn-tone-<?php echo esc_attr( brightnest_tone( $bn_g['name'] ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $bn_sid ), 26 ); // phpcs:ignore ?></span>
+								<?php endif; ?>
 								<span><?php echo esc_html( $bn_g['name'] ); ?></span>
 							</a>
 						<?php endforeach; ?>
@@ -78,14 +168,19 @@ $bn_price   = function ( $n ) {
 						<h2 class="bn-co-group-title"><?php echo esc_html( $bn_g['name'] ); ?></h2>
 						<?php foreach ( $bn_g['items'] as $bn_item ) : ?>
 							<div class="bn-co-item" data-item="<?php echo esc_attr( $bn_item['id'] ); ?>">
-								<span class="bn-co-item-thumb bn-tone-<?php echo esc_attr( brightnest_tone( $bn_item['name'] ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $bn_sid ), 30 ); // phpcs:ignore ?></span>
+								<?php $bn_iimg = $bn_item['img'] ? $bn_item['img'] : $bn_thumb; ?>
+								<?php if ( $bn_iimg ) : ?>
+									<span class="bn-co-item-thumb"><img src="<?php echo esc_url( $bn_iimg ); ?>" alt="" loading="lazy"></span>
+								<?php else : ?>
+									<span class="bn-co-item-thumb bn-tone-<?php echo esc_attr( brightnest_tone( $bn_item['name'] ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $bn_sid ), 30 ); // phpcs:ignore ?></span>
+								<?php endif; ?>
 								<div class="bn-co-item-body">
-									<h3><?php echo esc_html( $bn_item['name'] ); ?></h3>
+									<h3><span class="bn-co-item-x" data-qty-x></span><?php echo esc_html( $bn_item['name'] ); ?></h3>
 									<?php if ( $bn_item['desc'] ) : ?><p><?php echo esc_html( $bn_item['desc'] ); ?></p><?php endif; ?>
 									<div class="bn-co-item-foot">
 										<span class="bn-co-item-price">
-											<strong><?php echo esc_html( $bn_cur . ' ' . $bn_price( $bn_item['price'] ) ); ?></strong>
-											<?php if ( $bn_item['old'] ) : ?><del><?php echo esc_html( $bn_cur . ' ' . $bn_price( $bn_item['old'] ) ); ?></del><?php endif; ?>
+											<strong data-money="<?php echo esc_attr( $bn_item['price'] ); ?>" data-key="<?php echo esc_attr( $bn_item['key'] ); ?>"><?php echo esc_html( $bn_cur . ' ' . $bn_price( $bn_item['price'] ) ); ?></strong>
+											<?php if ( $bn_item['old'] ) : ?><del data-money="<?php echo esc_attr( $bn_item['old'] ); ?>" data-old-of="<?php echo esc_attr( $bn_item['key'] ); ?>"><?php echo esc_html( $bn_cur . ' ' . $bn_price( $bn_item['old'] ) ); ?></del><?php endif; ?>
 										</span>
 										<span class="bn-co-qty" data-qty-wrap>
 											<button type="button" class="bn-co-add" data-add><?php esc_html_e( 'Add', 'brightnest' ); ?> <span aria-hidden="true">+</span></button>
@@ -101,112 +196,127 @@ $bn_price   = function ( $n ) {
 						<?php endforeach; ?>
 					</div>
 				<?php endforeach; ?>
+				<?php endif; ?>
+				<div class="bn-co-block">
+					<h2 class="bn-co-q"><?php esc_html_e( 'Any instructions or special requirements?', 'brightnest' ); ?></h2>
+					<textarea id="bn-co-notes" class="bn-co-input" rows="3" data-field="message" placeholder="<?php esc_attr_e( 'Example: key under the mat, ironing, cleaning fridge, etc.', 'brightnest' ); ?>" aria-label="<?php esc_attr_e( 'Instructions', 'brightnest' ); ?>"></textarea>
+				</div>
 			</section>
 
 			<!-- STEP 2: date & time -->
 			<section class="bn-co-step" data-step="2" hidden aria-label="<?php esc_attr_e( 'Date and time', 'brightnest' ); ?>">
 				<div class="bn-co-block">
-					<h2 class="bn-co-q"><?php esc_html_e( 'How often do you need this service?', 'brightnest' ); ?></h2>
-					<div class="bn-co-choices" data-freq>
-						<button type="button" class="bn-co-choice is-active" data-value="One Time"><strong><?php esc_html_e( 'One Time', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Book a single visit', 'brightnest' ); ?></small></button>
-						<button type="button" class="bn-co-choice" data-value="Weekly"><strong><?php esc_html_e( 'Weekly', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Same pro every week', 'brightnest' ); ?></small></button>
-						<button type="button" class="bn-co-choice" data-value="Every 2 Weeks"><strong><?php esc_html_e( 'Every 2 Weeks', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Twice a month', 'brightnest' ); ?></small></button>
-					</div>
-				</div>
-				<div class="bn-co-block">
 					<h2 class="bn-co-q"><?php esc_html_e( 'When would you like your service?', 'brightnest' ); ?></h2>
 					<div class="bn-co-days" data-days></div>
 				</div>
-				<div class="bn-co-block">
+				<div class="bn-co-block" data-times-block>
 					<h2 class="bn-co-q"><?php esc_html_e( 'What time would you like us to arrive?', 'brightnest' ); ?></h2>
-					<div class="bn-co-times" data-times></div>
-				</div>
-				<div class="bn-co-block">
-					<label class="bn-co-q" for="bn-co-notes"><?php esc_html_e( 'Any instructions or special requirements?', 'brightnest' ); ?></label>
-					<textarea id="bn-co-notes" class="bn-co-input" rows="3" data-field="message" placeholder="<?php esc_attr_e( 'E.g. key under the mat, please call on arrival', 'brightnest' ); ?>"></textarea>
+					<div data-times></div>
+					<p class="bn-co-err" data-err="time" role="alert"></p>
 				</div>
 			</section>
 
-			<!-- STEP 3: address & contact -->
-			<section class="bn-co-step" data-step="3" hidden aria-label="<?php esc_attr_e( 'Address and contact', 'brightnest' ); ?>">
+			<!-- STEP 3: address -->
+			<section class="bn-co-step" data-step="3" hidden aria-label="<?php esc_attr_e( 'Address', 'brightnest' ); ?>">
 				<div class="bn-co-block">
 					<h2 class="bn-co-q"><?php esc_html_e( 'Where do you need the service?', 'brightnest' ); ?></h2>
-					<button type="button" class="bn-co-addr-card" data-open-map>
-						<span class="bn-feature-icon"><?php echo brightnest_icon( 'pin', 22 ); // phpcs:ignore ?></span>
-						<span><strong data-addr-label><?php esc_html_e( 'Pin your location on the map', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Tap to change location', 'brightnest' ); ?></small></span>
-						<?php echo brightnest_icon( 'arrow-right', 18 ); // phpcs:ignore ?>
+					<button type="button" class="bn-co-pin" data-open-map>
+						<?php echo brightnest_icon( 'pin', 18 ); // phpcs:ignore ?>
+						<span data-addr-label><?php esc_html_e( 'Pin your location on the map', 'brightnest' ); ?></span>
 					</button>
+				</div>
+				<div class="bn-co-block">
+					<?php $bn_cities = brightnest_cities(); ?>
+					<?php if ( count( $bn_cities ) > 1 ) : ?>
+						<h3 class="bn-co-label"><?php esc_html_e( 'City', 'brightnest' ); ?></h3>
+						<div class="bn-co-seg bn-co-cities" data-cities role="radiogroup" aria-label="<?php esc_attr_e( 'City', 'brightnest' ); ?>">
+							<?php foreach ( $bn_cities as $bn_city ) : ?>
+								<button type="button" class="bn-co-choice" data-value="<?php echo esc_attr( $bn_city ); ?>"><?php echo esc_html( $bn_city ); ?></button>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+					<div class="bn-field" data-wrap="street">
+						<label for="bn-co-street"><?php esc_html_e( 'Area / Street', 'brightnest' ); ?></label>
+						<input id="bn-co-street" class="bn-co-input" data-field="street" autocomplete="address-line1" placeholder="<?php esc_attr_e( 'e.g. Dubai Marina, Al Marsa Street', 'brightnest' ); ?>">
+						<p class="bn-co-err" data-err="street"></p>
+					</div>
 					<div class="bn-co-fields">
-						<div class="bn-field">
-							<label for="bn-co-city"><?php esc_html_e( 'City', 'brightnest' ); ?> *</label>
-							<select id="bn-co-city" class="bn-co-input" data-field="area">
-								<?php foreach ( brightnest_cities() as $bn_city ) : ?><option><?php echo esc_html( $bn_city ); ?></option><?php endforeach; ?>
-							</select>
+						<div class="bn-field" data-wrap="building">
+							<label for="bn-co-building"><?php esc_html_e( 'Building / Villa name', 'brightnest' ); ?></label>
+							<input id="bn-co-building" class="bn-co-input" data-field="building" autocomplete="address-line2" placeholder="<?php esc_attr_e( 'e.g. Marina Heights', 'brightnest' ); ?>">
+							<p class="bn-co-err" data-err="building"></p>
 						</div>
-						<div class="bn-field">
-							<label for="bn-co-street"><?php esc_html_e( 'Area / Street', 'brightnest' ); ?> *</label>
-							<input id="bn-co-street" class="bn-co-input" data-field="street" autocomplete="address-line1">
-						</div>
-						<div class="bn-field">
-							<label for="bn-co-building"><?php esc_html_e( 'Building / Villa name', 'brightnest' ); ?> *</label>
-							<input id="bn-co-building" class="bn-co-input" data-field="building">
-						</div>
-						<div class="bn-field">
-							<label for="bn-co-apt"><?php esc_html_e( 'Apartment / Villa no.', 'brightnest' ); ?></label>
-							<input id="bn-co-apt" class="bn-co-input" data-field="apartment" autocomplete="address-line2">
+						<div class="bn-field" data-wrap="apartment">
+							<label for="bn-co-apartment"><?php esc_html_e( 'Apartment / Villa no.', 'brightnest' ); ?></label>
+							<input id="bn-co-apartment" class="bn-co-input" data-field="apartment" placeholder="<?php esc_attr_e( 'e.g. 1204', 'brightnest' ); ?>">
+							<p class="bn-co-err" data-err="apartment"></p>
 						</div>
 					</div>
 				</div>
+			</section>
+
+			<!-- STEP 4: payment -->
+			<section class="bn-co-step" data-step="4" hidden aria-label="<?php esc_attr_e( 'Payment', 'brightnest' ); ?>">
+				<div class="bn-co-recap" data-recap></div>
+
 				<div class="bn-co-block">
 					<h2 class="bn-co-q"><?php esc_html_e( 'Your contact details', 'brightnest' ); ?></h2>
 					<div class="bn-co-fields">
-						<div class="bn-field">
-							<label for="bn-co-name"><?php esc_html_e( 'Full name', 'brightnest' ); ?> *</label>
+						<div class="bn-field" data-wrap="name">
+							<label for="bn-co-name"><?php esc_html_e( 'Full name', 'brightnest' ); ?></label>
 							<input id="bn-co-name" class="bn-co-input" data-field="name" autocomplete="name">
+							<p class="bn-co-err" data-err="name"></p>
 						</div>
-						<div class="bn-field">
-							<label for="bn-co-phone"><?php esc_html_e( 'Mobile number', 'brightnest' ); ?> *</label>
-							<input id="bn-co-phone" type="tel" class="bn-co-input" data-field="phone" autocomplete="tel" placeholder="+971 5X XXX XXXX">
-						</div>
-						<div class="bn-field bn-co-span2">
-							<label for="bn-co-email"><?php esc_html_e( 'Email (for booking confirmation)', 'brightnest' ); ?></label>
-							<input id="bn-co-email" type="email" class="bn-co-input" data-field="email" autocomplete="email">
+						<div class="bn-field" data-wrap="phone">
+							<label for="bn-co-phone"><?php esc_html_e( 'Mobile number', 'brightnest' ); ?></label>
+							<input id="bn-co-phone" type="tel" inputmode="tel" class="bn-co-input" data-field="phone" autocomplete="tel" placeholder="+971 5X XXX XXXX">
+							<p class="bn-co-err" data-err="phone"></p>
 						</div>
 					</div>
+					<div class="bn-field" data-wrap="email">
+						<label for="bn-co-email"><?php esc_html_e( 'Email (for your receipt)', 'brightnest' ); ?></label>
+						<input id="bn-co-email" type="email" class="bn-co-input" data-field="email" autocomplete="email" placeholder="you@example.com">
+						<p class="bn-co-err" data-err="email"></p>
+					</div>
 				</div>
-			</section>
 
-			<!-- STEP 4: review & payment -->
-			<section class="bn-co-step" data-step="4" hidden aria-label="<?php esc_attr_e( 'Review and pay', 'brightnest' ); ?>">
-				<div class="bn-co-block">
-					<h2 class="bn-co-q"><?php esc_html_e( 'Review your booking', 'brightnest' ); ?></h2>
-					<dl class="bn-co-review" data-review></dl>
-				</div>
 				<div class="bn-co-block">
 					<h2 class="bn-co-q"><?php esc_html_e( 'Payment method', 'brightnest' ); ?></h2>
 					<div class="bn-co-pay" data-pay>
-						<label class="bn-co-radio"><input type="radio" name="bn_pay" value="Cash after service" checked> <span><strong><?php esc_html_e( 'Cash after service', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Pay the professional once the job is done', 'brightnest' ); ?></small></span></label>
-						<label class="bn-co-radio"><input type="radio" name="bn_pay" value="Card on arrival"> <span><strong><?php esc_html_e( 'Card on arrival', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Debit / credit card via payment link or machine', 'brightnest' ); ?></small></span></label>
+						<?php $bn_pi = 0; ?>
+						<?php foreach ( brightnest_payment_methods() as $bn_pv => $bn_pm ) : ?>
+							<label class="bn-co-radio"><input type="radio" name="bn_pay" value="<?php echo esc_attr( $bn_pv ); ?>" <?php checked( 0, $bn_pi ); ?>> <span><strong><?php echo esc_html( $bn_pm[0] ); ?></strong><small><?php echo esc_html( $bn_pm[1] ); ?></small></span></label>
+							<?php $bn_pi++; ?>
+						<?php endforeach; ?>
 					</div>
+					<details class="bn-co-more" data-voucher-box>
+						<summary><?php esc_html_e( 'Have a voucher code?', 'brightnest' ); ?></summary>
+						<div class="bn-co-voucher">
+							<input class="bn-co-input" data-voucher-input placeholder="<?php esc_attr_e( 'Enter code', 'brightnest' ); ?>" aria-label="<?php esc_attr_e( 'Voucher code', 'brightnest' ); ?>">
+							<button type="button" class="bn-btn bn-btn-ghost" data-voucher-apply><?php esc_html_e( 'Apply', 'brightnest' ); ?></button>
+						</div>
+						<p class="bn-co-voucher-msg" data-voucher-msg role="status"></p>
+					</details>
 				</div>
-				<div class="bn-co-block">
-					<h2 class="bn-co-q"><?php esc_html_e( 'Voucher code', 'brightnest' ); ?></h2>
-					<div class="bn-co-voucher">
-						<input class="bn-co-input" data-voucher-input placeholder="<?php esc_attr_e( 'Enter code', 'brightnest' ); ?>" aria-label="<?php esc_attr_e( 'Voucher code', 'brightnest' ); ?>">
-						<button type="button" class="bn-btn bn-btn-ghost" data-voucher-apply><?php esc_html_e( 'Apply', 'brightnest' ); ?></button>
-					</div>
-					<p class="bn-co-voucher-msg" data-voucher-msg role="status"></p>
-				</div>
-				<label class="bn-co-terms"><input type="checkbox" data-terms> <span><?php esc_html_e( 'I agree to the terms & conditions and cancellation policy.', 'brightnest' ); ?></span></label>
+
+				<?php $bn_terms = get_page_by_path( 'terms' ); ?>
+				<p class="bn-co-agree"><?php echo brightnest_icon( 'shield', 16 ); // phpcs:ignore ?>
+					<span><?php echo esc_html( brightnest_opt( 'booking_note' ) ); ?>
+					<?php if ( $bn_terms ) : ?>
+						<?php esc_html_e( 'By booking you agree to our', 'brightnest' ); ?> <a href="<?php echo esc_url( get_permalink( $bn_terms ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'terms', 'brightnest' ); ?></a>.
+					<?php endif; ?></span>
+				</p>
 			</section>
 
 			<!-- DONE -->
 			<section class="bn-co-step bn-co-done" data-step="done" hidden>
 				<span class="bn-co-done-icon"><?php echo brightnest_icon( 'check', 40 ); // phpcs:ignore ?></span>
 				<h2><?php esc_html_e( 'Booking received!', 'brightnest' ); ?></h2>
-				<p><?php esc_html_e( 'Your booking reference is', 'brightnest' ); ?> <strong data-ref></strong>.</p>
-				<p class="bn-muted"><?php esc_html_e( 'Our team will call or WhatsApp you shortly to confirm the details.', 'brightnest' ); ?></p>
+				<p><?php esc_html_e( 'Your booking reference is', 'brightnest' ); ?> <strong data-ref></strong></p>
+				<dl class="bn-co-done-sum" data-done-sum></dl>
+				<p class="bn-muted"><?php esc_html_e( 'Our team will call or WhatsApp you shortly to confirm.', 'brightnest' ); ?></p>
 				<div class="bn-404-actions">
+					<a class="bn-btn bn-btn-wa" data-done-wa hidden target="_blank" rel="noopener"><?php echo brightnest_icon( 'whatsapp', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Send on WhatsApp', 'brightnest' ); ?></a>
 					<a class="bn-btn bn-btn-primary" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Back to home', 'brightnest' ); ?></a>
 					<a class="bn-btn bn-btn-ghost" href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php esc_html_e( 'Book another service', 'brightnest' ); ?></a>
 				</div>
@@ -220,10 +330,10 @@ $bn_price   = function ( $n ) {
 				<p class="bn-co-error" data-error role="alert"></p>
 				<div class="bn-co-bar-row">
 					<button type="button" class="bn-co-total-toggle" data-summary-toggle>
-						<small><?php esc_html_e( 'Total', 'brightnest' ); ?></small>
+						<small data-count-mini><?php esc_html_e( 'Total', 'brightnest' ); ?></small>
 						<strong data-total-mini><?php echo esc_html( $bn_cur ); ?> 0</strong>
 					</button>
-					<button type="button" class="bn-btn bn-btn-primary bn-co-next" data-next disabled><?php esc_html_e( 'Next', 'brightnest' ); ?></button>
+					<button type="button" class="bn-btn bn-btn-primary bn-co-next" data-next><?php esc_html_e( 'Continue', 'brightnest' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -232,34 +342,39 @@ $bn_price   = function ( $n ) {
 			<div class="bn-co-card">
 				<h2 class="bn-co-card-title"><?php esc_html_e( 'Booking Details', 'brightnest' ); ?></h2>
 				<dl class="bn-co-dl">
-					<dt><?php esc_html_e( 'Frequency', 'brightnest' ); ?></dt><dd data-sum="freq"><?php esc_html_e( 'One Time', 'brightnest' ); ?></dd>
+					<dt data-sum-row="addr" hidden><?php esc_html_e( 'Address', 'brightnest' ); ?></dt><dd data-sum="addr" hidden></dd>
+					<?php if ( $bn_freqs ) : ?>
+						<dt><?php esc_html_e( 'Frequency', 'brightnest' ); ?></dt><dd data-sum="freq"><?php echo esc_html( $bn_freqs[0][0] ); ?></dd>
+					<?php endif; ?>
 					<dt><?php esc_html_e( 'Service', 'brightnest' ); ?></dt><dd><?php echo esc_html( get_the_title( $bn_sid ) ); ?></dd>
 					<dt data-sum-row="date" hidden><?php esc_html_e( 'Date & Time', 'brightnest' ); ?></dt><dd data-sum="date" hidden></dd>
-					<dt data-sum-row="addr" hidden><?php esc_html_e( 'Address', 'brightnest' ); ?></dt><dd data-sum="addr" hidden></dd>
+					<dt data-lines hidden><?php esc_html_e( 'Service Details', 'brightnest' ); ?></dt><dd data-lines hidden><ul data-lines-list></ul></dd>
 				</dl>
-				<div class="bn-co-lines" data-lines hidden>
-					<h3><?php esc_html_e( 'Service Details', 'brightnest' ); ?></h3>
-					<ul data-lines-list></ul>
-				</div>
 			</div>
 			<div class="bn-co-card">
 				<h2 class="bn-co-card-title"><?php esc_html_e( 'Payment Summary', 'brightnest' ); ?></h2>
 				<dl class="bn-co-dl bn-co-money">
 					<dt><?php esc_html_e( 'Subtotal', 'brightnest' ); ?></dt><dd data-sum="sub"><?php echo esc_html( $bn_cur ); ?> 0.00</dd>
+					<dt data-sum-row="fdisc" hidden><?php esc_html_e( 'Frequency discount', 'brightnest' ); ?></dt><dd data-sum="fdisc" hidden class="bn-co-green"></dd>
 					<dt data-sum-row="disc" hidden><?php esc_html_e( 'Discount', 'brightnest' ); ?> <span data-sum="code"></span></dt><dd data-sum="disc" hidden class="bn-co-green"></dd>
-					<dt><?php esc_html_e( 'Service Fee', 'brightnest' ); ?></dt><dd class="bn-co-green"><?php esc_html_e( 'Free', 'brightnest' ); ?></dd>
+					<dt data-sum-row="afee" hidden><?php echo esc_html( brightnest_opt( 'area_fee_label' ) ); ?> <span data-sum="aname"></span></dt><dd data-sum="afee" hidden></dd>
+					<?php $bn_fee = brightnest_service_fee(); ?>
+					<dt><?php echo esc_html( brightnest_opt( 'service_fee_label' ) ); ?></dt>
+					<dd class="<?php echo $bn_fee ? '' : 'bn-co-green'; ?>"><?php echo $bn_fee ? esc_html( $bn_cur . ' ' . number_format_i18n( $bn_fee, 2 ) ) : esc_html__( 'Free', 'brightnest' ); ?></dd>
 					<dt class="bn-co-total"><?php esc_html_e( 'Total', 'brightnest' ); ?></dt><dd class="bn-co-total" data-sum="total"><?php echo esc_html( $bn_cur ); ?> 0.00</dd>
 				</dl>
 			</div>
-			<div class="bn-co-card bn-co-why">
-				<h2 class="bn-co-card-title"><?php echo esc_html( sprintf( /* translators: %s site */ __( 'Why choose %s?', 'brightnest' ), get_bloginfo( 'name' ) ) ); ?></h2>
-				<ul>
-					<li><?php echo brightnest_icon( 'shield', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Vetted, trained & insured professionals', 'brightnest' ); ?></li>
-					<li><?php echo brightnest_icon( 'tag', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Transparent pricing, no hidden fees', 'brightnest' ); ?></li>
-					<li><?php echo brightnest_icon( 'clock', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Flexible slots, 7 days a week', 'brightnest' ); ?></li>
-					<li><?php echo brightnest_icon( 'headset', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Friendly support by phone & WhatsApp', 'brightnest' ); ?></li>
-				</ul>
-			</div>
+			<?php $bn_why = array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) brightnest_opt( 'checkout_why' ) ) ) ); ?>
+			<?php if ( $bn_why ) : ?>
+				<div class="bn-co-card bn-co-why">
+					<h2 class="bn-co-card-title"><?php echo esc_html( sprintf( /* translators: %s site */ __( 'Why choose %s?', 'brightnest' ), get_bloginfo( 'name' ) ) ); ?></h2>
+					<ul>
+						<?php foreach ( $bn_why as $bn_wi => $bn_w ) : ?>
+							<li><?php echo brightnest_icon( array( 'shield', 'tag', 'clock', 'headset', 'check' )[ min( $bn_wi, 4 ) ], 18 ); // phpcs:ignore ?> <?php echo esc_html( $bn_w ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+			<?php endif; ?>
 		</aside>
 	</div>
 
@@ -273,8 +388,8 @@ $bn_price   = function ( $n ) {
 			<div class="bn-map-wrap">
 				<form class="bn-map-search" data-map-search>
 					<?php echo brightnest_icon( 'pin', 18 ); // phpcs:ignore ?>
-					<input type="search" data-map-query placeholder="<?php esc_attr_e( 'Search for area, street name, landmark…', 'brightnest' ); ?>" aria-label="<?php esc_attr_e( 'Search location', 'brightnest' ); ?>">
-					<button type="button" class="bn-map-locate" data-map-locate><?php esc_html_e( 'Set my location', 'brightnest' ); ?></button>
+					<input type="search" data-map-query placeholder="<?php esc_attr_e( 'Search area, street or building', 'brightnest' ); ?>" aria-label="<?php esc_attr_e( 'Search location', 'brightnest' ); ?>">
+					<button type="button" class="bn-map-locate" data-map-locate aria-label="<?php esc_attr_e( 'Use my current location', 'brightnest' ); ?>"><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?> <span class="bn-map-locate-text"><?php esc_html_e( 'Locate me', 'brightnest' ); ?></span></button>
 				</form>
 				<ul class="bn-map-results" data-map-results hidden></ul>
 				<div class="bn-map" data-map></div>
@@ -289,4 +404,6 @@ $bn_price   = function ( $n ) {
 </div>
 
 <?php
+get_template_part( 'template-parts/location-modal' );
+
 get_footer();

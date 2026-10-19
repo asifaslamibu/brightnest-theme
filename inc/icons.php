@@ -31,7 +31,10 @@ function brightnest_icon( $name, $size = 24 ) {
 		'maid'        => '<circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>',
 		'sofa'        => '<path d="M4 11V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 13a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 18v2M19 18v2"/>',
 		'water'       => '<path d="M12 2.7S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.7 12 2.7z"/>',
-		'search'      => '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+		'spa'         => '<path d="M12 21c-4.5 0-8-2.5-9-6 3 0 6 1 9 4 3-3 6-4 9-4-1 3.5-4.5 6-9 6z"/><path d="M12 19c-2-2-3-5-3-8 0-2.5 1.2-5 3-7 1.8 2 3 4.5 3 7 0 3-1 6-3 8z"/>',
+		'barber'      => '<circle cx="12" cy="7" r="4"/><path d="M8 7c0-2.5 1.8-4 4-4s4 1.5 4 4"/><path d="M9.5 10.5c.7.7 1.6 1 2.5 1s1.8-.3 2.5-1"/><path d="M5 21v-1a7 7 0 0 1 14 0v1"/><path d="M12 13v4"/>',
+		'flask'       => '<path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7 15h10"/><circle cx="10" cy="18" r=".6" fill="currentColor"/><circle cx="13.5" cy="17.5" r=".6" fill="currentColor"/>',
+		'search'      =>'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
 		'star'        => '<path d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" fill="currentColor" stroke="none"/>',
 		'check'       => '<path d="M20 6 9 17l-5-5"/>',
 		'check-circle'=> '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
@@ -56,6 +59,8 @@ function brightnest_icon( $name, $size = 24 ) {
 		'facebook'    => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
 		'instagram'   => '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>',
 		'twitter'     => '<path d="M4 4l16 16M20 4 4 20"/>',
+		'youtube'     => '<path d="M22 8.2a3 3 0 0 0-2.1-2.1C18 5.6 12 5.6 12 5.6s-6 0-7.9.5A3 3 0 0 0 2 8.2 31 31 0 0 0 1.6 12 31 31 0 0 0 2 15.8a3 3 0 0 0 2.1 2.1c1.9.5 7.9.5 7.9.5s6 0 7.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .4-3.8 31 31 0 0 0-.4-3.8z"/><path d="m10 15 5-3-5-3z" fill="currentColor"/>',
+		'tiktok'      => '<path d="M16 3c.4 2.4 1.9 4 4.5 4.3v3.2c-1.7 0-3.2-.5-4.5-1.4V15a6 6 0 1 1-6-6v3.3a2.8 2.8 0 1 0 2.8 2.7V3z"/>',
 		'linkedin'    => '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><path d="M2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/>',
 	);
 
@@ -93,6 +98,9 @@ function brightnest_service_icon_choices() {
 		'health'      => __( 'Health', 'brightnest' ),
 		'maid'        => __( 'Maid / Nanny', 'brightnest' ),
 		'water'       => __( 'Water / Plumbing', 'brightnest' ),
+		'spa'         => __( 'Spa / Massage', 'brightnest' ),
+		'barber'      => __( "Men's grooming", 'brightnest' ),
+		'flask'       => __( 'Lab test', 'brightnest' ),
 		'home'        => __( 'Home', 'brightnest' ),
 	);
 }

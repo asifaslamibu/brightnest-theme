@@ -1,259 +1,168 @@
 <?php
 /**
- * Homepage.
+ * Homepage (Justlife-style layout):
+ * full-width photo hero with location → "Leave your to-do list to us!" icon tiles →
+ * reasons to love us → promise band → book on WhatsApp → service areas & locations.
+ * All text comes from BrightNest → Settings → Homepage.
  *
  * @package BrightNest
  */
 
 get_header();
 
-$bn_cats     = brightnest_categories();
-$bn_all_ids  = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => 'menu_order', 'order' => 'ASC' ) );
-$bn_popular  = get_posts(
-	array(
-		'post_type'      => 'bn_service',
-		'posts_per_page' => 12,
-		'fields'         => 'ids',
-		'orderby'        => 'menu_order',
-		'order'          => 'ASC',
-		'meta_key'       => '_bn_featured', // phpcs:ignore WordPress.DB.SlowDBQuery
-		'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery
-	)
+$bn_all = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => array( 'menu_order' => 'ASC', 'title' => 'ASC' ) ) );
+
+$bn_on = function ( $key ) {
+	return '0' !== (string) brightnest_opt( 'show_' . $key );
+};
+
+// Top tiles: popular services first, then the rest in display order (max 10, like 5 × 2).
+$bn_popular = array_values( array_filter( $bn_all, function ( $id ) { return '1' === get_post_meta( $id, '_bn_featured', true ); } ) );
+$bn_tiles   = array_slice( array_values( array_unique( array_merge( $bn_popular, $bn_all ) ) ), 0, 10 );
+$bn_reasons = array_slice( brightnest_lines( 'love_points' ), 0, 4 );
+
+// Big illustrations for the four "reasons" cards (brand navy + orange).
+$bn_art = array(
+	'<svg viewBox="0 0 120 100" aria-hidden="true"><path d="M60 8l14.7 29.8 32.9 4.8-23.8 23.2 5.6 32.7L60 83 30.6 98.5l5.6-32.7L12.4 42.6l32.9-4.8z" fill="#f25c05"/><path d="M60 22l9.6 19.4 21.4 3.1-15.5 15.1 3.7 21.3L60 70.8 40.8 80.9l3.7-21.3L29 44.5l21.4-3.1z" fill="#ff8a2b"/></svg>',
+	'<svg viewBox="0 0 120 100" aria-hidden="true"><rect x="10" y="12" width="100" height="80" rx="8" fill="#eef0f7"/><path d="M10 20a8 8 0 0 1 8-8h84a8 8 0 0 1 8 8v12H10z" fill="#262d72"/><circle cx="32" cy="12" r="4" fill="#f25c05"/><circle cx="88" cy="12" r="4" fill="#f25c05"/><g fill="none" stroke="#f25c05" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 50l5 5 8-9M45 50l5 5 8-9M68 50l5 5 8-9M22 72l5 5 8-9M45 72l5 5 8-9"/></g><g fill="#fff"><rect x="68" y="68" width="14" height="11" rx="2"/><rect x="90" y="46" width="12" height="11" rx="2"/><rect x="90" y="68" width="12" height="11" rx="2"/></g></svg>',
+	'<svg viewBox="0 0 120 100" aria-hidden="true"><rect x="20" y="58" width="18" height="32" rx="3" fill="#ffc3a0"/><rect x="47" y="40" width="18" height="50" rx="3" fill="#ff8a2b"/><rect x="74" y="22" width="18" height="68" rx="3" fill="#f25c05"/><path d="M83 2l3.6 7.3 8 1.2-5.8 5.6 1.4 8L83 20.3 75.8 24l1.4-8-5.8-5.6 8-1.2z" fill="#262d72"/><rect x="12" y="90" width="90" height="3" rx="1.5" fill="#cfd3e4"/></svg>',
+	'<svg viewBox="0 0 120 100" aria-hidden="true"><rect x="38" y="4" width="46" height="92" rx="9" fill="#eef0f7"/><g fill="#262d72"><rect x="28" y="12" width="22" height="22" rx="5"/><rect x="58" y="16" width="17" height="17" rx="4"/><rect x="45" y="42" width="17" height="17" rx="4"/><rect x="66" y="48" width="22" height="22" rx="5"/><rect x="28" y="64" width="17" height="17" rx="4"/></g><rect x="54" y="78" width="11" height="11" rx="3" fill="#f25c05"/><path d="M98 20l1.6 3.2 3.5.5-2.5 2.5.6 3.5-3.2-1.7-3.2 1.7.6-3.5-2.5-2.5 3.5-.5z" fill="#f25c05"/><path d="M20 44l1.3 2.6 2.8.4-2 2 .5 2.8-2.6-1.4-2.6 1.4.5-2.8-2-2 2.8-.4z" fill="#f25c05"/><path d="M100 76l1.3 2.6 2.8.4-2 2 .5 2.8-2.6-1.4-2.6 1.4.5-2.8-2-2 2.8-.4z" fill="#ff8a2b"/></svg>',
 );
-$bn_hero_img = brightnest_opt( 'hero_image' );
 ?>
 
-<section class="bn-hero">
-	<div class="bn-container bn-hero-grid">
-		<div class="bn-hero-text">
-			<span class="bn-pill"><?php echo brightnest_icon( 'shield', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Vetted & insured professionals', 'brightnest' ); ?></span>
-			<h1><?php echo esc_html( brightnest_opt( 'hero_title' ) ); ?></h1>
-			<p class="bn-lead"><?php echo esc_html( brightnest_opt( 'hero_subtitle' ) ); ?></p>
-
-			<form class="bn-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<label class="screen-reader-text" for="bn-search-input"><?php esc_html_e( 'What service do you need?', 'brightnest' ); ?></label>
-				<?php echo brightnest_icon( 'search', 20 ); // phpcs:ignore ?>
-				<input id="bn-search-input" type="search" name="s" list="bn-service-list" placeholder="<?php esc_attr_e( 'What service do you need? e.g. Deep cleaning', 'brightnest' ); ?>" autocomplete="off">
-				<input type="hidden" name="post_type" value="bn_service">
-				<datalist id="bn-service-list">
-					<?php foreach ( $bn_all_ids as $bn_sid ) : ?>
-						<option value="<?php echo esc_attr( get_the_title( $bn_sid ) ); ?>"></option>
-					<?php endforeach; ?>
-				</datalist>
-				<button type="submit" class="bn-btn bn-btn-primary"><?php esc_html_e( 'Search', 'brightnest' ); ?></button>
-			</form>
-
-			<?php if ( $bn_popular ) : ?>
-				<div class="bn-chips">
-					<span class="bn-muted"><?php esc_html_e( 'Popular:', 'brightnest' ); ?></span>
-					<?php foreach ( array_slice( $bn_popular, 0, 4 ) as $bn_sid ) : ?>
-						<a class="bn-chip" href="<?php echo esc_url( get_permalink( $bn_sid ) ); ?>"><?php echo esc_html( get_the_title( $bn_sid ) ); ?></a>
-					<?php endforeach; ?>
-				</div>
-			<?php endif; ?>
-		</div>
-
-		<div class="bn-hero-visual" aria-hidden="true">
-			<?php if ( $bn_hero_img ) : ?>
-				<img class="bn-hero-img" src="<?php echo esc_url( $bn_hero_img ); ?>" alt="">
-			<?php else : ?>
-				<div class="bn-hero-tiles">
-					<?php foreach ( array_slice( $bn_cats, 0, 6 ) as $bn_term ) : ?>
-						<?php $bn_icon = get_term_meta( $bn_term->term_id, 'bn_icon', true ) ?: 'home'; ?>
-						<div class="bn-hero-tile bn-tone-<?php echo esc_attr( brightnest_tone( $bn_term->slug ) ); ?>">
-							<?php echo brightnest_icon( $bn_icon, 36 ); // phpcs:ignore ?>
-							<span><?php echo esc_html( $bn_term->name ); ?></span>
-						</div>
-					<?php endforeach; ?>
-				</div>
-			<?php endif; ?>
-			<div class="bn-float-card bn-float-1">
-				<span class="bn-float-icon"><?php echo brightnest_icon( 'check', 18 ); // phpcs:ignore ?></span>
-				<span><strong><?php esc_html_e( 'Booking confirmed', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Pro arriving at 10:00 AM', 'brightnest' ); ?></small></span>
-			</div>
-			<div class="bn-float-card bn-float-2">
-				<span class="bn-stars-inline"><?php echo str_repeat( brightnest_icon( 'star', 14 ), 5 ); // phpcs:ignore ?></span>
-				<span><strong><?php echo esc_html( brightnest_opt( 'stat_2_num' ) ); ?></strong><small><?php echo esc_html( brightnest_opt( 'stat_2_label' ) ); ?></small></span>
+<section class="bn-jx-hero" style="--bn-jx-img: url('<?php echo esc_url( brightnest_img_opt( 'hero_img_1', 'bg-stats.jpg' ) ); ?>');">
+	<div class="bn-container bn-jx-hero-inner">
+		<h1><?php echo brightnest_accent( brightnest_opt( 'hero_title' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?></h1>
+		<div class="bn-jx-loccard">
+			<p class="bn-jx-locq"><?php echo esc_html( brightnest_opt( 'loc_question' ) ); ?></p>
+			<div class="bn-jx-locbar">
+				<button type="button" class="bn-jx-locfield" data-loc-open>
+					<?php echo brightnest_icon( 'pin', 20 ); // phpcs:ignore ?>
+					<span data-loc-label data-empty="<?php esc_attr_e( 'Search for area, street name, landmark…', 'brightnest' ); ?>"><?php esc_html_e( 'Search for area, street name, landmark…', 'brightnest' ); ?></span>
+				</button>
+				<button type="button" class="bn-jx-here" data-loc-here>
+					<?php esc_html_e( 'Set my location', 'brightnest' ); ?>
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+				</button>
 			</div>
 		</div>
-	</div>
-
-	<div class="bn-container">
-		<ul class="bn-stats">
-			<?php
-			$bn_stat_icons = array( 1 => 'users', 2 => 'star', 3 => 'clipboard', 4 => 'headset' );
-			for ( $i = 1; $i <= 4; $i++ ) :
-				if ( ! brightnest_opt( "stat_{$i}_num" ) ) {
-					continue;
-				}
-				?>
-				<li>
-					<span class="bn-stat-icon"><?php echo brightnest_icon( $bn_stat_icons[ $i ], 22 ); // phpcs:ignore ?></span>
-					<span><strong><?php echo esc_html( brightnest_opt( "stat_{$i}_num" ) ); ?></strong><small><?php echo esc_html( brightnest_opt( "stat_{$i}_label" ) ); ?></small></span>
-				</li>
-			<?php endfor; ?>
-		</ul>
 	</div>
 </section>
 
-
-<section>
-
-<?php if ( $bn_cats ) : ?>
-<section class="bn-section" id="categories">
+<?php if ( $bn_tiles && $bn_on( 'services' ) ) : ?>
+<section class="bn-jx-todo" id="services">
 	<div class="bn-container">
-		<div class="bn-section-head">
-			<span class="bn-eyebrow"><?php esc_html_e( 'Categories', 'brightnest' ); ?></span>
-			<h2 class="bn-h2"><?php esc_html_e( 'What can we help you with?', 'brightnest' ); ?></h2>
+		<div class="bn-jx-head">
+			<h2><?php echo esc_html( brightnest_opt( 'banner_title' ) ); ?></h2>
+			<p><?php echo esc_html( brightnest_opt( 'top_title' ) ); ?></p>
 		</div>
-		<div class="bn-cat-grid">
-			<?php foreach ( $bn_cats as $bn_term ) : ?>
-				<?php $bn_icon = get_term_meta( $bn_term->term_id, 'bn_icon', true ) ?: 'home'; ?>
-				<a class="bn-cat" href="<?php echo esc_url( get_term_link( $bn_term ) ); ?>">
-					<span class="bn-cat-icon bn-tone-<?php echo esc_attr( brightnest_tone( $bn_term->slug ) ); ?>"><?php echo brightnest_icon( $bn_icon, 28 ); // phpcs:ignore ?></span>
-					<span class="bn-cat-name"><?php echo esc_html( $bn_term->name ); ?></span>
-				</a>
+		<ul class="bn-jx-tiles">
+			<?php foreach ( $bn_tiles as $bn_id ) : ?>
+				<?php $bn_off = array_keys( array_filter( brightnest_service_areas( $bn_id ), function ( $a ) { return ! $a['on']; } ) ); ?>
+				<li data-off-areas="<?php echo esc_attr( wp_json_encode( $bn_off ) ); ?>">
+					<a href="<?php echo esc_url( get_permalink( $bn_id ) ); ?>">
+						<span class="bn-jx-tile-box"><?php echo brightnest_icon( brightnest_service_icon( $bn_id ), 46 ); // phpcs:ignore ?></span>
+						<span class="bn-jx-tile-name"><?php echo esc_html( get_the_title( $bn_id ) ); ?></span>
+						<span class="bn-jl-tile-off" hidden></span>
+					</a>
+				</li>
 			<?php endforeach; ?>
+		</ul>
+	</div>
+</section>
+<?php endif; ?>
+
+<?php if ( $bn_reasons && $bn_on( 'why' ) ) : ?>
+<section class="bn-jx-reasons">
+	<div class="bn-container">
+		<div class="bn-jx-head">
+			<h2><?php echo brightnest_accent( brightnest_opt( 'love_title' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?></h2>
+			<p><?php echo esc_html( brightnest_opt( 'love_sub' ) ); ?></p>
+		</div>
+		<ul class="bn-jx-reason-grid">
+			<?php foreach ( $bn_reasons as $bn_n => $bn_pt ) : ?>
+				<li>
+					<span class="bn-jx-art"><?php echo $bn_art[ $bn_n ]; // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG ?></span>
+					<h3><?php echo esc_html( $bn_pt[0] ); ?></h3>
+					<p><?php echo esc_html( $bn_pt[1] ); ?></p>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+</section>
+<?php endif; ?>
+
+<?php if ( $bn_on( 'promise' ) ) : ?>
+<section class="bn-jx-promise">
+	<div class="bn-container bn-jx-promise-inner">
+		<span class="bn-jx-shield" aria-hidden="true">
+			<svg viewBox="0 0 64 72"><path d="M32 2 4 12v22c0 18 12 30 28 36 16-6 28-18 28-36V12z" fill="#fff"/><path d="M22 36l7 7 14-15" fill="none" stroke="#f25c05" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+		</span>
+		<div>
+			<h2><?php echo esc_html( brightnest_opt( 'promise_title' ) ); ?></h2>
+			<p><?php echo esc_html( brightnest_opt( 'promise_text' ) ); ?><?php if ( brightnest_opt( 'promise_close' ) ) : ?> <strong><?php echo esc_html( brightnest_opt( 'promise_close' ) ); ?></strong><?php endif; ?></p>
 		</div>
 	</div>
 </section>
 <?php endif; ?>
 
-<section class="bn-section bn-section-tight">
-	<div class="bn-container bn-carousels">
-		<?php
-		get_template_part(
-			'template-parts/carousel',
-			null,
-			array(
-				'title'    => __( 'Most popular services', 'brightnest' ),
-				'subtitle' => __( 'Booked again and again by our customers', 'brightnest' ),
-				'link'     => get_post_type_archive_link( 'bn_service' ),
-				'ids'      => $bn_popular ? $bn_popular : array_slice( $bn_all_ids, 0, 10 ),
-			)
-		);
-
-		$bn_shown = 0;
-		foreach ( $bn_cats as $bn_term ) {
-			if ( $bn_shown >= 3 ) {
-				break;
-			}
-			$bn_ids = get_posts(
-				array(
-					'post_type'      => 'bn_service',
-					'posts_per_page' => 10,
-					'fields'         => 'ids',
-					'orderby'        => 'menu_order',
-					'order'          => 'ASC',
-					'tax_query'      => array( array( 'taxonomy' => 'bn_service_cat', 'terms' => $bn_term->term_id ) ), // phpcs:ignore WordPress.DB.SlowDBQuery
-				)
-			);
-			if ( count( $bn_ids ) < 2 ) {
-				continue;
-			}
-			++$bn_shown;
-			get_template_part(
-				'template-parts/carousel',
-				null,
-				array(
-					'title'    => $bn_term->name,
-					'subtitle' => $bn_term->description,
-					'link'     => get_term_link( $bn_term ),
-					'ids'      => $bn_ids,
-				)
-			);
-		}
-		?>
-	</div>
-</section>
-
-<section class="bn-section bn-section-soft" id="why-us">
-	<div class="bn-container">
-		<div class="bn-section-head">
-			<span class="bn-eyebrow"><?php esc_html_e( 'Why choose us', 'brightnest' ); ?></span>
-			<h2 class="bn-h2"><?php echo esc_html( sprintf( /* translators: %s site name */ __( 'Why customers love %s', 'brightnest' ), get_bloginfo( 'name' ) ) ); ?></h2>
+<?php if ( $bn_on( 'app' ) && brightnest_whatsapp_url() ) : ?>
+<section class="bn-jx-app">
+	<div class="bn-container bn-jx-app-grid">
+		<div class="bn-jx-app-copy">
+			<span class="bn-jx-kicker"><?php esc_html_e( 'Book in a tap', 'brightnest' ); ?></span>
+			<h2><?php echo esc_html( brightnest_opt( 'app_title' ) ); ?></h2>
+			<p><?php echo esc_html( brightnest_opt( 'app_text' ) ); ?></p>
+			<div class="bn-jx-badges">
+				<a class="bn-jx-badge" href="<?php echo esc_url( brightnest_whatsapp_url( __( 'Hi, I would like to book a service.', 'brightnest' ) ) ); ?>" target="_blank" rel="noopener">
+					<?php echo brightnest_icon( 'whatsapp', 24 ); // phpcs:ignore ?><span><small><?php esc_html_e( 'Chat with us on', 'brightnest' ); ?></small><strong>WhatsApp</strong></span>
+				</a>
+				<?php if ( brightnest_opt( 'phone' ) ) : ?>
+					<a class="bn-jx-badge" href="<?php echo esc_url( brightnest_tel_url() ); ?>">
+						<?php echo brightnest_icon( 'phone', 22 ); // phpcs:ignore ?><span><small><?php esc_html_e( 'Call us', 'brightnest' ); ?></small><strong><?php echo esc_html( brightnest_opt( 'phone' ) ); ?></strong></span>
+					</a>
+				<?php endif; ?>
+			</div>
 		</div>
-		<div class="bn-features">
-			<?php
-			$bn_features = array(
-				array( 'home', __( 'Everything your home needs', 'brightnest' ), __( 'From cleaning to AC, moving to pest control — 25+ services, one trusted place to book them all.', 'brightnest' ) ),
-				array( 'shield', __( 'The best professionals', 'brightnest' ), __( 'Background-checked, trained and rated by real customers after every job.', 'brightnest' ) ),
-				array( 'tag', __( 'Upfront, fair pricing', 'brightnest' ), __( 'See starting prices before you book. No hidden charges, no surprises.', 'brightnest' ) ),
-				array( 'headset', __( 'Great customer support', 'brightnest' ), __( 'Our friendly team is available 7 days a week by phone and WhatsApp.', 'brightnest' ) ),
-			);
-			foreach ( $bn_features as $bn_f ) :
-				?>
-				<div class="bn-feature">
-					<span class="bn-feature-icon"><?php echo brightnest_icon( $bn_f[0], 26 ); // phpcs:ignore ?></span>
-					<h3><?php echo esc_html( $bn_f[1] ); ?></h3>
-					<p><?php echo esc_html( $bn_f[2] ); ?></p>
+		<div class="bn-jx-phones" aria-hidden="true">
+			<div class="bn-jx-phone bn-jx-phone-a">
+				<div class="bn-jx-screen">
+					<span class="bn-jx-s-top"><?php echo brightnest_icon( 'pin', 11 ); // phpcs:ignore ?> <?php echo esc_html( brightnest_cities()[0] ); ?></span>
+					<span class="bn-jx-s-hello"><?php esc_html_e( 'Good evening!', 'brightnest' ); ?></span>
+					<span class="bn-jx-s-banner"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></span>
+					<span class="bn-jx-s-grid"><?php foreach ( array_slice( $bn_tiles, 0, 8 ) as $bn_id ) : ?><i><?php echo brightnest_icon( brightnest_service_icon( $bn_id ), 14 ); // phpcs:ignore ?></i><?php endforeach; ?></span>
+					<span class="bn-jx-s-card"></span>
 				</div>
-			<?php endforeach; ?>
-		</div>
-	</div>
-</section>
-
-<section class="bn-section" id="how-it-works">
-	<div class="bn-container">
-		<div class="bn-section-head">
-			<span class="bn-eyebrow"><?php esc_html_e( 'How it works', 'brightnest' ); ?></span>
-			<h2 class="bn-h2"><?php esc_html_e( 'Book in 3 simple steps', 'brightnest' ); ?></h2>
-		</div>
-		<ol class="bn-steps">
-			<?php
-			$bn_steps = array(
-				array( 'clipboard', __( 'Tell us what you need', 'brightnest' ), __( 'Choose a service, date and time that suits you. It takes less than a minute.', 'brightnest' ) ),
-				array( 'users', __( 'We match the right pro', 'brightnest' ), __( 'We confirm your booking and assign a vetted professional for the job.', 'brightnest' ) ),
-				array( 'sofa-relax', __( 'Sit back and relax', 'brightnest' ), __( 'Your pro arrives on time and gets it done. Pay after the service.', 'brightnest' ) ),
-			);
-			foreach ( $bn_steps as $bn_n => $bn_s ) :
-				?>
-				<li class="bn-step">
-					<span class="bn-step-num"><?php echo esc_html( $bn_n + 1 ); ?></span>
-					<span class="bn-step-icon"><?php echo brightnest_icon( $bn_s[0], 30 ); // phpcs:ignore ?></span>
-					<h3><?php echo esc_html( $bn_s[1] ); ?></h3>
-					<p><?php echo esc_html( $bn_s[2] ); ?></p>
-				</li>
-			<?php endforeach; ?>
-		</ol>
-	</div>
-</section>
-
-<?php get_template_part( 'template-parts/reviews' ); ?>
-
-<?php get_template_part( 'template-parts/cta' ); ?>
-
-<section class="bn-section bn-section-tight" id="locations">
-	<div class="bn-container">
-		<div class="bn-section-head">
-			<span class="bn-eyebrow"><?php esc_html_e( 'Locations', 'brightnest' ); ?></span>
-			<h2 class="bn-h2"><?php esc_html_e( 'Areas we serve', 'brightnest' ); ?></h2>
-		</div>
-		<div class="bn-locations">
-			<?php foreach ( brightnest_cities() as $bn_city ) : ?>
-				<div class="bn-location bn-tone-<?php echo esc_attr( brightnest_tone( $bn_city ) ); ?>">
-					<?php echo brightnest_icon( 'pin', 22 ); // phpcs:ignore ?>
-					<span><strong><?php echo esc_html( $bn_city ); ?></strong><small><?php esc_html_e( 'All services available', 'brightnest' ); ?></small></span>
+			</div>
+			<div class="bn-jx-phone bn-jx-phone-b">
+				<div class="bn-jx-screen">
+					<span class="bn-jx-s-title"><?php esc_html_e( 'Date & Time', 'brightnest' ); ?></span>
+					<span class="bn-jx-s-days"><i></i><i class="on"></i><i></i><i></i><i></i></span>
+					<span class="bn-jx-s-slots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span>
+					<span class="bn-jx-s-btn"></span>
 				</div>
-			<?php endforeach; ?>
+			</div>
 		</div>
 	</div>
 </section>
+<?php endif; ?>
 
-<section class="bn-section bn-section-soft" id="faq">
-	<div class="bn-container bn-faq-wrap">
-		<div class="bn-section-head bn-left">
-			<span class="bn-eyebrow"><?php esc_html_e( 'FAQs', 'brightnest' ); ?></span>
-			<h2 class="bn-h2"><?php esc_html_e( 'Frequently asked questions', 'brightnest' ); ?></h2>
-			<p class="bn-muted"><?php esc_html_e( "Can't find your answer? Our team is happy to help.", 'brightnest' ); ?></p>
-			<?php $bn_contact = get_page_by_path( 'contact' ); ?>
-			<?php if ( $bn_contact ) : ?>
-				<a class="bn-btn bn-btn-ghost" href="<?php echo esc_url( get_permalink( $bn_contact ) ); ?>"><?php esc_html_e( 'Contact us', 'brightnest' ); ?></a>
-			<?php endif; ?>
-		</div>
-		<?php get_template_part( 'template-parts/faq' ); ?>
+<?php if ( $bn_on( 'areas' ) ) : ?>
+<section class="bn-jx-areas">
+	<div class="bn-container">
+		<h2><?php esc_html_e( 'Service Areas', 'brightnest' ); ?></h2>
+		<ul class="bn-jx-chips">
+			<?php foreach ( $bn_all as $bn_id ) : ?><li><a href="<?php echo esc_url( get_permalink( $bn_id ) ); ?>"><?php echo esc_html( get_the_title( $bn_id ) ); ?></a></li><?php endforeach; ?>
+		</ul>
+		<h2><?php echo esc_html( brightnest_opt( 'country' ) ); ?></h2>
+		<ul class="bn-jx-chips">
+			<?php foreach ( brightnest_cities() as $bn_city ) : ?><li><span><?php echo esc_html( $bn_city ); ?></span></li><?php endforeach; ?>
+		</ul>
 	</div>
 </section>
+<?php endif; ?>
+
+<?php get_template_part( 'template-parts/location-modal' ); ?>
 
 <?php
 get_footer();

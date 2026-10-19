@@ -5,21 +5,30 @@
  * @package BrightNest
  */
 
-$bn_cats = array_slice( brightnest_categories(), 0, 8 );
+$bn_all  = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => 'menu_order', 'order' => 'ASC' ) );
 $bn_page = function ( $slug, $fallback ) {
 	$p = get_page_by_path( $slug );
-	return $p ? '<a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( get_the_title( $p ) ) . '</a>' : '<span>' . esc_html( $fallback ) . '</span>';
+	return $p ? '<a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( get_the_title( $p ) ) . '</a>' : '';
 };
 ?>
 </main>
 
 <footer class="bn-footer">
 	<div class="bn-container">
+		<div class="bn-footer-strip">
+			<?php if ( brightnest_opt( 'address' ) ) : ?>
+				<div><span class="bn-fs-ic"><?php echo brightnest_icon( 'pin', 22 ); // phpcs:ignore ?></span><span><strong><?php esc_html_e( 'Address', 'brightnest' ); ?></strong><?php echo esc_html( brightnest_opt( 'address' ) ); ?></span></div>
+			<?php endif; ?>
+			<div><span class="bn-fs-ic"><?php echo brightnest_icon( 'phone', 22 ); // phpcs:ignore ?></span><span><strong><?php esc_html_e( 'Contact', 'brightnest' ); ?></strong>
+				<?php if ( brightnest_opt( 'email' ) ) : ?><a href="mailto:<?php echo esc_attr( brightnest_opt( 'email' ) ); ?>"><?php echo esc_html( brightnest_opt( 'email' ) ); ?></a><br><?php endif; ?>
+				<a href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo esc_html( brightnest_opt( 'phone' ) ); ?></a></span></div>
+			<div><span class="bn-fs-ic"><?php echo brightnest_icon( 'clock', 22 ); // phpcs:ignore ?></span><span><strong><?php esc_html_e( 'Working hours', 'brightnest' ); ?></strong><?php echo esc_html( brightnest_opt( 'hours' ) ); ?></span></div>
+		</div>
+
 		<div class="bn-footer-grid">
 			<div class="bn-footer-brand">
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="bn-logo-text bn-logo-light">
-					<span class="bn-logo-mark"><?php echo brightnest_icon( 'home', 20 ); // phpcs:ignore ?></span>
-					<span><?php bloginfo( 'name' ); ?></span>
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="bn-logo-img bn-logo-footer">
+					<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo-light.png' ); ?>" width="720" height="200" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" loading="lazy">
 				</a>
 				<p><?php echo esc_html( brightnest_opt( 'footer_about' ) ); ?></p>
 				<?php $bn_social = brightnest_social_links(); ?>
@@ -29,10 +38,10 @@ $bn_page = function ( $slug, $fallback ) {
 			</div>
 
 			<div>
-				<h4><?php esc_html_e( 'Services', 'brightnest' ); ?></h4>
+				<h4><?php esc_html_e( 'Our services', 'brightnest' ); ?></h4>
 				<ul>
-					<?php foreach ( $bn_cats as $bn_term ) : ?>
-						<li><a href="<?php echo esc_url( get_term_link( $bn_term ) ); ?>"><?php echo esc_html( $bn_term->name ); ?></a></li>
+					<?php foreach ( array_slice( $bn_all, 0, 7 ) as $bn_sid ) : ?>
+						<li><a href="<?php echo esc_url( get_permalink( $bn_sid ) ); ?>"><?php echo esc_html( get_the_title( $bn_sid ) ); ?></a></li>
 					<?php endforeach; ?>
 				</ul>
 			</div>
@@ -40,9 +49,10 @@ $bn_page = function ( $slug, $fallback ) {
 			<div>
 				<h4><?php esc_html_e( 'Company', 'brightnest' ); ?></h4>
 				<ul>
-					<li><?php echo $bn_page( 'about-us', 'About us' ); // phpcs:ignore ?></li>
-					<li><?php echo $bn_page( 'faq', 'FAQs' ); // phpcs:ignore ?></li>
-					<li><?php echo $bn_page( 'contact', 'Contact us' ); // phpcs:ignore ?></li>
+					<?php foreach ( array( 'about-us' => 'About us', 'contact' => 'Contact us', 'faq' => 'FAQs' ) as $bn_slug => $bn_label ) : ?>
+						<?php $bn_link = $bn_page( $bn_slug, $bn_label ); ?>
+						<?php if ( $bn_link ) : ?><li><?php echo $bn_link; // phpcs:ignore ?></li><?php endif; ?>
+					<?php endforeach; ?>
 					<li><a href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php esc_html_e( 'All services', 'brightnest' ); ?></a></li>
 					<?php if ( get_option( 'page_for_posts' ) ) : ?>
 						<li><a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>"><?php esc_html_e( 'Blog', 'brightnest' ); ?></a></li>
@@ -50,26 +60,13 @@ $bn_page = function ( $slug, $fallback ) {
 				</ul>
 			</div>
 
-			<div>
-				<h4><?php esc_html_e( 'Get in touch', 'brightnest' ); ?></h4>
-				<ul class="bn-footer-contact">
-					<?php if ( brightnest_opt( 'phone' ) ) : ?>
-						<li><?php echo brightnest_icon( 'phone', 16 ); // phpcs:ignore ?><a href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo esc_html( brightnest_opt( 'phone' ) ); ?></a></li>
-					<?php endif; ?>
-					<?php if ( brightnest_opt( 'email' ) ) : ?>
-						<li><?php echo brightnest_icon( 'mail', 16 ); // phpcs:ignore ?><a href="mailto:<?php echo esc_attr( brightnest_opt( 'email' ) ); ?>"><?php echo esc_html( brightnest_opt( 'email' ) ); ?></a></li>
-					<?php endif; ?>
-					<?php if ( brightnest_opt( 'address' ) ) : ?>
-						<li><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?><span><?php echo esc_html( brightnest_opt( 'address' ) ); ?></span></li>
-					<?php endif; ?>
-					<li><?php echo brightnest_icon( 'clock', 16 ); // phpcs:ignore ?><span><?php echo esc_html( brightnest_opt( 'hours' ) ); ?></span></li>
-				</ul>
-			</div>
 		</div>
 
 		<div class="bn-footer-bottom">
 			<p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'All rights reserved.', 'brightnest' ); ?></p>
 			<p class="bn-footer-legal">
+				<?php echo $bn_page( 'contact', 'Contact Us' ); // phpcs:ignore ?>
+				<?php echo $bn_page( 'faq', 'F.A.Q' ); // phpcs:ignore ?>
 				<?php echo $bn_page( 'terms', 'Terms' ); // phpcs:ignore ?>
 				<?php echo $bn_page( 'privacy-policy-bn', 'Privacy' ); // phpcs:ignore ?>
 			</p>

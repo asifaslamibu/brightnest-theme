@@ -166,11 +166,27 @@ function brightnest_breadcrumbs() {
 }
 
 /**
+ * Achievements band rows: [ number, label ].
+ */
+function brightnest_achievements() {
+	$rows = array();
+	foreach ( preg_split( '/
+||
+/', (string) brightnest_opt( 'achievements' ) ) as $line ) {
+		$p = array_map( 'trim', explode( '|', $line, 2 ) );
+		if ( '' !== $p[0] && isset( $p[1] ) ) {
+			$rows[] = $p;
+		}
+	}
+	return $rows;
+}
+
+/**
  * Social links.
  */
 function brightnest_social_links() {
 	$out = '';
-	foreach ( array( 'facebook', 'instagram', 'twitter', 'linkedin' ) as $net ) {
+	foreach ( array( 'facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok' ) as $net ) {
 		$url = brightnest_opt( $net );
 		if ( $url ) {
 			$out .= '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener" aria-label="' . esc_attr( ucfirst( $net ) ) . '">' . brightnest_icon( $net, 18 ) . '</a>';

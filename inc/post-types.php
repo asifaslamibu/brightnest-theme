@@ -22,8 +22,7 @@ function brightnest_register_post_types() {
 			'public'       => true,
 			'has_archive'  => 'services',
 			'rewrite'      => array( 'slug' => 'service', 'with_front' => false ),
-			'menu_icon'    => 'dashicons-admin-home',
-			'menu_position'=> 5,
+			'show_in_menu' => 'brightnest',
 			'show_in_rest' => true,
 			'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ),
 		)
@@ -57,8 +56,7 @@ function brightnest_register_post_types() {
 			),
 			'public'       => false,
 			'show_ui'      => true,
-			'menu_icon'    => 'dashicons-star-filled',
-			'menu_position'=> 6,
+			'show_in_menu' => 'brightnest',
 			'supports'     => array( 'title', 'editor' ),
 		)
 	);
@@ -74,8 +72,7 @@ function brightnest_register_post_types() {
 			),
 			'public'          => false,
 			'show_ui'         => true,
-			'menu_icon'       => 'dashicons-calendar-alt',
-			'menu_position'   => 4,
+			'show_in_menu'    => 'brightnest',
 			'supports'        => array( 'title' ),
 			'capability_type' => 'post',
 			'capabilities'    => array( 'create_posts' => 'do_not_allow' ),
@@ -119,6 +116,9 @@ function brightnest_request_column_content( $col, $post_id ) {
 		case 'bn_total':
 			$total = get_post_meta( $post_id, '_bn_total', true );
 			echo '' !== $total ? esc_html( brightnest_opt( 'currency' ) . ' ' . $total ) : '&mdash;';
+			if ( function_exists( 'brightnest_payment_badge' ) ) {
+				echo ' ' . brightnest_payment_badge( $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput
+			}
 			break;
 		case 'bn_status':
 			$status = get_post_meta( $post_id, '_bn_status', true ) ?: 'new';

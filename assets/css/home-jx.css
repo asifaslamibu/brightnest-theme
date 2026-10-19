@@ -1,0 +1,139 @@
+/* ==========================================================================
+   Homepage — Justlife-style layout in Bright Nest colours
+   ========================================================================== */
+
+.bn-jx-head { text-align: center; max-width: 720px; margin: 0 auto 44px; }
+.bn-jx-head h2 { font-size: clamp(24px, 2.6vw, 30px); font-weight: 700; color: var(--bn-ink); margin: 0 0 12px; letter-spacing: 0; }
+.bn-jx-head h2 em { font-style: normal; color: var(--bn-brand); }
+.bn-jx-head p { margin: 0; font-size: 17px; color: var(--bn-text); }
+
+/* Hero: full-width photo, centred headline, location card ---------------- */
+.bn-jx-hero {
+	position: relative; display: flex; align-items: center; min-height: 580px;
+	background: #e9e6e1 var(--bn-jx-img) center / cover no-repeat;
+}
+.bn-jx-hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .15) 70%, rgba(255, 255, 255, 0)); }
+.bn-jx-hero-inner { position: relative; text-align: center; padding-top: 40px; padding-bottom: 60px; }
+.bn-jx-hero h1 { font-size: clamp(30px, 3.6vw, 44px); line-height: 1.15; font-weight: 700; color: var(--bn-ink); margin: 0 auto 26px; max-width: 900px; letter-spacing: 0; text-shadow: 0 1px 12px rgba(255, 255, 255, .7); }
+.bn-jx-hero h1 em { font-style: normal; color: var(--bn-brand); }
+.bn-jx-loccard { max-width: 560px; margin: 0 auto; padding: 18px 18px 18px; border-radius: 14px; background: #fff; text-align: left; box-shadow: 0 16px 40px rgba(28, 33, 86, .16); }
+.bn-jx-locq { margin: 0 0 12px; font-weight: 700; color: var(--bn-ink); font-size: 16px; }
+.bn-jx-locbar { display: flex; align-items: center; gap: 6px; padding: 5px; border: 1px solid var(--bn-line); border-radius: 99px; transition: border-color .2s, box-shadow .2s; }
+.bn-jx-locbar:focus-within, .bn-jx-locbar:hover { border-color: var(--bn-primary); box-shadow: 0 0 0 4px rgba(38, 45, 114, .08); }
+.bn-jx-locfield {
+	flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; background: none;
+	text-align: left; cursor: pointer; color: var(--bn-muted); font-size: 15px;
+}
+.bn-jx-locfield .bn-icon { flex: 0 0 auto; color: var(--bn-ink); }
+.bn-jx-locfield span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bn-jx-locfield.is-set span { color: var(--bn-ink); font-weight: 600; }
+.bn-jx-here {
+	flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border: 0; border-radius: 99px; cursor: pointer;
+	background: var(--bn-primary-soft); color: var(--bn-primary); font-weight: 600; font-size: 13px; white-space: nowrap; transition: background .2s;
+}
+.bn-jx-here:hover { background: #dfe2f6; }
+
+/* "Leave your to-do list to us!" tiles ------------------------------------ */
+.bn-jx-todo { padding: 72px 0 64px; background: #fff; }
+.bn-jx-tiles { list-style: none; margin: 0 auto; padding: 0; max-width: 1060px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 34px 40px; }
+.bn-jx-tiles li { margin: 0; }
+.bn-jx-tiles a { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; color: var(--bn-ink); }
+.bn-jx-tile-box {
+	width: 100%; height: 88px; display: grid; place-items: center; border: 1px solid var(--bn-line); border-radius: 6px; background: #fff;
+	color: var(--bn-brand); transition: box-shadow .2s, transform .2s, border-color .2s;
+}
+.bn-jx-tiles a:hover .bn-jx-tile-box { border-color: transparent; box-shadow: 0 14px 34px rgba(28, 33, 86, .12); transform: translateY(-3px); }
+.bn-jx-tiles a:hover { color: var(--bn-primary); }
+.bn-jx-tile-name { font-size: 15px; line-height: 1.35; letter-spacing: .01em; }
+.bn-jx-tiles .bn-jl-tile-off { font-size: 12px; color: #b42318; }
+.bn-jx-tiles li.is-unavailable .bn-jx-tile-box { opacity: .45; filter: grayscale(1); }
+
+/* Reasons ---------------------------------------------------------------- */
+.bn-jx-reasons { padding: 72px 0; background: var(--bn-soft); }
+.bn-jx-reason-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.bn-jx-reason-grid li { margin: 0; padding: 38px 26px 34px; border-radius: 10px; background: #fff; text-align: center; box-shadow: 0 1px 3px rgba(28, 33, 86, .05); transition: transform .25s, box-shadow .25s; }
+.bn-jx-reason-grid li:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(28, 33, 86, .1); }
+.bn-jx-art { display: block; width: 120px; height: 100px; margin: 0 auto 22px; }
+.bn-jx-art svg { width: 100%; height: 100%; }
+.bn-jx-reason-grid h3 { font-size: 20px; font-weight: 700; color: var(--bn-ink); margin: 0 0 12px; }
+.bn-jx-reason-grid p { margin: 0; color: var(--bn-text); font-size: 15px; line-height: 1.6; }
+
+/* Promise band ----------------------------------------------------------- */
+.bn-jx-promise { color: #fff3ea; background: linear-gradient(100deg, #cf4a00, #f25c05 55%, #ff8a2b); }
+.bn-jx-promise-inner { display: flex; align-items: center; gap: 28px; padding-top: 30px; padding-bottom: 30px; max-width: 980px; }
+.bn-jx-shield { flex: 0 0 74px; width: 74px; height: 84px; }
+.bn-jx-shield svg { width: 100%; height: 100%; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .15)); }
+.bn-jx-promise h2 { color: #fff; font-size: clamp(22px, 2.4vw, 28px); margin: 0 0 6px; }
+.bn-jx-promise p { margin: 0; font-size: 15px; line-height: 1.6; }
+.bn-jx-promise strong { color: #fff; }
+
+/* App / WhatsApp --------------------------------------------------------- */
+.bn-jx-app { padding: 72px 0 0; background: #fff; overflow: hidden; }
+.bn-jx-app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.bn-jx-app-copy { padding-bottom: 72px; }
+.bn-jx-kicker { display: block; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; color: var(--bn-muted); margin-bottom: 10px; }
+.bn-jx-app h2 { font-size: clamp(26px, 3vw, 34px); color: var(--bn-ink); margin: 0 0 14px; }
+.bn-jx-app p { color: var(--bn-text); font-size: 16px; max-width: 480px; margin: 0 0 24px; }
+.bn-jx-badges { display: flex; flex-wrap: wrap; gap: 12px; }
+.bn-jx-badge { display: inline-flex; align-items: center; gap: 10px; padding: 9px 16px; border-radius: 10px; background: #111; color: #fff; transition: background .2s, transform .2s; }
+.bn-jx-badge:hover { background: var(--bn-primary); color: #fff; transform: translateY(-2px); }
+.bn-jx-badge small { display: block; font-size: 11px; opacity: .85; line-height: 1.1; }
+.bn-jx-badge strong { display: block; font-size: 16px; line-height: 1.2; }
+
+.bn-jx-phones { position: relative; height: 380px; }
+.bn-jx-phone { position: absolute; bottom: -40px; width: 200px; height: 400px; border-radius: 32px; background: #1c2156; padding: 9px; box-shadow: 0 30px 60px rgba(28, 33, 86, .25); }
+.bn-jx-phone-a { left: calc(50% - 190px); z-index: 2; }
+.bn-jx-phone-b { left: calc(50% + 10px); bottom: -70px; }
+.bn-jx-screen { display: flex; flex-direction: column; gap: 10px; height: 100%; border-radius: 24px; background: #fff; padding: 16px 12px; overflow: hidden; }
+.bn-jx-s-top { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: var(--bn-ink); }
+.bn-jx-s-top .bn-icon { color: var(--bn-brand); }
+.bn-jx-s-hello { font-size: 13px; font-weight: 700; color: var(--bn-ink); }
+.bn-jx-s-banner { height: 70px; border-radius: 12px; padding: 10px; display: flex; align-items: flex-end; font-size: 12px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #262d72, #3a43a0); }
+.bn-jx-s-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.bn-jx-s-grid i { aspect-ratio: 1; border-radius: 9px; display: grid; place-items: center; background: #fff1e8; color: var(--bn-brand); }
+.bn-jx-s-card { height: 54px; border-radius: 12px; background: var(--bn-soft); }
+.bn-jx-s-title { font-size: 12px; font-weight: 700; color: var(--bn-ink); }
+.bn-jx-s-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.bn-jx-s-days i { height: 42px; border-radius: 8px; border: 1px solid var(--bn-line); }
+.bn-jx-s-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.bn-jx-s-slots i { height: 22px; border-radius: 99px; border: 1px solid var(--bn-line); }
+.bn-jx-s-days i.on, .bn-jx-s-slots i.on { background: var(--bn-primary); border-color: var(--bn-primary); }
+.bn-jx-s-btn { margin-top: auto; height: 34px; border-radius: 99px; background: var(--bn-cta); }
+
+/* Service areas (dark, chips) ------------------------------------------- */
+.bn-jx-areas { padding: 44px 0 36px; background: #141842; color: #c9cdea; }
+.bn-jx-areas h2 { color: #fff; font-size: 15px; font-weight: 700; margin: 0 0 14px; }
+.bn-jx-chips { list-style: none; margin: 0 0 28px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.bn-jx-chips li { margin: 0; }
+.bn-jx-chips a, .bn-jx-chips span { display: inline-block; padding: 6px 12px; border-radius: 99px; background: rgba(255, 255, 255, .08); color: #e6e8f7; font-size: 13px; font-weight: 600; }
+.bn-jx-chips a:hover { background: var(--bn-brand); color: #fff; }
+.home .bn-footer { padding-top: 48px; }
+
+/* Responsive ------------------------------------------------------------- */
+@media (max-width: 1100px) {
+	.bn-jx-reason-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 960px) {
+	.bn-jx-tiles { grid-template-columns: repeat(4, 1fr); gap: 28px 20px; }
+	.bn-jx-app-grid { grid-template-columns: 1fr; }
+	.bn-jx-app-copy { padding-bottom: 0; }
+	.bn-jx-phones { height: 340px; }
+}
+@media (max-width: 640px) {
+	.bn-jx-hero { min-height: 470px; }
+	.bn-jx-hero h1 { font-size: 28px; }
+	.bn-jx-loccard { padding: 14px; }
+	.bn-jx-here { font-size: 0; gap: 0; padding: 9px 10px; }
+	.bn-jx-tiles { grid-template-columns: repeat(3, 1fr); gap: 22px 12px; }
+	.bn-jx-tile-box { height: 76px; }
+	.bn-jx-tile-name { font-size: 13px; }
+	.bn-jx-tiles li:nth-child(n+10) { display: none; }
+	.bn-jx-hero::before { background: linear-gradient(180deg, rgba(255, 255, 255, .82), rgba(255, 255, 255, .55) 55%, rgba(255, 255, 255, .2)); }
+	.bn-jx-reason-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+	.bn-jx-reason-grid li { padding: 22px 12px 20px; }
+	.bn-jx-art { width: 76px; height: 64px; margin-bottom: 14px; }
+	.bn-jx-reason-grid h3 { font-size: 15px; margin-bottom: 6px; }
+	.bn-jx-reason-grid p { font-size: 13px; line-height: 1.5; }
+	.bn-jx-promise-inner { flex-direction: column; text-align: center; gap: 16px; }
+	.bn-jx-phones { height: 300px; transform: scale(.85); transform-origin: bottom center; }
+}
