@@ -20,6 +20,21 @@ function brightnest_service_options( $post_id ) {
 	// "Single price" services sell the service itself, whatever is left in the option list.
 	$raw    = 'single' === get_post_meta( $post_id, '_bn_mode', true ) ? '' : (string) get_post_meta( $post_id, '_bn_options', true );
 	$groups = array();
+	// Popup details per option ("About" text + highlights), keyed by "name|desc" (see the admin editor).
+	$details = json_decode( (string) get_post_meta( $post_id, '_bn_opt_details', true ), true );
+	$details = is_array( $details ) ? $details : array();
+	// Arabic site: Arabic option texts (same details store) and tab names (_bn_ar_tabs). Ids and prices stay English-based.
+	$ar      = function_exists( 'brightnest_show_ar' ) && brightnest_show_ar();
+	$ar_tabs = $ar ? json_decode( (string) get_post_meta( $post_id, '_bn_ar_tabs', true ), true ) : array();
+	$ar_tabs = is_array( $ar_tabs ) ? $ar_tabs : array();
+	$tab_img = json_decode( (string) get_post_meta( $post_id, '_bn_tab_imgs', true ), true );
+	$tab_img = is_array( $tab_img ) ? $tab_img : array();
+	$pick    = function ( $d, $field ) use ( $ar ) {
+		if ( $ar && isset( $d[ $field . '_ar' ] ) && '' !== trim( (string) $d[ $field . '_ar' ] ) ) {
+			return (string) $d[ $field . '_ar' ];
+		}
+		return isset( $d[ $field ] ) ? (string) $d[ $field ] : '';
+	};
 
 	foreach ( preg_split( '/\r\n|\r|\n/', $raw ) as $line ) {
 		$parts = array_map( 'trim', explode( '|', $line ) );
@@ -30,18 +45,25 @@ function brightnest_service_options( $post_id ) {
 		$price = (float) preg_replace( '/[^0-9.]/', '', $parts[3] );
 		$old   = isset( $parts[4] ) ? (float) preg_replace( '/[^0-9.]/', '', $parts[4] ) : 0;
 		if ( ! isset( $groups[ $group ] ) ) {
-			$groups[ $group ] = array( 'name' => $group, 'items' => array() );
+			$groups[ $group ] = array(
+				'name'  => ! empty( $ar_tabs[ $group ] ) ? $ar_tabs[ $group ] : $group,
+				'img'   => ! empty( $tab_img[ $group ] ) ? esc_url_raw( $tab_img[ $group ] ) : '', // Own tab picture, else the first option photo.
+				'items' => array(),
+			);
 		}
+		$d = isset( $details[ $parts[1] . '|' . $parts[2] ] ) ? $details[ $parts[1] . '|' . $parts[2] ] : array();
 		$groups[ $group ]['items'][] = array(
 			// Same item can appear in several groups (e.g. Bestsellers); the id is shared so the cart stays in sync.
 			'id'    => substr( md5( $parts[1] . '|' . $parts[2] . '|' . $price ), 0, 10 ),
 			// Survives base-price edits, so per-area prices stay attached to the option.
 			'key'   => substr( md5( $parts[1] . '|' . $parts[2] ), 0, 10 ),
-			'name'  => $parts[1],
-			'desc'  => $parts[2],
+			'name'  => $ar && ! empty( $d['name_ar'] ) ? $d['name_ar'] : $parts[1],
+			'desc'  => $ar && ! empty( $d['desc_ar'] ) ? $d['desc_ar'] : $parts[2],
 			'price' => $price,
 			'old'   => $old > $price ? $old : 0,
 			'img'   => isset( $parts[5] ) ? esc_url_raw( $parts[5] ) : '',
+			'about' => $pick( $d, 'about' ),
+			'hl'    => brightnest_option_highlights( $pick( $d, 'hl' ) ),
 		);
 		// The tab photo is the first option photo in it.
 		if ( empty( $groups[ $group ]['img'] ) && ! empty( $parts[5] ) ) {
@@ -63,12 +85,44 @@ function brightnest_service_options( $post_id ) {
 					'price' => $price,
 					'old'   => 0,
 					'img'   => '',
+					'about' => '',
+					'hl'    => array(),
 				),
 			),
 		);
 	}
 
 	return array_values( $groups );
+}
+
+/**
+ * Highlights for the option popup. One per line, optionally "icon | Label"
+ * (theme icon names such as shield, clock, star, check-circle, ac, cleaning).
+ *
+ * @param string $text Lines from the admin.
+ * @return array[] [ [ 'svg' => icon markup, 'label' => text ] ]
+ */
+function brightnest_option_highlights( $text ) {
+	$out = array();
+	foreach ( preg_split( '/\r\n|\r|\n/', (string) $text ) as $line ) {
+		$line = trim( $line );
+		if ( '' === $line ) {
+			continue;
+		}
+		$icon  = 'check-circle';
+		$label = $line;
+		if ( false !== strpos( $line, '|' ) ) {
+			list( $maybe, $rest ) = array_map( 'trim', explode( '|', $line, 2 ) );
+			$maybe = sanitize_key( $maybe );
+			// Only a real theme icon counts (unknown names fall back to "home").
+			if ( $maybe && false !== strpos( brightnest_icon( $maybe ), 'bn-icon-' . $maybe . '"' ) ) {
+				$icon  = $maybe;
+				$label = $rest;
+			}
+		}
+		$out[] = array( 'svg' => brightnest_icon( $icon, 34 ), 'label' => $label );
+	}
+	return $out;
 }
 
 /**
@@ -405,11 +459,10 @@ function brightnest_checkout_assets() {
 	if ( ! brightnest_is_checkout() ) {
 		return;
 	}
-	wp_enqueue_style( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css', array(), '1.9.4' );
-	wp_enqueue_script( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', array(), '1.9.4', true );
+	brightnest_map_assets();
 	wp_enqueue_style( 'brightnest-location', BRIGHTNEST_URI . '/assets/css/location.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
 	wp_enqueue_style( 'brightnest-checkout', BRIGHTNEST_URI . '/assets/css/checkout.css', array( 'brightnest-location' ), BRIGHTNEST_VERSION );
-	wp_enqueue_script( 'brightnest-checkout', BRIGHTNEST_URI . '/assets/js/checkout.js', array( 'leaflet' ), BRIGHTNEST_VERSION, true );
+	wp_enqueue_script( 'brightnest-checkout', BRIGHTNEST_URI . '/assets/js/checkout.js', array( 'brightnest-map' ), BRIGHTNEST_VERSION, true );
 
 	$service_id = isset( $_GET['service'] ) ? absint( $_GET['service'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
 	if ( ! $service_id || 'bn_service' !== get_post_type( $service_id ) ) {
@@ -425,6 +478,7 @@ function brightnest_checkout_assets() {
 			'nonce'    => wp_create_nonce( 'bn_checkout' ),
 			'currency' => brightnest_opt( 'currency' ),
 			'cities'   => brightnest_cities(),
+			'cityLabels' => brightnest_city_labels(), // Shown names (Arabic site).
 			'country'  => strtolower( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) ),
 			'map'      => array(
 				'lat' => (float) brightnest_opt( 'map_lat' ),
@@ -433,6 +487,9 @@ function brightnest_checkout_assets() {
 			'voucher'  => isset( $_GET['voucher'] ) ? strtoupper( sanitize_key( $_GET['voucher'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 			// Only codes the visitor already has (link or promo banner); others are checked on the server.
 			'vouchers' => brightnest_public_vouchers(),
+			// Opened from an "unfinished booking" email: cart and details to restore.
+			'draft'    => function_exists( 'brightnest_checkout_draft' ) ? brightnest_checkout_draft( $service_id ) : null,
+			'remind'   => '1' === (string) brightnest_opt( 'remind_on' ),
 			'service'  => array(
 				'id'       => $service_id,
 				// Plain text: the script escapes it itself (get_the_title() returns entities like &#8217;).
@@ -584,6 +641,10 @@ function brightnest_ajax_checkout() {
 	if ( ! $post_id || is_wp_error( $post_id ) ) {
 		wp_send_json_error( array( 'message' => __( 'Could not save booking. Please try again.', 'brightnest' ) ), 500 );
 	}
+	// The checkout draft became a booking: no "unfinished booking" reminder for it.
+	if ( ! empty( $_POST['draft'] ) && function_exists( 'brightnest_delete_draft' ) ) {
+		brightnest_delete_draft( wp_unslash( $_POST['draft'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+	}
 
 	$meta = array(
 		'type'      => 'booking',
@@ -609,6 +670,7 @@ function brightnest_ajax_checkout() {
 		'address'   => $address,
 		'message'   => $f['message'],
 		'location'  => ( $lat && $lng ) ? $lat . ',' . $lng : '',
+		'lang'      => function_exists( 'brightnest_lang' ) ? brightnest_lang() : 'en', // Site language the customer booked on.
 	);
 	foreach ( $meta as $k => $v ) {
 		update_post_meta( $post_id, '_bn_' . $k, $v );

@@ -22,7 +22,7 @@
 		});
 		box.querySelector('[data-clear]').addEventListener('click', function () {
 			input.value = '';
-			thumb.textContent = 'Default photo';
+			thumb.textContent = thumb.getAttribute('data-empty') || 'Default photo';
 		});
 	});
 

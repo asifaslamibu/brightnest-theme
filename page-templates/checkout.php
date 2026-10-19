@@ -77,7 +77,7 @@ $bn_price   = function ( $n ) {
 			<label for="bn-co-area"><?php esc_html_e( 'Service area', 'brightnest' ); ?></label>
 			<select id="bn-co-area" data-area>
 				<?php foreach ( $bn_areas as $bn_city => $bn_ar ) : ?>
-					<option value="<?php echo esc_attr( $bn_city ); ?>"><?php echo esc_html( $bn_city . ( $bn_ar['on'] ? '' : ' (' . __( 'not available', 'brightnest' ) . ')' ) ); ?></option>
+					<option value="<?php echo esc_attr( $bn_city ); ?>"><?php echo esc_html( brightnest_city_label( $bn_city ) . ( $bn_ar['on'] ? '' : ' (' . __( 'not available', 'brightnest' ) . ')' ) ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</div>
@@ -155,7 +155,7 @@ $bn_price   = function ( $n ) {
 								<?php if ( $bn_timg ) : ?>
 									<span class="bn-co-tab-icon"><img src="<?php echo esc_url( $bn_timg ); ?>" alt="" loading="lazy"></span>
 								<?php else : ?>
-									<span class="bn-co-tab-icon bn-tone-<?php echo esc_attr( brightnest_tone( $bn_g['name'] ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $bn_sid ), 26 ); // phpcs:ignore ?></span>
+									<span class="bn-co-tab-icon bn-tone-<?php echo esc_attr( brightnest_tone( $bn_g['name'] ) ); ?>"><?php echo brightnest_service_icon_html( $bn_sid, 26 ); // phpcs:ignore ?></span>
 								<?php endif; ?>
 								<span><?php echo esc_html( $bn_g['name'] ); ?></span>
 							</a>
@@ -172,7 +172,7 @@ $bn_price   = function ( $n ) {
 								<?php if ( $bn_iimg ) : ?>
 									<span class="bn-co-item-thumb"><img src="<?php echo esc_url( $bn_iimg ); ?>" alt="" loading="lazy"></span>
 								<?php else : ?>
-									<span class="bn-co-item-thumb bn-tone-<?php echo esc_attr( brightnest_tone( $bn_item['name'] ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $bn_sid ), 30 ); // phpcs:ignore ?></span>
+									<span class="bn-co-item-thumb bn-tone-<?php echo esc_attr( brightnest_tone( $bn_item['name'] ) ); ?>"><?php echo brightnest_service_icon_html( $bn_sid, 30 ); // phpcs:ignore ?></span>
 								<?php endif; ?>
 								<div class="bn-co-item-body">
 									<h3><span class="bn-co-item-x" data-qty-x></span><?php echo esc_html( $bn_item['name'] ); ?></h3>
@@ -231,7 +231,7 @@ $bn_price   = function ( $n ) {
 						<h3 class="bn-co-label"><?php esc_html_e( 'City', 'brightnest' ); ?></h3>
 						<div class="bn-co-seg bn-co-cities" data-cities role="radiogroup" aria-label="<?php esc_attr_e( 'City', 'brightnest' ); ?>">
 							<?php foreach ( $bn_cities as $bn_city ) : ?>
-								<button type="button" class="bn-co-choice" data-value="<?php echo esc_attr( $bn_city ); ?>"><?php echo esc_html( $bn_city ); ?></button>
+								<button type="button" class="bn-co-choice" data-value="<?php echo esc_attr( $bn_city ); ?>"><?php echo esc_html( brightnest_city_label( $bn_city ) ); ?></button>
 							<?php endforeach; ?>
 						</div>
 					<?php endif; ?>
@@ -277,6 +277,9 @@ $bn_price   = function ( $n ) {
 						<label for="bn-co-email"><?php esc_html_e( 'Email (for your receipt)', 'brightnest' ); ?></label>
 						<input id="bn-co-email" type="email" class="bn-co-input" data-field="email" autocomplete="email" placeholder="you@example.com">
 						<p class="bn-co-err" data-err="email"></p>
+						<?php if ( '1' === (string) brightnest_opt( 'remind_on' ) ) : ?>
+							<p class="bn-co-hint"><?php esc_html_e( 'We send your receipt here. If you leave before paying, we will send one reminder with a link back to your booking.', 'brightnest' ); ?></p>
+						<?php endif; ?>
 					</div>
 				</div>
 
@@ -378,6 +381,34 @@ $bn_price   = function ( $n ) {
 		</aside>
 	</div>
 
+	<!-- Option details popup (Justlife style): opens when an option is clicked -->
+	<div class="bn-modal bn-od" data-od hidden role="dialog" aria-modal="true" aria-labelledby="bn-od-title">
+		<div class="bn-modal-box bn-od-box">
+			<div class="bn-modal-head">
+				<h2 id="bn-od-title" data-od-title></h2>
+				<button type="button" class="bn-modal-close" data-od-close aria-label="<?php esc_attr_e( 'Close', 'brightnest' ); ?>"><?php echo brightnest_icon( 'close', 22 ); // phpcs:ignore ?></button>
+			</div>
+			<div class="bn-od-body">
+				<div class="bn-od-media" data-od-media>
+					<div class="bn-od-cap"><strong data-od-name></strong><span data-od-desc></span></div>
+				</div>
+				<div class="bn-od-info" data-od-info>
+					<h3><?php esc_html_e( 'Highlights', 'brightnest' ); ?></h3>
+					<p data-od-about></p>
+					<ul class="bn-od-hl" data-od-hl></ul>
+				</div>
+			</div>
+			<div class="bn-od-foot">
+				<div class="bn-od-qty">
+					<button type="button" data-od-dec aria-label="<?php esc_attr_e( 'Decrease', 'brightnest' ); ?>">&minus;</button>
+					<output data-od-qty>1</output>
+					<button type="button" data-od-inc aria-label="<?php esc_attr_e( 'Increase', 'brightnest' ); ?>">+</button>
+				</div>
+				<button type="button" class="bn-btn bn-btn-primary bn-od-add" data-od-add></button>
+			</div>
+		</div>
+	</div>
+
 	<!-- Address picker modal -->
 	<div class="bn-modal" data-map-modal hidden role="dialog" aria-modal="true" aria-labelledby="bn-map-title">
 		<div class="bn-modal-box">
@@ -404,6 +435,5 @@ $bn_price   = function ( $n ) {
 </div>
 
 <?php
-get_template_part( 'template-parts/location-modal' );
 
 get_footer();

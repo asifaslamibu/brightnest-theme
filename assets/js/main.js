@@ -55,13 +55,16 @@
 			var perView = Math.max(1, Math.floor((track.clientWidth + gap) / (item.offsetWidth + gap)));
 			return perView * (item.offsetWidth + gap);
 		}
+		// Right-to-left (Arabic): the track starts at the right and scrollLeft runs negative.
+		var dir = getComputedStyle(track).direction === 'rtl' ? -1 : 1;
 		function update() {
 			var max = track.scrollWidth - track.clientWidth - 2;
-			if (prev) { prev.disabled = track.scrollLeft <= 2; }
-			if (next) { next.disabled = track.scrollLeft >= max; }
+			var pos = Math.abs(track.scrollLeft);
+			if (prev) { prev.disabled = pos <= 2; }
+			if (next) { next.disabled = pos >= max; }
 		}
-		if (prev) { prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); }); }
-		if (next) { next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); }); }
+		if (prev) { prev.addEventListener('click', function () { track.scrollBy({ left: -step() * dir, behavior: 'smooth' }); }); }
+		if (next) { next.addEventListener('click', function () { track.scrollBy({ left: step() * dir, behavior: 'smooth' }); }); }
 		track.addEventListener('scroll', update, { passive: true });
 		window.addEventListener('resize', update);
 		update();
@@ -225,7 +228,7 @@
 		var ok = document.createElement('button');
 		ok.type = 'button';
 		ok.className = 'bn-btn bn-btn-primary';
-		ok.textContent = 'OK';
+		ok.textContent = I18N.OK || 'OK';
 		box.appendChild(h);
 		box.appendChild(p);
 		box.appendChild(ok);
@@ -252,13 +255,14 @@
 		});
 		return hit;
 	};
-	window.BN_AREA_ERROR = 'We do not currently operate in this area.';
-	window.BN_AREA_CHECK_ERROR = 'We could not check this location. Please check your connection and try again.';
+	var I18N = window.BN_I18N || {};
+	window.BN_AREA_ERROR = I18N['We do not currently operate in this area.'] || 'We do not currently operate in this area.';
+	window.BN_AREA_CHECK_ERROR = I18N['We could not check this location. Please check your connection and try again.'] || 'We could not check this location. Please check your connection and try again.';
 
 	/* Services category bar: keep the active category in view on phones */
 	var catBar = document.querySelector('.bn-ar-cats');
 	var catActive = catBar && catBar.querySelector('.is-active');
 	if (catActive && catBar.scrollWidth > catBar.clientWidth) {
-		catBar.scrollLeft = catActive.offsetLeft - (catBar.clientWidth - catActive.offsetWidth) / 2;
+		catActive.scrollIntoView({ block: 'nearest', inline: 'center' }); // Works left-to-right and right-to-left.
 	}
 })();

@@ -76,7 +76,7 @@
 .bn-opt-tab { flex: 1; max-width: 360px; font-weight: 600; font-size: 14px; min-height: 34px; }
 .bn-opt-count { color: var(--bna-muted); font-size: 12px; margin-right: auto; }
 .bn-opt-rows { padding: 6px 12px; }
-.bn-opt-row { display: grid; grid-template-columns: 24px 40px minmax(140px, 1.1fr) minmax(160px, 1.6fr) 120px 120px 28px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f1; }
+.bn-opt-row { display: grid; grid-template-columns: 24px 40px minmax(140px, 1.1fr) minmax(160px, 1.6fr) 120px 120px 28px 28px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f1; }
 .bn-opt-row:last-child { border-bottom: 0; }
 .bn-opt-row input { width: 100%; min-height: 34px; }
 .bn-opt-move { display: flex; flex-direction: column; }
@@ -152,7 +152,7 @@
 .bn-widget-big strong { font-size: 24px; color: var(--bna-brand); }
 
 @media (max-width: 1100px) {
-	.bn-opt-row { grid-template-columns: 24px 40px 1fr 1fr 28px; }
+	.bn-opt-row { grid-template-columns: 24px 40px 1fr 1fr 28px 28px; }
 	.bn-opt-row .bn-opt-desc { grid-column: 3 / 5; grid-row: 2; }
 	.bn-opt-row .bn-opt-money { grid-row: 3; }
 	.bn-opt-row .bn-opt-money:not(.bn-opt-old) { grid-column: 3; }
@@ -420,3 +420,21 @@ a.bn-kpi:hover { color: var(--bna-ink); border-color: #c9d7e3; box-shadow: 0 8px
 }
 .bn-opt-img[style] { border-style: solid; border-color: #dcdcde; }
 .bn-opt-img:hover { border-color: #2271b1; color: #2271b1; }
+
+/* Option popup details */
+.bn-opt-more { color: #8c8f94; }
+.bn-opt-more:hover, .bn-opt-more[aria-expanded="true"], .has-detail .bn-opt-more { color: #2271b1; }
+.bn-opt-detail { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 12px; margin: 2px 0 6px 64px; background: #f6f7f7; border-radius: 8px; }
+.bn-opt-detail[hidden] { display: none; }
+.bn-opt-detail label { display: grid; gap: 4px; font-size: 12px; color: #50575e; }
+.bn-opt-detail textarea { width: 100%; }
+@media (max-width: 1100px) { .bn-opt-detail { grid-template-columns: 1fr; margin-left: 0; } }
+
+/* Arabic twin fields (settings, service editor) */
+.bn-set-ar { margin-top: 8px; padding: 8px 10px; border-inline-start: 3px solid #2271b1; background: #f6f7f7; border-radius: 4px; }
+.bn-set-ar label { font-size: 12px; color: #50575e; }
+.bn-set-ar input, .bn-set-ar textarea, .bn-adm-ar input, .bn-adm-ar textarea, [dir="rtl"] { font-family: Tahoma, Arial, sans-serif; }
+.bn-opt-tab-ar { max-width: 200px; }
+.bn-adm-ar .bn-adm-field { display: block; margin-bottom: 14px; }
+.bn-adm-ar .bn-adm-field input, .bn-adm-ar .bn-adm-field textarea { width: 100%; }
+.bn-adm-ar .bn-faq-edit small { display: block; color: #646970; margin-bottom: 4px; }

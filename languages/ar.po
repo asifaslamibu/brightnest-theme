@@ -1,0 +1,1050 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+"X-Domain: brightnest\n"
+
+msgid "#%1$s %2$s - %3$s"
+msgstr "#%1$s %2$s - %3$s"
+
+msgid "%1$d hour"
+msgid_plural "%1$d hours"
+msgstr[0] "%1$d ساعة"
+msgstr[1] "%1$d ساعة"
+msgstr[2] "%1$d ساعة"
+msgstr[3] "%1$d ساعة"
+msgstr[4] "%1$d ساعة"
+msgstr[5] "%1$d ساعة"
+
+msgid "%1$s, %2$s"
+msgstr "%1$s، %2$s"
+
+msgid "%d hour"
+msgstr "%d ساعة"
+
+msgid "%d hours"
+msgstr "%d ساعات"
+
+msgid "%d item · Total"
+msgstr "%d خدمة · المجموع"
+
+msgid "%d items · Total"
+msgstr "%d خدمات · المجموع"
+
+msgid "%d option"
+msgid_plural "%d options"
+msgstr[0] "%d خيار"
+msgstr[1] "%d خيار"
+msgstr[2] "%d خيار"
+msgstr[3] "%d خيار"
+msgstr[4] "%d خيار"
+msgstr[5] "%d خيار"
+
+msgid "%d out of 5 stars"
+msgstr "%d من 5 نجوم"
+
+msgid "%d professional"
+msgid_plural "%d professionals"
+msgstr[0] "%d محترف"
+msgstr[1] "%d محترف"
+msgstr[2] "%d محترف"
+msgstr[3] "%d محترف"
+msgstr[4] "%d محترف"
+msgstr[5] "%d محترف"
+
+msgid "%d professionals"
+msgstr "%d محترفين"
+
+msgid "%s (change)"
+msgstr "%s (تغيير)"
+
+msgid "+ %s / hour with cleaning materials"
+msgstr "+ %s / ساعة مع مواد التنظيف"
+
+msgid "1 professional"
+msgstr "محترف واحد"
+
+msgid "2 professionals"
+msgstr "محترفان"
+
+msgid "AC"
+msgstr "تكييف"
+
+msgid "AM"
+msgstr "ص"
+
+msgid "About Us"
+msgstr "من نحن"
+
+msgid "About our %s service"
+msgstr "عن خدمة %s لدينا"
+
+msgid "Add"
+msgstr "إضافة"
+
+msgid "Add for %s"
+msgstr "أضف مقابل %s"
+
+msgid "Address"
+msgstr "العنوان"
+
+msgid "Afternoon"
+msgstr "بعد الظهر"
+
+msgid "All rights reserved."
+msgstr "جميع الحقوق محفوظة."
+
+msgid "All services"
+msgstr "جميع الخدمات"
+
+msgid "Any instructions or special requirements?"
+msgstr "هل لديك أي تعليمات أو متطلبات خاصة؟"
+
+msgid "Any time"
+msgstr "أي وقت"
+
+msgid "Anything we should know?"
+msgstr "هل هناك ما يجب أن نعرفه؟"
+
+msgid "Apartment / Villa no."
+msgstr "رقم الشقة / الفيلا"
+
+msgid "Apply"
+msgstr "تطبيق"
+
+msgid "Apr"
+msgstr "أبريل"
+
+msgid "Area / Street"
+msgstr "المنطقة / الشارع"
+
+msgid "Ask on WhatsApp"
+msgstr "اسألنا على WhatsApp"
+
+msgid "Aug"
+msgstr "أغسطس"
+
+msgid "Awaiting payment"
+msgstr "بانتظار الدفع"
+
+msgid "Back"
+msgstr "رجوع"
+
+msgid "Back to home"
+msgstr "العودة للرئيسية"
+
+msgid "Blog"
+msgstr "المدونة"
+
+msgid "Blog Sidebar"
+msgstr "الشريط الجانبي للمدونة"
+
+msgid "Book"
+msgstr "احجز"
+
+msgid "Book %s"
+msgstr "احجز %s"
+
+msgid "Book a service"
+msgstr "احجز خدمة"
+
+msgid "Book another service"
+msgstr "احجز خدمة أخرى"
+
+msgid "Book by"
+msgstr "احجز عبر"
+
+msgid "Book in a tap"
+msgstr "احجز بضغطة واحدة"
+
+msgid "Book in three easy steps"
+msgstr "احجز في 3 خطوات سهلة"
+
+msgid "Book now"
+msgstr "احجز الآن"
+
+msgid "Book on WhatsApp"
+msgstr "احجز عبر WhatsApp"
+
+msgid "Booking #%1$s — %2$s"
+msgstr "الحجز #%1$s — %2$s"
+
+msgid "Booking Details"
+msgstr "تفاصيل الحجز"
+
+msgid "Booking received!"
+msgstr "تم استلام حجزك!"
+
+msgid "Booking: %1$s - %2$s"
+msgstr "الحجز: %1$s - %2$s"
+
+msgid "Booking…"
+msgstr "جارٍ الحجز…"
+
+msgid "Breadcrumb"
+msgstr "مسار التنقل"
+
+msgid "Bright Nest guarantee"
+msgstr "ضمان Bright Nest"
+
+msgid "Browse all services"
+msgstr "تصفح جميع الخدمات"
+
+msgid "Browse services"
+msgstr "تصفح الخدمات"
+
+msgid "Building / Villa name"
+msgstr "اسم المبنى / الفيلا"
+
+msgid "Building, apartment, street"
+msgstr "المبنى، الشقة، الشارع"
+
+msgid "By booking you agree to our"
+msgstr "بإتمام الحجز، أنت توافق على"
+
+msgid "Call %s"
+msgstr "اتصل على %s"
+
+msgid "Call us"
+msgstr "اتصل بنا"
+
+msgid "Car"
+msgstr "سيارة"
+
+msgid "Categories"
+msgstr "الفئات"
+
+msgid "Change"
+msgstr "تغيير"
+
+msgid "Chat on WhatsApp"
+msgstr "تحدث معنا على WhatsApp"
+
+msgid "Chat with us"
+msgstr "تحدث معنا"
+
+msgid "Chat with us on"
+msgstr "تحدث معنا على"
+
+msgid "Checking…"
+msgstr "جارٍ التحقق…"
+
+msgid "Choose a service"
+msgstr "اختر خدمة"
+
+msgid "Choose a service to book"
+msgstr "اختر خدمة لحجزها"
+
+msgid "Choose from"
+msgstr "اختر من"
+
+msgid "Choose how many hours you need."
+msgstr "اختر عدد الساعات التي تحتاجها."
+
+msgid "Choose how many professionals you need."
+msgstr "اختر عدد المحترفين الذين تحتاجهم."
+
+msgid "Choose your service"
+msgstr "اختر خدمتك"
+
+msgid "City"
+msgstr "المدينة"
+
+msgid "City / Area"
+msgstr "المدينة / المنطقة"
+
+msgid "Cleaning"
+msgstr "التنظيف"
+
+msgid "Cleaning materials"
+msgstr "مواد التنظيف"
+
+msgid "Cleaning, maintenance and home services in the UAE. Compare prices and book online."
+msgstr "خدمات التنظيف والصيانة والخدمات المنزلية في الإمارات. قارن الأسعار واحجز أونلاين."
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Confirm Pin Location"
+msgstr "تأكيد موقع الدبوس"
+
+msgid "Confirm booking"
+msgstr "تأكيد الحجز"
+
+msgid "Confirm location"
+msgstr "تأكيد الموقع"
+
+msgid "Contact"
+msgstr "اتصل بنا"
+
+msgid "Continue"
+msgstr "متابعة"
+
+msgid "Could not save booking. Please try again."
+msgstr "تعذر حفظ الحجز. يرجى المحاولة مرة أخرى."
+
+msgid "Could not start the payment. Please try again."
+msgstr "تعذر بدء عملية الدفع. يرجى المحاولة مرة أخرى."
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Date & Time"
+msgstr "التاريخ والوقت"
+
+msgid "Date and time"
+msgstr "التاريخ والوقت"
+
+msgid "Dec"
+msgstr "ديسمبر"
+
+msgid "Decrease"
+msgstr "تقليل"
+
+msgid "Deep clean / Sparkle"
+msgstr "تنظيف عميق / لمعان"
+
+msgid "Discount"
+msgstr "الخصم"
+
+msgid "Dubai"
+msgstr "دبي"
+
+msgid "Duration"
+msgstr "المدة"
+
+msgid "E.g. 2 bedroom apartment, need cleaning materials"
+msgstr "مثال: شقة بغرفتي نوم، أحتاج مواد التنظيف"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Email (for your receipt)"
+msgstr "البريد الإلكتروني (لإرسال الإيصال)"
+
+msgid "Enquiry from %s"
+msgstr "استفسار من %s"
+
+msgid "Enter code"
+msgstr "أدخل الرمز"
+
+msgid "Error"
+msgstr "خطأ"
+
+msgid "Evening"
+msgstr "المساء"
+
+msgid "Every 2 weeks"
+msgstr "كل أسبوعين"
+
+msgid "Everything that comes with your booking"
+msgstr "كل ما يشمله حجزك"
+
+msgid "Everything you need to know about booking with us."
+msgstr "كل ما تحتاج معرفته عن الحجز معنا."
+
+msgid "Example: key under the mat, ironing, cleaning fridge, etc."
+msgstr "مثال: المفتاح تحت السجادة، كي الملابس، تنظيف الثلاجة، إلخ."
+
+msgid "FAQ"
+msgstr "الأسئلة الشائعة"
+
+msgid "FAQs"
+msgstr "الأسئلة الشائعة"
+
+msgid "Feb"
+msgstr "فبراير"
+
+msgid "Footer"
+msgstr "التذييل"
+
+msgid "Footer Menu"
+msgstr "قائمة التذييل"
+
+msgid "Free"
+msgstr "مجاناً"
+
+msgid "Free rescheduling up to 12h before"
+msgstr "إعادة جدولة مجانية حتى 12 ساعة قبل الموعد"
+
+msgid "Frequency"
+msgstr "التكرار"
+
+msgid "Frequency discount"
+msgstr "خصم التكرار"
+
+msgid "Fri"
+msgstr "الجمعة"
+
+msgid "From"
+msgstr "من"
+
+msgid "Full name"
+msgstr "الاسم الكامل"
+
+msgid "Fully booked"
+msgstr "محجوز بالكامل"
+
+msgid "Gardening"
+msgstr "تنسيق الحدائق"
+
+msgid "Get a quote"
+msgstr "اطلب عرض سعر"
+
+msgid "Go home"
+msgstr "الرئيسية"
+
+msgid "Good evening!"
+msgstr "مساء الخير!"
+
+msgid "Have a voucher code?"
+msgstr "لديك رمز قسيمة؟"
+
+msgid "Health"
+msgstr "الصحة"
+
+msgid "Hi %1$s,\n\nThanks for booking %2$s on %3$s (%4$s).\nPaid online: %5$s\n\nOur team will contact you shortly to confirm.\n"
+msgstr "مرحباً %1$s،\n\nشكراً لحجزك %2$s بتاريخ %3$s (%4$s).\nالمبلغ المدفوع أونلاين: %5$s\n\nسيتواصل معك فريقنا قريباً للتأكيد.\n"
+
+msgid "Hi %1$s,\n\nThanks for booking %2$s on %3$s (%4$s).\nTotal: %5$s\n\nOur team will contact you shortly to confirm.\n"
+msgstr "مرحباً %1$s،\n\nشكراً لحجزك %2$s بتاريخ %3$s (%4$s).\nالمجموع: %5$s\n\nسيتواصل معك فريقنا قريباً للتأكيد.\n"
+
+msgid "Hi, I just booked %1$s (#%2$s) for %3$s, %4$s."
+msgstr "مرحباً، لقد حجزت للتو %1$s (#%2$s) يوم %3$s، %4$s."
+
+msgid "Hi, I would like to book %s."
+msgstr "مرحباً، أود حجز %s."
+
+msgid "Hi, I would like to book a service."
+msgstr "مرحباً، أود حجز خدمة."
+
+msgid "Highlights"
+msgstr "أبرز المزايا"
+
+msgid "Home"
+msgstr "الرئيسية"
+
+msgid "Home Cleaning"
+msgstr "تنظيف المنازل"
+
+msgid "Home size"
+msgstr "حجم المنزل"
+
+msgid "Hourly slots from 8 AM, including same-day when available."
+msgstr "مواعيد كل ساعة من 8 صباحاً، مع إمكانية الحجز في نفس اليوم عند التوفر."
+
+msgid "Hourly slots, 7 days"
+msgstr "مواعيد كل ساعة، 7 أيام"
+
+msgid "How it works"
+msgstr "كيف تعمل الخدمة"
+
+msgid "How long should I book for?"
+msgstr "كم ساعة يجب أن أحجز؟"
+
+msgid "How many hours do you need your professional to stay?"
+msgstr "كم ساعة تحتاج أن يبقى المحترف؟"
+
+msgid "How many professionals do you need?"
+msgstr "كم عدد المحترفين الذين تحتاجهم؟"
+
+msgid "How often do you need your professional?"
+msgstr "كم مرة تحتاج المحترف؟"
+
+msgid "Increase"
+msgstr "زيادة"
+
+msgid "Instructions"
+msgstr "التعليمات"
+
+msgid "Jan"
+msgstr "يناير"
+
+msgid "Jul"
+msgstr "يوليو"
+
+msgid "Jun"
+msgstr "يونيو"
+
+msgid "Lab test"
+msgstr "فحص مخبري"
+
+msgid "Limited offer"
+msgstr "عرض لفترة محدودة"
+
+msgid "Locate me"
+msgstr "حدد موقعي"
+
+msgid "Location pinned"
+msgstr "تم تحديد الموقع"
+
+msgid "Maid / Nanny"
+msgstr "عاملة منزلية / مربية"
+
+msgid "Maintenance / Wrench"
+msgstr "صيانة / مفتاح ربط"
+
+msgid "Mar"
+msgstr "مارس"
+
+msgid "May"
+msgstr "مايو"
+
+msgid "Men's grooming"
+msgstr "العناية بالرجال"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Mobile number"
+msgstr "رقم الجوال"
+
+msgid "Mon"
+msgstr "الإثنين"
+
+msgid "Morning"
+msgstr "الصباح"
+
+msgid "Move the map to set the exact position"
+msgstr "حرّك الخريطة لتحديد الموقع بدقة"
+
+msgid "Moving truck"
+msgstr "شاحنة نقل"
+
+msgid "Need cleaning materials?"
+msgstr "هل تحتاج مواد التنظيف؟"
+
+msgid "Next"
+msgstr "التالي"
+
+msgid "No options match your search."
+msgstr "لا توجد خيارات تطابق بحثك."
+
+msgid "No payment now. We confirm price & timing before your visit."
+msgstr "لا دفع الآن. سنؤكد السعر والموعد قبل زيارتك."
+
+msgid "No services found. Try another word, or message us — we will help."
+msgstr "لم يتم العثور على خدمات. جرّب كلمة أخرى، أو راسلنا وسنساعدك."
+
+msgid "No services match your search."
+msgstr "لا توجد خدمات تطابق بحثك."
+
+msgid "No, I have them"
+msgstr "لا، لدي مواد"
+
+msgid "Not available in %s"
+msgstr "غير متوفرة في %s"
+
+msgid "Not happy? We come back and fix it for free."
+msgstr "غير راضٍ؟ سنعود ونصلح الأمر مجاناً."
+
+msgid "Nothing found."
+msgstr "لم يتم العثور على شيء."
+
+msgid "Nov"
+msgstr "نوفمبر"
+
+msgid "OK"
+msgstr "حسناً"
+
+msgid "Oct"
+msgstr "أكتوبر"
+
+msgid "On this page"
+msgstr "في هذه الصفحة"
+
+msgid "On time"
+msgstr "في الموعد"
+
+msgid "One time"
+msgstr "مرة واحدة"
+
+msgid "Online payment is temporarily unavailable. Please contact us on WhatsApp to book."
+msgstr "الدفع أونلاين غير متاح مؤقتاً. يرجى التواصل معنا على WhatsApp للحجز."
+
+msgid "Open menu"
+msgstr "فتح القائمة"
+
+msgid "Or call %s"
+msgstr "أو اتصل على %s"
+
+msgid "Our team arrives on time and gets the job done."
+msgstr "يصل فريقنا في الموعد وينجز العمل على أكمل وجه."
+
+msgid "Our team will call or WhatsApp you shortly to confirm."
+msgstr "سيتصل بك فريقنا أو يراسلك على WhatsApp قريباً للتأكيد."
+
+msgid "Overview"
+msgstr "نظرة عامة"
+
+msgid "PM"
+msgstr "م"
+
+msgid "Packages"
+msgstr "الباقات"
+
+msgid "Packages & prices"
+msgstr "الباقات والأسعار"
+
+msgid "Page not found"
+msgstr "الصفحة غير موجودة"
+
+msgid "Paid online"
+msgstr "مدفوع أونلاين"
+
+msgid "Paid online: %1$s\nZiina transaction: %2$s\n\n%3$s"
+msgstr "المبلغ المدفوع أونلاين: %1$s\nمعاملة Ziina: %2$s\n\n%3$s"
+
+msgid "Painting"
+msgstr "الدهان"
+
+msgid "Pay securely"
+msgstr "ادفع بأمان"
+
+msgid "Pay securely by card, Apple Pay or Google Pay"
+msgstr "ادفع بأمان بالبطاقة أو Apple Pay أو Google Pay"
+
+msgid "Payment"
+msgstr "الدفع"
+
+msgid "Payment Summary"
+msgstr "ملخص الدفع"
+
+msgid "Payment for booking #%s was not completed. Please try again or choose another payment method."
+msgstr "لم يكتمل الدفع للحجز #%s. يرجى المحاولة مرة أخرى أو اختيار طريقة دفع أخرى."
+
+msgid "Payment method"
+msgstr "طريقة الدفع"
+
+msgid "Payment received for booking #%s"
+msgstr "تم استلام الدفع للحجز #%s"
+
+msgid "Per professional, per hour"
+msgstr "لكل محترف، لكل ساعة"
+
+msgid "Pest control"
+msgstr "مكافحة الحشرات"
+
+msgid "Pets"
+msgstr "الحيوانات الأليفة"
+
+msgid "Phone"
+msgstr "الهاتف"
+
+msgid "Pick a date & time"
+msgstr "اختر التاريخ والوقت"
+
+msgid "Pick a day and time. It takes less than a minute."
+msgstr "اختر اليوم والوقت. لن يستغرق الأمر أكثر من دقيقة."
+
+msgid "Pick a package or the hours you need. You see the price before you book."
+msgstr "اختر باقة أو عدد الساعات التي تحتاجها. سترى السعر قبل الحجز."
+
+msgid "Pick a time slot that suits you."
+msgstr "اختر الوقت المناسب لك."
+
+msgid "Pin your location on the map"
+msgstr "حدد موقعك على الخريطة"
+
+msgid "Please complete all required fields."
+msgstr "يرجى تعبئة جميع الحقول المطلوبة."
+
+msgid "Please enter a valid mobile number."
+msgstr "يرجى إدخال رقم جوال صحيح."
+
+msgid "Please enter the apartment or villa number."
+msgstr "يرجى إدخال رقم الشقة أو الفيلا."
+
+msgid "Please enter the building or villa name."
+msgstr "يرجى إدخال اسم المبنى أو الفيلا."
+
+msgid "Please enter your area or street."
+msgstr "يرجى إدخال المنطقة أو الشارع."
+
+msgid "Please enter your name."
+msgstr "يرجى إدخال اسمك."
+
+msgid "Please fill in your name, phone number and the service you need."
+msgstr "يرجى إدخال اسمك ورقم هاتفك والخدمة التي تحتاجها."
+
+msgid "Please pick a date from the list."
+msgstr "يرجى اختيار تاريخ من القائمة."
+
+msgid "Please select at least one option."
+msgstr "يرجى اختيار خيار واحد على الأقل."
+
+msgid "Popular"
+msgstr "الأكثر طلباً"
+
+msgid "Previous"
+msgstr "السابق"
+
+msgid "Prices"
+msgstr "الأسعار"
+
+msgid "Primary"
+msgstr "الرئيسية"
+
+msgid "Primary Menu"
+msgstr "القائمة الرئيسية"
+
+msgid "Pro equipment"
+msgstr "معدات احترافية"
+
+msgid "Questions customers ask"
+msgstr "أسئلة يطرحها العملاء"
+
+msgid "Rated %s out of 5"
+msgstr "التقييم %s من 5"
+
+msgid "Rating"
+msgstr "التقييم"
+
+msgid "Re-do guarantee within 24h"
+msgstr "ضمان إعادة العمل خلال 24 ساعة"
+
+msgid "Read more"
+msgstr "اقرأ المزيد"
+
+msgid "Ready to book %s?"
+msgstr "جاهز لحجز %s؟"
+
+msgid "Redirecting to secure payment…"
+msgstr "جارٍ تحويلك إلى صفحة الدفع الآمن…"
+
+msgid "Related services"
+msgstr "خدمات ذات صلة"
+
+msgid "Request a call back"
+msgstr "اطلب معاودة الاتصال"
+
+msgid "Request booking"
+msgstr "اطلب الحجز"
+
+msgid "Results for \"%s\""
+msgstr "نتائج البحث عن \"%s\""
+
+msgid "Results for “%s”"
+msgstr "نتائج البحث عن “%s”"
+
+msgid "Reviews"
+msgstr "التقييمات"
+
+msgid "Safe, eco-friendly products"
+msgstr "منتجات آمنة وصديقة للبيئة"
+
+msgid "Salon"
+msgstr "الصالون"
+
+msgid "Sat"
+msgstr "السبت"
+
+msgid "Satisfaction guarantee"
+msgstr "ضمان الرضا"
+
+msgid "Save %s%%"
+msgstr "وفّر %s%%"
+
+msgid "Search area, street or building"
+msgstr "ابحث عن المنطقة أو الشارع أو المبنى"
+
+msgid "Search for \"%s\""
+msgstr "ابحث عن \"%s\""
+
+msgid "Search for area, street name, landmark…"
+msgstr "ابحث عن منطقة، اسم شارع، معلم…"
+
+msgid "Search location"
+msgstr "ابحث عن موقع"
+
+msgid "Search options"
+msgstr "ابحث في الخيارات"
+
+msgid "Search options, e.g. manicure"
+msgstr "ابحث في الخيارات، مثل مانيكير"
+
+msgid "Search services"
+msgstr "ابحث عن الخدمات"
+
+msgid "Secure online payment"
+msgstr "دفع آمن أونلاين"
+
+msgid "See all"
+msgstr "عرض الكل"
+
+msgid "Select Address"
+msgstr "اختر العنوان"
+
+msgid "Select a service"
+msgstr "اختر خدمة"
+
+msgid "Select options"
+msgstr "اختر الخيارات"
+
+msgid "Send message"
+msgstr "إرسال الرسالة"
+
+msgid "Send on WhatsApp"
+msgstr "أرسل عبر WhatsApp"
+
+msgid "Send us a message"
+msgstr "أرسل لنا رسالة"
+
+msgid "Sep"
+msgstr "سبتمبر"
+
+msgid "Service"
+msgstr "الخدمة"
+
+msgid "Service Areas"
+msgstr "مناطق الخدمة"
+
+msgid "Service Details"
+msgstr "تفاصيل الخدمة"
+
+msgid "Service area"
+msgstr "منطقة الخدمة"
+
+msgid "Service categories"
+msgstr "فئات الخدمات"
+
+msgid "Service not found."
+msgstr "الخدمة غير موجودة."
+
+msgid "Services"
+msgstr "الخدمات"
+
+msgid "Set my location"
+msgstr "حدد موقعي"
+
+msgid "Set your location"
+msgstr "حدد موقعك"
+
+msgid "Set your location to see prices"
+msgstr "حدد موقعك لرؤية الأسعار"
+
+msgid "Simple hourly pricing"
+msgstr "أسعار بسيطة بالساعة"
+
+msgid "Skip to content"
+msgstr "انتقل إلى المحتوى"
+
+msgid "Sofa / Upholstery"
+msgstr "الكنب / المفروشات"
+
+msgid "Something went wrong. Please try again or call us."
+msgstr "حدث خطأ ما. يرجى المحاولة مرة أخرى أو الاتصال بنا."
+
+msgid "Something went wrong. Please try again."
+msgstr "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+
+msgid "Sorry, %1$s is not available in %2$s yet. Please choose another area."
+msgstr "عذراً، خدمة %1$s غير متوفرة في %2$s حتى الآن. يرجى اختيار منطقة أخرى."
+
+msgid "Sorry, this service is not available in %s yet."
+msgstr "عذراً، هذه الخدمة غير متوفرة في %s حالياً."
+
+msgid "Sorry, this service is not available right now."
+msgstr "عذراً، هذه الخدمة غير متوفرة حالياً."
+
+msgid "Spa / Massage"
+msgstr "سبا / مساج"
+
+msgid "Starting from"
+msgstr "ابتداءً من"
+
+msgid "Step"
+msgstr "الخطوة"
+
+msgid "Subtotal"
+msgstr "المجموع الفرعي"
+
+msgid "Suggested duration"
+msgstr "المدة المقترحة"
+
+msgid "Sun"
+msgstr "الأحد"
+
+msgid "Tap \"Add\" on at least one option."
+msgstr "اضغط \"أضف\" على خيار واحد على الأقل."
+
+msgid "Tell us if you need cleaning materials."
+msgstr "أخبرنا إذا كنت تحتاج إلى مواد التنظيف."
+
+msgid "Thank you! Your request has been received. Our team will contact you shortly to confirm."
+msgstr "شكراً لك! تم استلام طلبك. سيتواصل معك فريقنا قريباً للتأكيد."
+
+msgid "The minimum booking amount is %s."
+msgstr "الحد الأدنى لمبلغ الحجز هو %s."
+
+msgid "The page you're looking for doesn't exist or has moved."
+msgstr "الصفحة التي تبحث عنها غير موجودة أو تم نقلها."
+
+msgid "This email does not look right."
+msgstr "يبدو أن البريد الإلكتروني غير صحيح."
+
+msgid "This service is not available in the selected area."
+msgstr "هذه الخدمة غير متوفرة في المنطقة المختارة."
+
+msgid "This voucher code is not valid."
+msgstr "رمز القسيمة هذا غير صالح."
+
+msgid "Thu"
+msgstr "الخميس"
+
+msgid "Time"
+msgstr "الوقت"
+
+msgid "Tmrw"
+msgstr "غداً"
+
+msgid "Today"
+msgstr "اليوم"
+
+msgid "Today, %s"
+msgstr "اليوم، %s"
+
+msgid "Tomorrow, %s"
+msgstr "غداً، %s"
+
+msgid "Total"
+msgstr "المجموع"
+
+msgid "Trained team"
+msgstr "فريق مدرّب"
+
+msgid "Tue"
+msgstr "الثلاثاء"
+
+msgid "United Arab Emirates"
+msgstr "الإمارات العربية المتحدة"
+
+msgid "Update for %s"
+msgstr "تحديث مقابل %s"
+
+msgid "Use code"
+msgstr "استخدم الرمز"
+
+msgid "Use my current location"
+msgstr "استخدم موقعي الحالي"
+
+msgid "Verified & uniformed"
+msgstr "موثوقون وبزي موحد"
+
+msgid "Vetted professionals"
+msgstr "محترفون موثوقون"
+
+msgid "View all"
+msgstr "عرض الكل"
+
+msgid "Voucher %s applied."
+msgstr "تم تطبيق القسيمة %s."
+
+msgid "Voucher code"
+msgstr "رمز القسيمة"
+
+msgid "Water / Plumbing"
+msgstr "المياه / السباكة"
+
+msgid "We could not check this location. Please check your connection and try again."
+msgstr "تعذر التحقق من هذا الموقع. يرجى التحقق من اتصالك والمحاولة مرة أخرى."
+
+msgid "We couldn't find that service. Try another keyword or browse all services."
+msgstr "لم نتمكن من العثور على هذه الخدمة. جرّب كلمة أخرى أو تصفح جميع الخدمات."
+
+msgid "We do not currently operate in this area."
+msgstr "نحن لا نعمل في هذه المنطقة حالياً."
+
+msgid "We send your receipt here. If you leave before paying, we will send one reminder with a link back to your booking."
+msgstr "سنرسل إيصالك إلى هنا. إذا غادرت قبل الدفع، سنرسل لك تذكيراً واحداً مع رابط للعودة إلى حجزك."
+
+msgid "We take care of it"
+msgstr "نحن نتولى الأمر"
+
+msgid "We're here 7 days a week. Reach out any way you like."
+msgstr "نحن هنا 7 أيام في الأسبوع. تواصل معنا بالطريقة التي تناسبك."
+
+msgid "Wed"
+msgstr "الأربعاء"
+
+msgid "Weekly"
+msgstr "أسبوعياً"
+
+msgid "What our customers say"
+msgstr "ماذا يقول عملاؤنا"
+
+msgid "What time would you like us to arrive?"
+msgstr "في أي وقت تريد أن نصل؟"
+
+msgid "What's included"
+msgstr "ما الذي تشمله الخدمة"
+
+msgid "When"
+msgstr "الموعد"
+
+msgid "When would you like your service?"
+msgstr "متى تريد الخدمة؟"
+
+msgid "Where do you need the service?"
+msgstr "أين تحتاج الخدمة؟"
+
+msgid "Where would you like to receive your service?"
+msgstr "أين تريد أن تتلقى الخدمة؟"
+
+msgid "Why choose %s?"
+msgstr "لماذا تختار %s؟"
+
+msgid "Yes, please"
+msgstr "نعم، من فضلك"
+
+msgid "You may also need"
+msgstr "قد تحتاج أيضاً"
+
+msgid "Your booking #%s is paid"
+msgstr "تم دفع حجزك #%s"
+
+msgid "Your booking reference is"
+msgstr "رقم مرجع حجزك هو"
+
+msgid "Your booking request #%s"
+msgstr "طلب الحجز #%s"
+
+msgid "Your contact details"
+msgstr "بيانات التواصل"
+
+msgid "Your name"
+msgstr "اسمك"
+
+msgid "bookings"
+msgstr "حجوزات"
+
+msgid "e.g. 1204"
+msgstr "مثال: 1204"
+
+msgid "e.g. Dubai Marina, Al Marsa Street"
+msgstr "مثال: دبي مارينا، شارع المرسى"
+
+msgid "e.g. Marina Heights"
+msgstr "مثال: مارينا هايتس"
+
+msgid "hr"
+msgstr "ساعة"
+
+msgid "not available"
+msgstr "غير متاح"
+
+msgid "of"
+msgstr "من"
+
+msgid "terms"
+msgstr "الشروط"
+
+msgid "the hour"
+msgstr "الساعة"
+
+msgid "there"
+msgstr "بك"
+
+msgid "voucher code is ready, please select one or more options from the list to get this voucher code applied!"
+msgstr "رمز القسيمة جاهز، يرجى اختيار خيار واحد أو أكثر من القائمة لتطبيق رمز القسيمة!"

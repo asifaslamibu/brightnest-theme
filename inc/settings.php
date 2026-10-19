@@ -31,6 +31,7 @@ function brightnest_settings_schema() {
 					'currency' => array( 'text', __( 'Currency', 'brightnest' ), __( 'e.g. AED', 'brightnest' ) ),
 					'map_lat'  => array( 'text', __( 'Map start latitude', 'brightnest' ), '' ),
 					'map_lng'  => array( 'text', __( 'Map start longitude', 'brightnest' ), '' ),
+					'google_maps_key' => array( 'text', __( 'Google Maps API key', 'brightnest' ), __( 'With a key the location picker uses Google Maps (map, search and addresses). In Google Cloud enable "Maps JavaScript API", "Geocoding API" and "Places API (New)", and limit the key to your website address. Leave empty to use the free OpenStreetMap map.', 'brightnest' ) ),
 				),
 				__( 'Footer', 'brightnest' ) => array(
 					'footer_about' => array( 'textarea', __( 'Short company description', 'brightnest' ), '' ),
@@ -62,6 +63,12 @@ function brightnest_settings_schema() {
 					'pay_online_label' => array( 'text', __( 'Online — title', 'brightnest' ), '' ),
 					'pay_online_text'  => array( 'text', __( 'Online — description', 'brightnest' ), '' ),
 					'booking_note'     => array( 'textarea', __( 'Note under the pay button', 'brightnest' ), '' ),
+				),
+				__( 'Unfinished booking reminder', 'brightnest' ) => array(
+					'remind_on'      => array( 'toggle', __( 'Email customers who did not finish their booking', 'brightnest' ), __( 'One email, when a customer filled in the checkout (with their email) but did not pay, or went to the payment page and did not pay. The link takes them straight back.', 'brightnest' ) ),
+					'remind_hours'   => array( 'number', __( 'Send the reminder after (hours)', 'brightnest' ), __( 'Hours after the customer left the checkout. 1 to 48.', 'brightnest' ) ),
+					'remind_subject' => array( 'text', __( 'Reminder subject', 'brightnest' ), __( 'You can use {name}, {service}, {site}.', 'brightnest' ) ),
+					'remind_body'    => array( 'textarea', __( 'Reminder text', 'brightnest' ), __( 'You can use {name}, {service}, {link} (the button back to the booking), {phone}, {site}.', 'brightnest' ) ),
 				),
 				__( 'Notifications & vouchers', 'brightnest' ) => array(
 					'booking_email' => array( 'email', __( 'Send new bookings to', 'brightnest' ), __( 'Leave empty to use the site admin email.', 'brightnest' ) ),
@@ -232,7 +239,28 @@ function brightnest_settings_field( $key, $f ) {
 	if ( $help ) {
 		echo '<small>' . esc_html( $help ) . '</small>';
 	}
+	// Arabic twin for text customers read (shown on the /ar/ site; empty = English).
+	if ( brightnest_settings_has_ar( $key, $type ) ) {
+		$ar_val = (string) get_theme_mod( 'bn_' . $key . '_ar', '' );
+		echo '<div class="bn-set-ar"><label for="' . esc_attr( $id ) . '-ar">' . esc_html__( 'Arabic (العربية)', 'brightnest' ) . '</label>';
+		if ( 'textarea' === $type ) {
+			echo '<textarea dir="rtl" id="' . esc_attr( $id ) . '-ar" name="bn[' . esc_attr( $key ) . '_ar]" rows="4">' . esc_textarea( $ar_val ) . '</textarea>';
+		} else {
+			echo '<input type="text" dir="rtl" id="' . esc_attr( $id ) . '-ar" name="bn[' . esc_attr( $key ) . '_ar]" value="' . esc_attr( $ar_val ) . '">';
+		}
+		if ( 'cities' === $key ) {
+			echo '<small>' . esc_html__( 'Arabic names in the same order, one per line.', 'brightnest' ) . '</small>';
+		}
+		echo '</div>';
+	}
 	echo '</div>';
+}
+
+/**
+ * Does this setting get an Arabic field?
+ */
+function brightnest_settings_has_ar( $key, $type ) {
+	return in_array( $type, array( 'text', 'textarea' ), true ) && ( 'cities' === $key || in_array( $key, brightnest_i18n_keys(), true ) );
 }
 
 function brightnest_settings_page() {
@@ -267,6 +295,9 @@ function brightnest_settings_page() {
 							<li>
 								<input name="bn_faqs[<?php echo (int) $i; ?>][0]" value="<?php echo esc_attr( $faq[0] ); ?>" placeholder="<?php esc_attr_e( 'Question', 'brightnest' ); ?>">
 								<textarea name="bn_faqs[<?php echo (int) $i; ?>][1]" rows="2" placeholder="<?php esc_attr_e( 'Answer', 'brightnest' ); ?>"><?php echo esc_textarea( $faq[1] ); ?></textarea>
+								<?php $bn_far = (array) get_theme_mod( 'bn_faqs_ar', array() ); ?>
+								<input dir="rtl" name="bn_faqs[<?php echo (int) $i; ?>][2]" value="<?php echo esc_attr( isset( $bn_far[ $i ][0] ) ? $bn_far[ $i ][0] : '' ); ?>" placeholder="<?php esc_attr_e( 'Arabic question (العربية)', 'brightnest' ); ?>">
+								<textarea dir="rtl" name="bn_faqs[<?php echo (int) $i; ?>][3]" rows="2" placeholder="<?php esc_attr_e( 'Arabic answer', 'brightnest' ); ?>"><?php echo esc_textarea( isset( $bn_far[ $i ][1] ) ? $bn_far[ $i ][1] : '' ); ?></textarea>
 								<button type="button" class="button-link bn-opt-del" data-faq-del><span class="dashicons dashicons-trash"></span></button>
 							</li>
 						<?php endforeach; ?>
@@ -305,15 +336,19 @@ function brightnest_save_settings() {
 
 	if ( 'faq' === $tab ) {
 		$faqs = array();
+		$ar   = array();
 		$raw  = isset( $_POST['bn_faqs'] ) && is_array( $_POST['bn_faqs'] ) ? wp_unslash( $_POST['bn_faqs'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		foreach ( $raw as $row ) {
 			$q = isset( $row[0] ) ? sanitize_text_field( $row[0] ) : '';
 			$a = isset( $row[1] ) ? sanitize_textarea_field( $row[1] ) : '';
 			if ( '' !== $q && '' !== $a ) {
 				$faqs[] = array( $q, $a );
+				// Arabic twin stays at the same position as its English question.
+				$ar[] = array( isset( $row[2] ) ? sanitize_text_field( $row[2] ) : '', isset( $row[3] ) ? sanitize_textarea_field( $row[3] ) : '' );
 			}
 		}
 		set_theme_mod( 'bn_faqs', $faqs );
+		set_theme_mod( 'bn_faqs_ar', $ar );
 	} else {
 		$in = isset( $_POST['bn'] ) && is_array( $_POST['bn'] ) ? wp_unslash( $_POST['bn'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		foreach ( $schema[ $tab ][2] as $fields ) {
@@ -360,6 +395,9 @@ function brightnest_save_settings() {
 					$v = preg_replace( '/\D/', '', $v );
 				}
 				set_theme_mod( 'bn_' . $key, $v );
+				if ( brightnest_settings_has_ar( $key, $f[0] ) && array_key_exists( $key . '_ar', $in ) ) {
+					set_theme_mod( 'bn_' . $key . '_ar', 'textarea' === $f[0] ? sanitize_textarea_field( $in[ $key . '_ar' ] ) : sanitize_text_field( $in[ $key . '_ar' ] ) );
+				}
 			}
 		}
 		// Keep the time window sensible.

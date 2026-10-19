@@ -35,6 +35,7 @@ function brightnest_service_meta_box( $post ) {
 			<button type="button" data-tab="areas"><span class="dashicons dashicons-location"></span> <?php esc_html_e( 'Areas & prices', 'brightnest' ); ?></button>
 			<button type="button" data-tab="included"><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( "What's included", 'brightnest' ); ?></button>
 			<button type="button" data-tab="faq"><span class="dashicons dashicons-editor-help"></span> <?php esc_html_e( 'FAQ', 'brightnest' ); ?></button>
+			<button type="button" data-tab="arabic"><span class="dashicons dashicons-translation"></span> <?php esc_html_e( 'Arabic (العربية)', 'brightnest' ); ?></button>
 		</nav>
 
 		<!-- Basics -->
@@ -95,6 +96,11 @@ function brightnest_service_meta_box( $post ) {
 					<?php endforeach; ?>
 				</div>
 				<small><?php esc_html_e( 'A featured image (right sidebar) replaces the icon on service cards.', 'brightnest' ); ?></small>
+			</div>
+			<div class="bn-adm-field">
+				<span><?php esc_html_e( 'Or your own icon image', 'brightnest' ); ?></span>
+				<?php brightnest_admin_image_field( 'bn_icon_img', (string) get_post_meta( $post->ID, '_bn_icon_img', true ), __( 'No image: the icon above is used', 'brightnest' ) ); ?>
+				<small><?php esc_html_e( 'Used instead of the line icon on the homepage tiles, the services page and the checkout. A square PNG/JPG or SVG-like picture works best.', 'brightnest' ); ?></small>
 			</div>
 		</section>
 
@@ -178,6 +184,9 @@ function brightnest_service_meta_box( $post ) {
 					<summary><?php esc_html_e( 'Bulk edit as text (paste many options at once)', 'brightnest' ); ?></summary>
 					<p class="description"><?php esc_html_e( 'One option per line: Tab | Option name | Description | Price | Old price (optional)', 'brightnest' ); ?></p>
 					<textarea name="bn_options" rows="8" class="large-text code" data-opt-raw><?php echo esc_textarea( $m( 'options' ) ); ?></textarea>
+					<input type="hidden" name="bn_opt_details" data-opt-details value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_opt_details', true ) ); ?>">
+					<input type="hidden" name="bn_tab_imgs" data-tab-imgs value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_tab_imgs', true ) ); ?>">
+					<input type="hidden" name="bn_ar_tabs" data-ar-tabs value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_ar_tabs', true ) ); ?>">
 					<button type="button" class="button" data-opt-reload><?php esc_html_e( 'Apply text to the editor above', 'brightnest' ); ?></button>
 				</details>
 			</div>
@@ -291,6 +300,29 @@ function brightnest_service_meta_box( $post ) {
 			</ol>
 			<button type="button" class="button" data-faq-add data-name="bn_faqs"><span class="dashicons dashicons-plus"></span> <?php esc_html_e( 'Add question', 'brightnest' ); ?></button>
 		</section>
+
+		<!-- Arabic -->
+		<section class="bn-adm-panel bn-adm-ar" data-panel="arabic" hidden>
+			<p class="bn-adm-help"><?php esc_html_e( 'Shown on the Arabic site (/ar/). Empty fields show the English text. Option names, descriptions and tab names in Arabic are in Booking & prices → the ⓘ button of each option and the Arabic box next to each tab name.', 'brightnest' ); ?></p>
+			<input type="hidden" name="bn_ar_sent" value="1">
+			<label class="bn-adm-field"><span><?php esc_html_e( 'Arabic name', 'brightnest' ); ?></span><input type="text" dir="rtl" name="bn_ar_s[title]" value="<?php echo esc_attr( get_post_meta( $post->ID, '_bn_ar_title', true ) ); ?>"></label>
+			<label class="bn-adm-field"><span><?php esc_html_e( 'Arabic short description', 'brightnest' ); ?></span><textarea dir="rtl" rows="2" name="bn_ar_s[excerpt]"><?php echo esc_textarea( get_post_meta( $post->ID, '_bn_ar_excerpt', true ) ); ?></textarea></label>
+			<label class="bn-adm-field"><span><?php esc_html_e( 'Arabic page text (HTML allowed)', 'brightnest' ); ?></span><textarea dir="rtl" rows="6" name="bn_ar_s[content]"><?php echo esc_textarea( get_post_meta( $post->ID, '_bn_ar_content', true ) ); ?></textarea></label>
+			<label class="bn-adm-field"><span><?php esc_html_e( "Arabic \"What's included\" (one per line, same order as English)", 'brightnest' ); ?></span><textarea dir="rtl" rows="5" name="bn_ar_s[includes]"><?php echo esc_textarea( get_post_meta( $post->ID, '_bn_ar_includes', true ) ); ?></textarea></label>
+			<?php $bn_ar_faqs = get_post_meta( $post->ID, '_bn_ar_faqs', true ); ?>
+			<?php if ( is_array( $faqs ) && $faqs ) : ?>
+				<h3 class="bn-adm-h"><?php esc_html_e( 'Arabic FAQ', 'brightnest' ); ?></h3>
+				<ol class="bn-faq-edit">
+					<?php foreach ( $faqs as $i => $faq ) : ?>
+						<li>
+							<small><?php echo esc_html( $faq[0] ); ?></small>
+							<input dir="rtl" name="bn_ar_faqs[<?php echo (int) $i; ?>][0]" value="<?php echo esc_attr( isset( $bn_ar_faqs[ $i ][0] ) ? $bn_ar_faqs[ $i ][0] : '' ); ?>" placeholder="<?php esc_attr_e( 'Arabic question', 'brightnest' ); ?>">
+							<textarea dir="rtl" name="bn_ar_faqs[<?php echo (int) $i; ?>][1]" rows="2" placeholder="<?php esc_attr_e( 'Arabic answer', 'brightnest' ); ?>"><?php echo esc_textarea( isset( $bn_ar_faqs[ $i ][1] ) ? $bn_ar_faqs[ $i ][1] : '' ); ?></textarea>
+						</li>
+					<?php endforeach; ?>
+				</ol>
+			<?php endif; ?>
+		</section>
 	</div>
 	<?php
 }
@@ -388,6 +420,9 @@ function brightnest_save_meta( $post_id, $post ) {
 	}
 
 	if ( 'bn_service' === $post->post_type ) {
+		if ( isset( $_POST['bn_icon_img'] ) ) {
+			update_post_meta( $post_id, '_bn_icon_img', esc_url_raw( wp_unslash( $_POST['bn_icon_img'] ) ) );
+		}
 		$text = array( 'bn_price_unit', 'bn_duration', 'bn_icon' );
 		foreach ( $text as $f ) {
 			update_post_meta( $post_id, '_' . $f, isset( $_POST[ $f ] ) ? sanitize_text_field( wp_unslash( $_POST[ $f ] ) ) : '' );
@@ -398,6 +433,59 @@ function brightnest_save_meta( $post_id, $post ) {
 		update_post_meta( $post_id, '_bn_featured', empty( $_POST['bn_featured'] ) ? '' : '1' );
 		update_post_meta( $post_id, '_bn_includes', isset( $_POST['bn_includes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['bn_includes'] ) ) : '' );
 		update_post_meta( $post_id, '_bn_options', isset( $_POST['bn_options'] ) ? sanitize_textarea_field( wp_unslash( $_POST['bn_options'] ) ) : '' );
+		// Option popup details: { "name|desc": { about, hl } } from the price list editor.
+		if ( isset( $_POST['bn_opt_details'] ) ) {
+			$bn_det = json_decode( wp_unslash( $_POST['bn_opt_details'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$bn_out = array();
+			foreach ( is_array( $bn_det ) ? $bn_det : array() as $bn_k => $bn_v ) {
+				$bn_row = array();
+				foreach ( array( 'about', 'hl', 'name_ar', 'desc_ar', 'about_ar', 'hl_ar' ) as $bn_f ) {
+					$bn_val = isset( $bn_v[ $bn_f ] ) ? sanitize_textarea_field( $bn_v[ $bn_f ] ) : '';
+					if ( '' !== $bn_val ) {
+						$bn_row[ $bn_f ] = $bn_val;
+					}
+				}
+				if ( $bn_row ) {
+					$bn_out[ sanitize_text_field( $bn_k ) ] = $bn_row;
+				}
+			}
+			update_post_meta( $post_id, '_bn_opt_details', $bn_out ? wp_slash( wp_json_encode( $bn_out, JSON_UNESCAPED_UNICODE ) ) : '' );
+		}
+		// Tab pictures for the checkout strip: { "English tab": "image url" }.
+		if ( isset( $_POST['bn_tab_imgs'] ) ) {
+			$bn_imgs = json_decode( wp_unslash( $_POST['bn_tab_imgs'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$bn_out  = array();
+			foreach ( is_array( $bn_imgs ) ? $bn_imgs : array() as $bn_k => $bn_v ) {
+				if ( esc_url_raw( $bn_v ) ) {
+					$bn_out[ sanitize_text_field( $bn_k ) ] = esc_url_raw( $bn_v );
+				}
+			}
+			update_post_meta( $post_id, '_bn_tab_imgs', $bn_out ? wp_slash( wp_json_encode( $bn_out ) ) : '' );
+		}
+		// Arabic tab names: { "English tab": "Arabic" }.
+		if ( isset( $_POST['bn_ar_tabs'] ) ) {
+			$bn_tabs = json_decode( wp_unslash( $_POST['bn_ar_tabs'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$bn_out  = array();
+			foreach ( is_array( $bn_tabs ) ? $bn_tabs : array() as $bn_k => $bn_v ) {
+				if ( '' !== trim( (string) $bn_v ) ) {
+					$bn_out[ sanitize_text_field( $bn_k ) ] = sanitize_text_field( $bn_v );
+				}
+			}
+			update_post_meta( $post_id, '_bn_ar_tabs', $bn_out ? wp_slash( wp_json_encode( $bn_out, JSON_UNESCAPED_UNICODE ) ) : '' );
+		}
+		// Arabic tab of the service editor.
+		if ( isset( $_POST['bn_ar_sent'] ) ) {
+			$bn_ar = isset( $_POST['bn_ar_s'] ) && is_array( $_POST['bn_ar_s'] ) ? wp_unslash( $_POST['bn_ar_s'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			update_post_meta( $post_id, '_bn_ar_title', isset( $bn_ar['title'] ) ? sanitize_text_field( $bn_ar['title'] ) : '' );
+			update_post_meta( $post_id, '_bn_ar_excerpt', isset( $bn_ar['excerpt'] ) ? sanitize_textarea_field( $bn_ar['excerpt'] ) : '' );
+			update_post_meta( $post_id, '_bn_ar_content', isset( $bn_ar['content'] ) ? wp_slash( wp_kses_post( $bn_ar['content'] ) ) : '' );
+			update_post_meta( $post_id, '_bn_ar_includes', isset( $bn_ar['includes'] ) ? sanitize_textarea_field( $bn_ar['includes'] ) : '' );
+			$bn_af = array();
+			foreach ( isset( $_POST['bn_ar_faqs'] ) && is_array( $_POST['bn_ar_faqs'] ) ? wp_unslash( $_POST['bn_ar_faqs'] ) : array() as $bn_i => $bn_row ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+				$bn_af[ (int) $bn_i ] = array( sanitize_text_field( isset( $bn_row[0] ) ? $bn_row[0] : '' ), sanitize_textarea_field( isset( $bn_row[1] ) ? $bn_row[1] : '' ) );
+			}
+			update_post_meta( $post_id, '_bn_ar_faqs', $bn_af );
+		}
 		$mode = isset( $_POST['bn_mode'] ) ? sanitize_key( $_POST['bn_mode'] ) : '';
 		update_post_meta( $post_id, '_bn_mode', in_array( $mode, array( 'hourly', 'single' ), true ) ? $mode : '' );
 		if ( isset( $_POST['bn_active'] ) ) {
@@ -534,6 +622,13 @@ function brightnest_cat_icon_edit_field( $term ) {
 			</select>
 		</td>
 	</tr>
+	<tr class="form-field">
+		<th><?php esc_html_e( 'Icon image', 'brightnest' ); ?></th>
+		<td>
+			<?php brightnest_admin_image_field( 'bn_cat_icon_img', (string) get_term_meta( $term->term_id, 'bn_icon_img', true ), __( 'No image: the icon above is used', 'brightnest' ) ); ?>
+			<p class="description"><?php esc_html_e( 'Shown instead of the icon in the category strip and for services without their own icon.', 'brightnest' ); ?></p>
+		</td>
+	</tr>
 	<?php
 }
 add_action( 'bn_service_cat_edit_form_fields', 'brightnest_cat_icon_edit_field' );
@@ -541,6 +636,9 @@ add_action( 'bn_service_cat_edit_form_fields', 'brightnest_cat_icon_edit_field' 
 function brightnest_cat_icon_save( $term_id ) {
 	if ( isset( $_POST['bn_cat_icon'] ) && current_user_can( 'manage_categories' ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- core term screens verify nonce.
 		update_term_meta( $term_id, 'bn_icon', sanitize_key( $_POST['bn_cat_icon'] ) );
+	}
+	if ( isset( $_POST['bn_cat_icon_img'] ) && current_user_can( 'manage_categories' ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		update_term_meta( $term_id, 'bn_icon_img', esc_url_raw( wp_unslash( $_POST['bn_cat_icon_img'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 	}
 }
 add_action( 'created_bn_service_cat', 'brightnest_cat_icon_save' );

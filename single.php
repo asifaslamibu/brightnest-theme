@@ -14,7 +14,8 @@ while ( have_posts() ) :
 		<div class="bn-container bn-narrow">
 			<?php brightnest_breadcrumbs(); ?>
 			<h1><?php the_title(); ?></h1>
-			<p class="bn-muted"><?php echo esc_html( get_the_date() ); ?> · <?php the_author(); ?></p>
+			<?php $bn_cat = get_the_category(); ?>
+			<p class="bn-muted"><?php echo esc_html( get_the_date() ); ?><?php if ( $bn_cat ) : ?> · <a href="<?php echo esc_url( get_category_link( $bn_cat[0] ) ); ?>"><?php echo esc_html( $bn_cat[0]->name ); ?></a><?php endif; ?></p>
 		</div>
 	</section>
 	<section class="bn-section">

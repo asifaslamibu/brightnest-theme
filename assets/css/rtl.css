@@ -1,0 +1,70 @@
+/* Arabic site (/ar/): Arabic typeface and right-to-left fixes. Loaded only when the page is RTL.
+   Flex and grid rows already mirror by themselves; this file flips what uses left/right. */
+
+/* Typeface: IBM Plex Sans Arabic has Latin letters too, so mixed text stays consistent. */
+html[dir="rtl"] body,
+html[dir="rtl"] body :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, small, b, em, li, dt, dd, label, button, input, textarea, select, output, del, summary, th, td) {
+	font-family: 'IBM Plex Sans Arabic', 'Hanken Grotesk', Tahoma, sans-serif;
+	letter-spacing: 0;
+}
+html[dir="rtl"] body { line-height: 1.6; }
+
+/* Hidden helpers that sit off-screen on the left would widen the page in RTL. */
+html[dir="rtl"] .bn-skip { left: auto; right: -999px; }
+html[dir="rtl"] .bn-skip:focus { right: 8px; }
+html[dir="rtl"] .bn-hp { left: auto; right: -9999px; }
+
+/* Arrows and chevrons point the other way. */
+html[dir="rtl"] .bn-icon-arrow-left,
+html[dir="rtl"] .bn-icon-arrow-right { transform: scaleX(-1); }
+
+/* Header: the menu dropdown opens from the left edge of its button group. */
+html[dir="rtl"] .bn-nav,
+html[dir="rtl"] .bn-nav-open .bn-nav { right: auto; left: 0; }
+html[dir="rtl"] .bn-header-actions { margin-left: 0; margin-right: auto; }
+html[dir="rtl"] .bn-hloc-open { padding: 0 14px 0 6px; }
+html[dir="rtl"] .bn-hloc-here { padding: 0 8px 0 14px; }
+html[dir="rtl"] .bn-hlang { font-family: 'Hanken Grotesk', sans-serif; }
+html[dir="rtl"] .bn-menu > .menu-item-has-children > a::after { margin-left: 0; margin-right: 8px; }
+html[dir="rtl"] .bn-menu .sub-menu { left: auto; right: 0; }
+
+/* Floating WhatsApp button on the left, like Arabic sites. */
+html[dir="rtl"] .bn-wa-float { right: auto; left: 20px; }
+
+/* Services hub */
+html[dir="rtl"] .bn-hub-cats-arrow.is-prev { left: auto; right: -22px; }
+html[dir="rtl"] .bn-hub-cats-arrow.is-next { right: auto; left: -22px; }
+html[dir="rtl"] .bn-hub-seeall { margin-right: 0; margin-left: 6px; }
+html[dir="rtl"] .bn-hub-badge { right: auto; left: 10px; }
+
+/* Homepage + general blocks */
+html[dir="rtl"] .bn-stats li + li { border-left: 0; border-right: 1px solid var(--bn-line); }
+html[dir="rtl"] .bn-carousel-nav .bn-link { margin-right: 0; margin-left: 8px; }
+html[dir="rtl"] .bn-cta .bn-code strong { margin-left: 0; margin-right: 6px; }
+html[dir="rtl"] .bn-float-1 { left: auto; right: -36px; }
+html[dir="rtl"] .bn-float-2 { right: auto; left: -16px; }
+
+/* Checkout */
+html[dir="rtl"] .bn-co-steptitle::before { margin-right: 0; margin-left: 8px; }
+html[dir="rtl"] .bn-co-top .bn-co-back { margin-left: 0; margin-right: -4px; }
+html[dir="rtl"] .bn-co-item.is-selected::before { left: auto; right: -24px; }
+html[dir="rtl"] .bn-co-money dd.bn-co-total { margin-left: 0; padding-left: 0; margin-right: -16px; padding-right: 16px; }
+html[dir="rtl"] .bn-co-dl dd { text-align: left; }
+html[dir="rtl"] .bn-co-recap-v, html[dir="rtl"] .bn-co-choice, html[dir="rtl"] .bn-co-addr-card { text-align: right; }
+html[dir="rtl"] .bn-co-seg .bn-co-choice { text-align: center; }
+/* Prices, phone numbers and references read left-to-right inside Arabic text. */
+html[dir="rtl"] [data-money], html[dir="rtl"] [data-sum="total"], html[dir="rtl"] [data-sum="sub"], html[dir="rtl"] [data-total-mini], html[dir="rtl"] input[type="tel"] { unicode-bidi: isolate; direction: ltr; }
+html[dir="rtl"] input[type="tel"], html[dir="rtl"] input[type="email"] { text-align: right; }
+
+/* Map picker */
+html[dir="rtl"] .bn-map-search { padding: 4px 12px 4px 4px; }
+
+@media (max-width: 960px) {
+	html[dir="rtl"] .bn-header-actions { margin-right: auto; }
+	html[dir="rtl"] .bn-float-1 { right: 0; }
+	html[dir="rtl"] .bn-float-2 { left: 0; }
+	html[dir="rtl"] .bn-stats li + li { border-right: 0; }
+}
+@media (max-width: 640px) {
+	html[dir="rtl"] .bn-co-item.is-selected::before { right: -16px; }
+}

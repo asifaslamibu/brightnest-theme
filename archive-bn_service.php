@@ -1,6 +1,6 @@
 <?php
 /**
- * Services hub (Justlife style): location + search bar, category strip,
+ * Services hub (Justlife style): category strip (location + search are in the header),
  * one horizontal row of service cards per category. Cards open the booking directly.
  * Also used for service category pages and service search results (as a grid).
  *
@@ -41,7 +41,7 @@ $bn_card = function ( $id ) {
 			<?php if ( has_post_thumbnail( $id ) ) : ?>
 				<?php echo get_the_post_thumbnail( $id, 'brightnest-card', array( 'loading' => 'lazy', 'alt' => '' ) ); ?>
 			<?php else : ?>
-				<span class="bn-hub-icon bn-tone-<?php echo esc_attr( brightnest_tone( $id ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $id ), 52 ); // phpcs:ignore ?></span>
+				<span class="bn-hub-icon bn-tone-<?php echo esc_attr( brightnest_tone( $id ) ); ?>"><?php echo brightnest_service_icon_html( $id, 52 ); // phpcs:ignore ?></span>
 			<?php endif; ?>
 			<?php if ( '1' === get_post_meta( $id, '_bn_featured', true ) ) : ?><span class="bn-hub-badge"><?php esc_html_e( 'Popular', 'brightnest' ); ?></span><?php endif; ?>
 		</span>
@@ -49,27 +49,10 @@ $bn_card = function ( $id ) {
 	</a>
 	<?php
 };
-$bn_first = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => 1, 'fields' => 'ids', 'orderby' => 'menu_order', 'order' => 'ASC' ) );
 ?>
 
 <div class="bn-hub" data-hub>
-	<div class="bn-hub-bar">
-		<div class="bn-container bn-hub-bar-inner">
-			<button type="button" class="bn-hub-loc" data-loc-open>
-				<?php echo brightnest_icon( 'pin', 18 ); // phpcs:ignore ?>
-				<span data-loc-label data-empty="<?php esc_attr_e( 'Set your location', 'brightnest' ); ?>"><?php esc_html_e( 'Set your location', 'brightnest' ); ?></span>
-				<svg class="bn-hub-gps" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
-			</button>
-			<form class="bn-hub-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<input type="hidden" name="post_type" value="bn_service">
-				<?php echo brightnest_icon( 'search', 18 ); // phpcs:ignore ?>
-				<label class="screen-reader-text" for="bn-hub-q"><?php esc_html_e( 'Search services', 'brightnest' ); ?></label>
-				<input id="bn-hub-q" type="search" name="s" value="<?php echo esc_attr( $bn_search ); ?>" autocomplete="off" data-hub-search
-					placeholder="<?php echo esc_attr( sprintf( /* translators: %s service name */ __( 'Search for "%s"', 'brightnest' ), $bn_first ? wp_strip_all_tags( html_entity_decode( get_the_title( $bn_first[0] ) ) ) : __( 'a service', 'brightnest' ) ) ); ?>">
-			</form>
-		</div>
-	</div>
-
+	<?php // Location and search live in the header (Justlife style); the header search filters this page as you type. ?>
 	<div class="bn-container">
 		<?php if ( $bn_cats ) : ?>
 			<nav class="bn-hub-cats" data-carousel aria-label="<?php esc_attr_e( 'Service categories', 'brightnest' ); ?>">
@@ -79,7 +62,7 @@ $bn_first = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => 1
 						<?php $bn_url = 'hub' === $bn_mode ? '#cat-' . $bn_t->slug : get_term_link( $bn_t ); ?>
 						<li class="bn-carousel-item">
 							<a class="<?php echo ( $bn_current && $bn_current->term_id === $bn_t->term_id ) ? 'is-active' : ''; ?>" href="<?php echo esc_url( $bn_url ); ?>">
-								<span class="bn-hub-cat-ic bn-tone-<?php echo esc_attr( brightnest_tone( $bn_t->slug ) ); ?>"><?php echo brightnest_icon( get_term_meta( $bn_t->term_id, 'bn_icon', true ) ?: 'home', 34 ); // phpcs:ignore ?></span>
+								<span class="bn-hub-cat-ic bn-tone-<?php echo esc_attr( brightnest_tone( $bn_t->slug ) ); ?>"><?php echo brightnest_cat_icon_html( $bn_t->term_id, 34 ); // phpcs:ignore ?></span>
 								<span class="bn-hub-cat-name"><?php echo esc_html( $bn_t->name ); ?></span>
 							</a>
 						</li>
@@ -139,7 +122,6 @@ $bn_first = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => 1
 	</div>
 </div>
 
-<?php get_template_part( 'template-parts/location-modal' ); ?>
 
 <?php
 get_footer();

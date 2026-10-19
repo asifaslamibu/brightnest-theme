@@ -12,7 +12,8 @@ while ( have_posts() ) :
 	$bn_id       = get_the_ID();
 	$bn_terms    = get_the_terms( $bn_id, 'bn_service_cat' );
 	$bn_cat      = ( $bn_terms && ! is_wp_error( $bn_terms ) ) ? $bn_terms[0] : null;
-	$bn_includes = array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $bn_id, '_bn_includes', true ) ) ) );
+	$bn_inc_ar   = brightnest_show_ar() ? brightnest_ar_meta( $bn_id, 'includes' ) : null; // Arabic list when filled in.
+	$bn_includes = array_filter( array_map( 'trim', explode( "\n", (string) ( null !== $bn_inc_ar ? $bn_inc_ar : get_post_meta( $bn_id, '_bn_includes', true ) ) ) ) );
 	$bn_duration = get_post_meta( $bn_id, '_bn_duration', true );
 	$bn_price    = get_post_meta( $bn_id, '_bn_price', true );
 	$bn_unit     = get_post_meta( $bn_id, '_bn_price_unit', true );
@@ -36,7 +37,7 @@ while ( have_posts() ) :
 			<div class="bn-sv-hero-copy">
 				<?php brightnest_breadcrumbs(); ?>
 				<?php if ( $bn_cat ) : ?>
-					<a class="bn-sv-chip" href="<?php echo esc_url( get_term_link( $bn_cat ) ); ?>"><?php echo brightnest_icon( brightnest_service_icon( $bn_id ), 16 ); // phpcs:ignore ?> <?php echo esc_html( $bn_cat->name ); ?></a>
+					<a class="bn-sv-chip" href="<?php echo esc_url( get_term_link( $bn_cat ) ); ?>"><?php echo brightnest_service_icon_html( $bn_id, 16 ); // phpcs:ignore ?> <?php echo esc_html( $bn_cat->name ); ?></a>
 				<?php endif; ?>
 				<h1><?php the_title(); ?></h1>
 				<?php if ( has_excerpt() ) : ?>
@@ -75,7 +76,7 @@ while ( have_posts() ) :
 					<?php if ( has_post_thumbnail() ) : ?>
 						<?php the_post_thumbnail( 'brightnest-hero', array( 'alt' => esc_attr( $bn_title ) ) ); ?>
 					<?php else : ?>
-						<span class="bn-sv-frame-icon"><?php echo brightnest_icon( brightnest_service_icon( $bn_id ), 110 ); // phpcs:ignore ?></span>
+						<span class="bn-sv-frame-icon"><?php echo brightnest_service_icon_html( $bn_id, 110 ); // phpcs:ignore ?></span>
 					<?php endif; ?>
 				</div>
 				<?php if ( '' !== $bn_price ) : ?>

@@ -7,10 +7,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BRIGHTNEST_VERSION', '3.9.1' );
+define( 'BRIGHTNEST_VERSION', '3.17.2' );
 define( 'BRIGHTNEST_DIR', get_template_directory() );
 define( 'BRIGHTNEST_URI', get_template_directory_uri() );
 
+require BRIGHTNEST_DIR . '/inc/i18n.php'; // First: it reads the /ar/ prefix before WordPress parses the request.
 require BRIGHTNEST_DIR . '/inc/icons.php';
 require BRIGHTNEST_DIR . '/inc/post-types.php';
 require BRIGHTNEST_DIR . '/inc/meta-boxes.php';
@@ -18,6 +19,7 @@ require BRIGHTNEST_DIR . '/inc/customizer.php';
 require BRIGHTNEST_DIR . '/inc/forms.php';
 require BRIGHTNEST_DIR . '/inc/checkout.php';
 require BRIGHTNEST_DIR . '/inc/payments.php';
+require BRIGHTNEST_DIR . '/inc/reminders.php';
 require BRIGHTNEST_DIR . '/inc/settings.php';
 if ( is_admin() ) {
 	require BRIGHTNEST_DIR . '/inc/admin.php';
@@ -76,12 +78,11 @@ function brightnest_assets() {
 
 	}
 	$bn_hub_page = is_post_type_archive( 'bn_service' ) || is_tax( 'bn_service_cat' ) || ( is_search() && 'bn_service' === get_query_var( 'post_type' ) );
-	if ( is_front_page() || $bn_hub_page || ( function_exists( 'brightnest_is_checkout' ) && brightnest_is_checkout() ) ) {
-		// "Set my location" map picker (homepage, services hub, checkout).
-		wp_enqueue_style( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css', array(), '1.9.4' );
+	if ( ! is_admin() ) {
+		// "Set my location" map picker: header pill on every page, plus homepage, hub and checkout.
+		brightnest_map_assets();
 		wp_enqueue_style( 'brightnest-location', BRIGHTNEST_URI . '/assets/css/location.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
-		wp_enqueue_script( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', array(), '1.9.4', true );
-		wp_enqueue_script( 'brightnest-location', BRIGHTNEST_URI . '/assets/js/location.js', array( 'leaflet' ), BRIGHTNEST_VERSION, true );
+		wp_enqueue_script( 'brightnest-location', BRIGHTNEST_URI . '/assets/js/location.js', array( 'brightnest-map' ), BRIGHTNEST_VERSION, true );
 		wp_localize_script(
 			'brightnest-location',
 			'BN_LOC',
@@ -89,6 +90,7 @@ function brightnest_assets() {
 				'lat'    => (float) brightnest_opt( 'map_lat' ),
 				'lng'    => (float) brightnest_opt( 'map_lng' ),
 				'cities' => brightnest_cities(),
+				'cityLabels' => brightnest_city_labels(), // Shown names (Arabic site).
 				'country' => strtolower( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) ),
 			)
 		);
@@ -120,7 +122,13 @@ add_action( 'wp_enqueue_scripts', 'brightnest_assets' );
  * Justlife-style typography, loaded after every other stylesheet so it wins everywhere.
  */
 function brightnest_typography_css() {
-	wp_enqueue_style( 'brightnest-typography', BRIGHTNEST_URI . '/assets/css/typography.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
+	wp_enqueue_style( 'brightnest-chrome', BRIGHTNEST_URI . '/assets/css/chrome.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
+	wp_enqueue_style( 'brightnest-typography', BRIGHTNEST_URI . '/assets/css/typography.css', array( 'brightnest-chrome' ), BRIGHTNEST_VERSION );
+	if ( is_rtl() ) {
+		// Arabic site: an Arabic typeface and right-to-left fixes.
+		wp_enqueue_style( 'brightnest-font-ar', 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap', array(), null );
+		wp_enqueue_style( 'brightnest-rtl', BRIGHTNEST_URI . '/assets/css/rtl.css', array( 'brightnest-typography' ), BRIGHTNEST_VERSION );
+	}
 }
 add_action( 'wp_enqueue_scripts', 'brightnest_typography_css', 99 );
 
@@ -269,3 +277,44 @@ function brightnest_excerpt_more() {
 	return '&hellip;';
 }
 add_filter( 'excerpt_more', 'brightnest_excerpt_more' );
+
+/**
+ * Map library for the location pickers: Google Maps when a key is set in Settings,
+ * otherwise Leaflet + OpenStreetMap. Both go through assets/js/map.js (window.bnMap).
+ */
+function brightnest_map_assets() {
+	if ( wp_script_is( 'brightnest-map', 'enqueued' ) ) {
+		return;
+	}
+	$key = trim( (string) brightnest_opt( 'google_maps_key' ) );
+	if ( ! $key ) {
+		wp_enqueue_style( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css', array(), '1.9.4' );
+		wp_enqueue_script( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', array(), '1.9.4', true );
+	}
+	wp_enqueue_script( 'brightnest-map', BRIGHTNEST_URI . '/assets/js/map.js', $key ? array() : array( 'leaflet' ), BRIGHTNEST_VERSION, true );
+	wp_localize_script(
+		'brightnest-map',
+		'BN_MAP',
+		array(
+			'key'     => $key ? 'yes' : '', // The key itself only goes in the Google script URL.
+			'country' => strtolower( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) ),
+		)
+	);
+	if ( $key ) {
+		$args = array(
+			'key'       => $key,
+			'v'         => 'weekly',
+			'libraries' => 'places',
+			'loading'   => 'async',
+			'callback'  => 'bnGmapsReady',
+			'language'  => 'en',
+		);
+		$region = strtoupper( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) );
+		if ( $region ) {
+			$args['region'] = $region;
+		}
+		// After map.js, so the callback exists when Google calls it.
+		wp_enqueue_script( 'google-maps', add_query_arg( array_map( 'rawurlencode', $args ), 'https://maps.googleapis.com/maps/api/js' ), array( 'brightnest-map' ), null, array( 'in_footer' => true, 'strategy' => 'async' ) );
+	}
+}
+

@@ -1,0 +1,112 @@
+/* Header, side menu and footer in the Justlife style. Loaded late so it wins over main/home CSS. */
+
+/* Header: logo · location · search · phone + menu ------------------------- */
+.bn-header {
+	position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid #ececec;
+	backdrop-filter: none; -webkit-backdrop-filter: none; /* a filter would trap the fixed side menu */
+}
+.bn-header.is-scrolled { box-shadow: 0 2px 12px rgba(0, 0, 0, .05); }
+.bn-header-inner { display: flex; align-items: center; justify-content: flex-start; gap: 20px; min-height: 72px; }
+.bn-logo { flex: 0 0 auto; }
+.bn-logo img { max-height: 44px; width: auto; }
+
+.bn-hloc { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; height: 46px; border-radius: 12px; background: var(--bn-primary-soft); color: var(--bn-primary); }
+.bn-hloc button { border: 0; background: none; color: inherit; cursor: pointer; height: 100%; display: inline-flex; align-items: center; }
+.bn-hloc-open { gap: 8px; padding: 0 6px 0 14px; min-width: 0; max-width: 280px; font-size: 15px; font-weight: 700; }
+.bn-hloc-open .bn-icon { flex: 0 0 auto; color: var(--bn-brand); }
+.bn-hloc-open span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bn-hloc-here { padding: 0 14px 0 8px; }
+.bn-hloc-here:hover, .bn-hloc-open:hover { color: var(--bn-brand); }
+.bn-hloc-here.is-busy { opacity: .5; pointer-events: none; }
+
+.bn-hsearch {
+	flex: 1 1 auto; max-width: 420px; display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 16px;
+	border: 1px solid #e0e0e0; border-radius: 12px; background: #fff; color: #757575;
+}
+.bn-hsearch:focus-within { border-color: var(--bn-primary); }
+.bn-hsearch input[type="search"] { flex: 1; min-width: 0; border: 0; outline: 0; background: none; padding: 0; height: 100%; font-size: 16px; color: #212121; }
+.bn-hsearch input::placeholder { color: #757575; }
+
+.bn-header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.bn-hround {
+	width: 46px; height: 46px; border-radius: 50%; border: 1px solid #e0e0e0; display: grid; place-items: center; color: #212121;
+}
+.bn-hround:hover { border-color: var(--bn-primary); color: var(--bn-primary); }
+.bn-nav-toggle {
+	display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; border: 1px solid #e0e0e0;
+	border-radius: 99px; background: #fff; color: #212121; cursor: pointer;
+}
+.bn-nav-toggle:hover { border-color: var(--bn-primary); }
+.bn-nav-toggle-user { display: inline-flex; color: var(--bn-primary); }
+.bn-nav-toggle .bn-close { display: none; }
+
+/* Menu dropdown under the menu button (every screen size, like Justlife) */
+.bn-header-actions { position: relative; }
+.bn-nav, .bn-nav-open .bn-nav {
+	position: absolute; top: calc(100% + 10px); right: 0; left: auto; bottom: auto; inset-block-end: auto; z-index: 200;
+	width: min(320px, calc(100vw - 32px)); max-height: calc(100vh - 110px); overflow-y: auto;
+	display: none; flex-direction: column; gap: 14px; padding: 14px; visibility: visible; transform: none;
+	background: #fff; border: 1px solid #ececec; border-radius: 14px; box-shadow: 0 12px 32px rgba(0, 0, 0, .12);
+}
+.bn-nav-open .bn-nav { display: flex; }
+.bn-nav-open::after { display: none; } /* no dark overlay */
+.bn-nav-open .bn-nav-toggle .bn-open { display: none; }
+.bn-nav-open .bn-nav-toggle .bn-close { display: inline-flex; }
+.bn-nav-open .bn-nav-toggle { border-color: var(--bn-primary); }
+.bn-nav .bn-menu { flex-direction: column; align-items: stretch; gap: 0; }
+.bn-nav .bn-menu a { padding: 11px 10px; font-size: 16px; color: #212121; border-radius: 8px; }
+.bn-nav .bn-menu a:hover { background: var(--bn-soft); }
+.bn-nav .bn-menu > .menu-item-has-children > a::after { display: none; }
+/* Short list: the services hub already lists every category. */
+.bn-nav .bn-menu .sub-menu { display: none; }
+.bn-nav-cta { justify-content: center; }
+.bn-nav-contact { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid #ececec; }
+.bn-nav-contact a { display: flex; align-items: center; gap: 10px; padding: 7px 4px; color: #424242; font-size: 14px; overflow-wrap: anywhere; }
+.bn-nav-contact .bn-icon { color: var(--bn-primary); flex: 0 0 auto; }
+.bn-nav-social a { width: 34px; height: 34px; background: var(--bn-soft); color: var(--bn-primary); }
+.bn-nav-social a:hover { background: var(--bn-primary); color: #fff; }
+
+@media (max-width: 1100px) {
+	.bn-hloc-open { max-width: 200px; }
+}
+@media (max-width: 960px) {
+	/* Two rows like the Justlife app: logo + actions, then location and search. */
+	.bn-header-inner { flex-wrap: wrap; gap: 10px 12px; min-height: 0; padding-top: 10px; padding-bottom: 10px; }
+	.bn-logo img { max-height: 38px; }
+	.bn-header-actions { order: 2; }
+	.bn-hloc { order: 3; flex: 1 1 100%; height: 42px; }
+	.bn-hloc-open { flex: 1; max-width: none; }
+	.bn-hsearch { order: 4; flex: 1 1 100%; max-width: none; height: 44px; }
+	.bn-hround, .bn-nav-toggle { height: 42px; }
+	.bn-hround { width: 42px; }
+}
+
+/* Footer ------------------------------------------------------------------- */
+.bn-jlf { background: #212121; color: #fff; padding: 36px 0 22px; font-size: 14px; }
+.bn-jlf .bn-jlf-h { color: #fff; font-size: 16px; font-weight: 700; margin: 0 0 14px; letter-spacing: 0; }
+.bn-jlf .bn-jlf-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 8px; }
+.bn-jlf-chips a {
+	display: inline-block; padding: 4px 10px; border-radius: 99px; background: #000; color: #fff; font-size: 14px; line-height: 1.4; font-weight: 400;
+}
+.bn-jlf-chips a:hover { background: var(--bn-brand); color: #fff; }
+.bn-jlf-cities { margin-top: 36px; }
+.bn-jlf-bottom {
+	display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+	margin-top: 40px; padding-top: 22px; border-top: 1px solid rgba(255, 255, 255, .14);
+}
+.bn-jlf-logo img { height: 40px; width: auto; display: block; }
+.bn-jlf-social { display: flex; gap: 12px; }
+.bn-jlf-social a {
+	width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .5); display: grid; place-items: center; color: #fff; background: none;
+}
+.bn-jlf-social a:hover { border-color: #fff; background: rgba(255, 255, 255, .1); color: #fff; }
+.bn-jlf-social .bn-icon { width: 16px; height: 16px; }
+.bn-jlf-links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.bn-jlf-links a { color: #fff; font-size: 14px; font-weight: 400; }
+.bn-jlf-links a:hover { color: var(--bn-brand); }
+.bn-jlf-links li { list-style: none; }
+.bn-jlf-copy { margin: 18px 0 0; color: rgba(255, 255, 255, .55); font-size: 13px; }
+
+@media (max-width: 640px) {
+	.bn-jlf-bottom { flex-direction: column; align-items: flex-start; }
+}

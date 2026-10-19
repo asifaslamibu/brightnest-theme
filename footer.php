@@ -13,66 +13,59 @@ $bn_page = function ( $slug, $fallback ) {
 ?>
 </main>
 
-<footer class="bn-footer">
+<?php // Justlife-style footer: service chips, area chips, then social icons and links. ?>
+<footer class="bn-footer bn-jlf">
 	<div class="bn-container">
-		<div class="bn-footer-strip">
-			<?php if ( brightnest_opt( 'address' ) ) : ?>
-				<div><span class="bn-fs-ic"><?php echo brightnest_icon( 'pin', 22 ); // phpcs:ignore ?></span><span><strong><?php esc_html_e( 'Address', 'brightnest' ); ?></strong><?php echo esc_html( brightnest_opt( 'address' ) ); ?></span></div>
-			<?php endif; ?>
-			<div><span class="bn-fs-ic"><?php echo brightnest_icon( 'phone', 22 ); // phpcs:ignore ?></span><span><strong><?php esc_html_e( 'Contact', 'brightnest' ); ?></strong>
-				<?php if ( brightnest_opt( 'email' ) ) : ?><a href="mailto:<?php echo esc_attr( brightnest_opt( 'email' ) ); ?>"><?php echo esc_html( brightnest_opt( 'email' ) ); ?></a><br><?php endif; ?>
-				<a href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo esc_html( brightnest_opt( 'phone' ) ); ?></a></span></div>
-			<div><span class="bn-fs-ic"><?php echo brightnest_icon( 'clock', 22 ); // phpcs:ignore ?></span><span><strong><?php esc_html_e( 'Working hours', 'brightnest' ); ?></strong><?php echo esc_html( brightnest_opt( 'hours' ) ); ?></span></div>
+		<?php if ( $bn_all ) : ?>
+			<h2 class="bn-jlf-h"><?php esc_html_e( 'Service Areas', 'brightnest' ); ?></h2>
+			<ul class="bn-jlf-chips">
+				<?php foreach ( $bn_all as $bn_sid ) : ?>
+					<li><a href="<?php echo esc_url( get_permalink( $bn_sid ) ); ?>"><?php echo esc_html( get_the_title( $bn_sid ) ); ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+
+		<div class="bn-jlf-cities">
+			<h2 class="bn-jlf-h"><?php echo esc_html( brightnest_opt( 'country' ) ? brightnest_opt( 'country' ) : __( 'United Arab Emirates', 'brightnest' ) ); ?></h2>
+			<ul class="bn-jlf-chips">
+				<?php foreach ( brightnest_cities() as $bn_city ) : ?>
+					<li><a href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php echo esc_html( brightnest_city_label( $bn_city ) ); ?></a></li>
+				<?php endforeach; ?>
+			</ul>
 		</div>
 
-		<div class="bn-footer-grid">
-			<div class="bn-footer-brand">
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="bn-logo-img bn-logo-footer">
-					<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo-light.png' ); ?>" width="720" height="200" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" loading="lazy">
-				</a>
-				<p><?php echo esc_html( brightnest_opt( 'footer_about' ) ); ?></p>
-				<?php $bn_social = brightnest_social_links(); ?>
-				<?php if ( $bn_social ) : ?>
-					<div class="bn-social"><?php echo $bn_social; // phpcs:ignore ?></div>
+		<div class="bn-jlf-bottom">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="bn-jlf-logo">
+				<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo-light.png' ); ?>" width="720" height="200" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" loading="lazy">
+			</a>
+			<?php $bn_social = brightnest_social_links(); ?>
+			<div class="bn-jlf-social">
+				<?php if ( brightnest_whatsapp_url() ) : ?>
+					<a href="<?php echo esc_url( brightnest_whatsapp_url() ); ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><?php echo brightnest_icon( 'whatsapp', 18 ); // phpcs:ignore ?></a>
 				<?php endif; ?>
+				<?php echo $bn_social; // phpcs:ignore ?>
 			</div>
-
-			<div>
-				<h4><?php esc_html_e( 'Our services', 'brightnest' ); ?></h4>
-				<ul>
-					<?php foreach ( array_slice( $bn_all, 0, 7 ) as $bn_sid ) : ?>
-						<li><a href="<?php echo esc_url( get_permalink( $bn_sid ) ); ?>"><?php echo esc_html( get_the_title( $bn_sid ) ); ?></a></li>
-					<?php endforeach; ?>
-				</ul>
-			</div>
-
-			<div>
-				<h4><?php esc_html_e( 'Company', 'brightnest' ); ?></h4>
-				<ul>
-					<?php foreach ( array( 'about-us' => 'About us', 'contact' => 'Contact us', 'faq' => 'FAQs' ) as $bn_slug => $bn_label ) : ?>
-						<?php $bn_link = $bn_page( $bn_slug, $bn_label ); ?>
-						<?php if ( $bn_link ) : ?><li><?php echo $bn_link; // phpcs:ignore ?></li><?php endif; ?>
-					<?php endforeach; ?>
-					<li><a href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php esc_html_e( 'All services', 'brightnest' ); ?></a></li>
+			<nav class="bn-jlf-links" aria-label="<?php esc_attr_e( 'Footer', 'brightnest' ); ?>">
+				<?php if ( has_nav_menu( 'footer' ) ) : ?>
+					<?php wp_nav_menu( array( 'theme_location' => 'footer', 'container' => false, 'depth' => 1, 'items_wrap' => '%3$s', 'fallback_cb' => false ) ); ?>
+				<?php else : ?>
+					<?php echo $bn_page( 'about-us', 'About Us' ); // phpcs:ignore ?>
+					<?php echo $bn_page( 'contact', 'Contact Us' ); // phpcs:ignore ?>
+					<?php echo $bn_page( 'faq', 'F.A.Q' ); // phpcs:ignore ?>
+					<?php echo $bn_page( 'terms', 'Terms' ); // phpcs:ignore ?>
+					<?php echo $bn_page( 'privacy-policy-bn', 'Privacy' ); // phpcs:ignore ?>
 					<?php if ( get_option( 'page_for_posts' ) ) : ?>
-						<li><a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>"><?php esc_html_e( 'Blog', 'brightnest' ); ?></a></li>
+						<a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>"><?php esc_html_e( 'Blog', 'brightnest' ); ?></a>
 					<?php endif; ?>
-				</ul>
-			</div>
-
+				<?php endif; ?>
+			</nav>
 		</div>
-
-		<div class="bn-footer-bottom">
-			<p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'All rights reserved.', 'brightnest' ); ?></p>
-			<p class="bn-footer-legal">
-				<?php echo $bn_page( 'contact', 'Contact Us' ); // phpcs:ignore ?>
-				<?php echo $bn_page( 'faq', 'F.A.Q' ); // phpcs:ignore ?>
-				<?php echo $bn_page( 'terms', 'Terms' ); // phpcs:ignore ?>
-				<?php echo $bn_page( 'privacy-policy-bn', 'Privacy' ); // phpcs:ignore ?>
-			</p>
-		</div>
+		<p class="bn-jlf-copy">&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'All rights reserved.', 'brightnest' ); ?></p>
 	</div>
 </footer>
+
+<?php // Location picker (header pill, homepage, services hub, checkout). ?>
+<?php get_template_part( 'template-parts/location-modal' ); ?>
 
 <?php if ( brightnest_whatsapp_url() ) : ?>
 	<a class="bn-wa-float" href="<?php echo esc_url( brightnest_whatsapp_url( __( 'Hi, I would like to book a service.', 'brightnest' ) ) ); ?>" target="_blank" rel="noopener" aria-label="<?php esc_attr_e( 'Chat on WhatsApp', 'brightnest' ); ?>">

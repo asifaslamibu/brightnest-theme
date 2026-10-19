@@ -72,8 +72,20 @@
 		return groups;
 	}
 
+	// Popup details per option, keyed by "name|desc" (same key the checkout reads).
+	var detailsEl = $('[data-opt-details]');
+	var details = {};
+	try { details = JSON.parse((detailsEl && detailsEl.value) || '{}') || {}; } catch (e) { details = {}; }
+	var tabImgsEl = $('[data-tab-imgs]');
+	var tabImgs = {};
+	try { tabImgs = JSON.parse((tabImgsEl && tabImgsEl.value) || '{}') || {}; } catch (e) { tabImgs = {}; }
+	var arTabsEl = $('[data-ar-tabs]');
+	var arTabs = {};
+	try { arTabs = JSON.parse((arTabsEl && arTabsEl.value) || '{}') || {}; } catch (e) { arTabs = {}; }
+
 	function itemRow(it) {
-		return '<div class="bn-opt-row">' +
+		var det = details[it.name + '|' + (it.desc || '')] || {};
+		return '<div class="bn-opt-row' + (det.about || det.hl ? ' has-detail' : '') + '">' +
 			'<div class="bn-opt-move"><button type="button" class="button-link" data-up title="' + esc(t.up) + '"><span class="dashicons dashicons-arrow-up-alt2"></span></button>' +
 			'<button type="button" class="button-link" data-down title="' + esc(t.down) + '"><span class="dashicons dashicons-arrow-down-alt2"></span></button></div>' +
 			'<button type="button" class="bn-opt-img" data-pick-img title="' + esc(t.photo) + '"' + (it.img ? ' style="background-image:url(\'' + esc(it.img) + '\')"' : '') + '>' + (it.img ? '' : '<span class="dashicons dashicons-format-image"></span>') + '</button>' +
@@ -82,7 +94,18 @@
 			'<input class="bn-opt-desc" data-k="desc" placeholder="' + esc(t.desc) + '" value="' + esc(it.desc) + '">' +
 			'<label class="bn-opt-money"><span>' + esc(cfg.currency) + '</span><input type="number" min="0" step="0.01" data-k="price" placeholder="' + esc(t.price) + '" value="' + esc(it.price) + '"></label>' +
 			'<label class="bn-opt-money bn-opt-old"><span>' + esc(t.old) + '</span><input type="number" min="0" step="0.01" data-k="old" value="' + esc(it.old) + '"></label>' +
+			'<button type="button" class="button-link bn-opt-more" data-more title="' + esc(t.details) + '" aria-expanded="false"><span class="dashicons dashicons-info-outline"></span></button>' +
 			'<button type="button" class="button-link bn-opt-del" data-del title="' + esc(t.remove) + '"><span class="dashicons dashicons-trash"></span></button>' +
+			// Popup details (shown when a customer clicks the option at the checkout).
+			'<div class="bn-opt-detail" hidden>' +
+			'<label><span>' + esc(t.about) + '</span><textarea rows="3" data-d="about">' + esc(det.about || '') + '</textarea></label>' +
+			'<label><span>' + esc(t.highlights) + '</span><textarea rows="3" data-d="hl" placeholder="shield | 60-Day Service Warranty&#10;Ideal for split AC units">' + esc(det.hl || '') + '</textarea></label>' +
+			// Arabic site texts for this option.
+			'<label><span>' + esc(t.nameAr) + '</span><input dir="rtl" data-d="name_ar" value="' + esc(det.name_ar || '') + '"></label>' +
+			'<label><span>' + esc(t.descAr) + '</span><input dir="rtl" data-d="desc_ar" value="' + esc(det.desc_ar || '') + '"></label>' +
+			'<label><span>' + esc(t.aboutAr) + '</span><textarea dir="rtl" rows="3" data-d="about_ar">' + esc(det.about_ar || '') + '</textarea></label>' +
+			'<label><span>' + esc(t.hlAr) + '</span><textarea dir="rtl" rows="3" data-d="hl_ar">' + esc(det.hl_ar || '') + '</textarea></label>' +
+			'</div>' +
 			'</div>';
 	}
 
@@ -93,6 +116,9 @@
 			'<div class="bn-opt-group-head">' +
 			'<span class="dashicons dashicons-category"></span>' +
 			'<input class="bn-opt-tab" data-tab-name placeholder="' + esc(t.tabPh) + '" value="' + esc(g.name) + '" aria-label="' + esc(t.tab) + '">' +
+			'<button type="button" class="bn-opt-img" data-pick-tab-img title="' + esc(t.tabImg) + '"' + (tabImgs[g.name] ? ' style="background-image:url(\'' + esc(tabImgs[g.name]) + '\')"' : '') + '>' + (tabImgs[g.name] ? '' : '<span class="dashicons dashicons-format-image"></span>') + '</button>' +
+			'<input type="hidden" data-tab-img value="' + esc(tabImgs[g.name] || '') + '">' +
+			'<input class="bn-opt-tab bn-opt-tab-ar" dir="rtl" data-tab-ar placeholder="' + esc(t.tabAr) + '" value="' + esc(arTabs[g.name] || '') + '" aria-label="' + esc(t.tabAr) + '">' +
 			'<span class="bn-opt-count"></span>' +
 			'<button type="button" class="button-link" data-gup title="' + esc(t.up) + '"><span class="dashicons dashicons-arrow-up-alt2"></span></button>' +
 			'<button type="button" class="button-link" data-gdown title="' + esc(t.down) + '"><span class="dashicons dashicons-arrow-down-alt2"></span></button>' +
@@ -126,6 +152,7 @@
 
 	function serialize() {
 		var lines = [];
+		var det = {};
 		$$('.bn-opt-group', groupsEl).forEach(function (g) {
 			var tab = $('[data-tab-name]', g).value.trim().replace(/\|/g, '/') || (t.newTab || 'Packages');
 			$$('.bn-opt-row', g).forEach(function (r) {
@@ -135,9 +162,29 @@
 				if (v('old') || v('img')) { line.push(v('old')); }
 				if (v('img')) { line.push(v('img')); }
 				lines.push(line.join(' | '));
+				var row = {};
+				['about', 'hl', 'name_ar', 'desc_ar', 'about_ar', 'hl_ar'].forEach(function (f) {
+					var val = $('[data-d="' + f + '"]', r).value.trim();
+					if (val) { row[f] = val; }
+				});
+				if (Object.keys(row).length) { det[v('name') + '|' + v('desc')] = row; }
+				r.classList.toggle('has-detail', !!(row.about || row.hl));
 			});
 		});
 		raw.value = lines.join('\n');
+		if (detailsEl) { detailsEl.value = JSON.stringify(det); details = det; }
+		// Arabic tab names, keyed by the English tab name.
+		var tabs = {};
+		var imgs = {};
+		$$('.bn-opt-group', groupsEl).forEach(function (g) {
+			var en = $('[data-tab-name]', g).value.trim().replace(/\|/g, '/') || (t.newTab || 'Packages');
+			var ar = $('[data-tab-ar]', g).value.trim();
+			var img = $('[data-tab-img]', g).value.trim();
+			if (ar) { tabs[en] = ar; }
+			if (img) { imgs[en] = img; }
+		});
+		if (arTabsEl) { arTabsEl.value = JSON.stringify(tabs); arTabs = tabs; }
+		if (tabImgsEl) { tabImgsEl.value = JSON.stringify(imgs); tabImgs = imgs; }
 		rawDirty = false;
 	}
 
@@ -167,6 +214,17 @@
 		if (!b) { return; }
 		var row = b.closest('.bn-opt-row');
 		var group = b.closest('.bn-opt-group');
+		if (b.hasAttribute('data-more')) {
+			var panel = $('.bn-opt-detail', row);
+			panel.hidden = !panel.hidden;
+			b.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+			if (!panel.hidden) { $('textarea', panel).focus(); }
+			return;
+		}
+		if (b.hasAttribute('data-pick-tab-img')) {
+			pickImg(b, $('[data-tab-img]', group));
+			return;
+		}
 		if (b.hasAttribute('data-pick-img')) {
 			pickImg(b, $('[data-k="img"]', row));
 			return;

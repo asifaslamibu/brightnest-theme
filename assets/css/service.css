@@ -244,3 +244,12 @@ a.bn-sv-chip:hover { background: rgba(255, 255, 255, .14); color: #fff; }
 	.bn-ar-cats::-webkit-scrollbar { display: none; }
 	.bn-ar-cats a { scroll-snap-align: start; padding: 9px 12px; }
 }
+
+/* Check lists in service texts (from the old site's icon lists) */
+.bn-checks { list-style: none; margin: 16px 0 22px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; }
+.bn-checks li { position: relative; padding-inline-start: 28px; }
+.bn-checks li::before {
+	content: ""; position: absolute; inset-inline-start: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%;
+	background: #e7f8ef url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315803d' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 11px no-repeat;
+}
+@media (max-width: 640px) { .bn-checks { grid-template-columns: 1fr; } }

@@ -8,12 +8,22 @@
 
 	var $ = function (sel, ctx) { return (ctx || root).querySelector(sel); };
 	var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || root).querySelectorAll(sel)); };
+	// Words in the page language (BN_I18N from inc/i18n.php); "%s" / "%1$s" are filled in order.
+	var I18N = window.BN_I18N || {};
+	var t = function (s) {
+		var out = I18N[s] || s;
+		var args = Array.prototype.slice.call(arguments, 1);
+		var i = 0;
+		return out.replace(/%(\d)\$[sd]|%[sd]/g, function (m, n) { var v = n ? args[n - 1] : args[i++]; return v === undefined ? m : v; });
+	};
+	// City names stay English inside (map, prices); this is only the shown name.
+	var cityLabel = function (c) { return (cfg.cityLabels && cfg.cityLabels[c]) || c; };
 	var esc = function (s) {
 		return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
 	};
 
 	var LAST = 4;
-	var STEP_TITLES = { 1: 'Service Details', 2: 'Date & Time', 3: 'Address', 4: 'Payment' };
+	var STEP_TITLES = { 1: t('Service Details'), 2: t('Date & Time'), 3: t('Address'), 4: t('Payment') };
 	var STORE_KEY = 'bn_co_' + cfg.service.id;
 	var CUSTOMER_KEY = 'bn_customer';
 	var hourly = cfg.service.hourly;
@@ -25,11 +35,22 @@
 	var state = {
 		cart: {}, hourly: { hours: 0, pros: 0, materials: null }, frequency: (cfg.service.freqs[0] || [''])[0], date: '', time: '', message: '',
 		lat: null, lng: null, address: '', area: cfg.cities[0] || '', street: '', building: '', apartment: '',
-		name: '', phone: '', email: '', payment: (cfg.payments && cfg.payments[0]) || 'Cash after service', voucher: cfg.voucher || '', step: 1
+		name: '', phone: '', email: '', payment: (cfg.payments && cfg.payments[0]) || 'Cash after service', voucher: cfg.voucher || '', step: 1,
+		draft: '' // Token of the saved "unfinished booking" draft (see inc/reminders.php).
 	};
 	var readJSON = function (store, key) { try { return JSON.parse(store.getItem(key) || 'null'); } catch (e) { return null; } };
 	var saved = readJSON(sessionStorage, STORE_KEY);
 	if (saved) { Object.keys(state).forEach(function (k) { if (saved[k] !== undefined) { state[k] = saved[k]; } }); }
+	// Opened from the reminder email: bring back the cart and details the customer left with.
+	if (cfg.draft) {
+		var d = cfg.draft;
+		Object.keys(d).forEach(function (k) { if (k !== 'cart' && k !== 'token' && state[k] !== undefined && d[k]) { state[k] = d[k]; } });
+		if (d.cart) {
+			if (hourly) { ['hours', 'pros', 'materials'].forEach(function (k) { if (d.cart[k] !== undefined) { state.hourly[k] = d.cart[k]; } }); } else { state.cart = d.cart; }
+		}
+		state.draft = d.token || '';
+		state.step = 1;
+	}
 	if (cfg.voucher) { state.voucher = cfg.voucher; }
 	Object.keys(state.cart).forEach(function (id) { if (!items[id]) { delete state.cart[id]; } });
 	// "Book" on a package in the service page price list (?add=item-id) pre-selects it.
@@ -90,7 +111,7 @@
 		if (hourly) {
 			var h = state.hourly;
 			if (!h.hours || !h.pros) { return []; }
-			var out = [[h.hours + (h.hours > 1 ? ' hours' : ' hour') + ' × ' + h.pros + (h.pros > 1 ? ' professionals' : ' professional'), hourRate() * h.hours * h.pros]];
+			var out = [[t(h.hours > 1 ? '%d hours' : '%d hour', h.hours) + ' × ' + t(h.pros > 1 ? '%d professionals' : '%d professional', h.pros), hourRate() * h.hours * h.pros]];
 			if (hourly.mat_on && h.materials && matRate() > 0) { out.push([hourly.mat_name, matRate() * h.hours * h.pros]); }
 			return out;
 		}
@@ -153,6 +174,7 @@
 		if (q) { state.cart[id] = q; } else { delete state.cart[id]; }
 		renderItems();
 		update();
+		if (state.draft) { queueDraft(); }
 	}
 	$$('[data-item]').forEach(function (el) {
 		var id = el.getAttribute('data-item');
@@ -160,6 +182,59 @@
 		$('[data-inc]', el).addEventListener('click', function () { setQty(id, (state.cart[id] || 0) + 1); });
 		$('[data-dec]', el).addEventListener('click', function () { setQty(id, (state.cart[id] || 0) - 1); });
 	});
+
+	/* Option details popup (Justlife style): clicking an option shows its photo, details and highlights. */
+	var od = $('[data-od]');
+	var odId = null;
+	var odQty = 1;
+	function odRender() {
+		$('[data-od-qty]', od).textContent = odQty;
+		$('[data-od-dec]', od).disabled = odQty <= 1;
+		$('[data-od-add]', od).textContent = t(state.cart[odId] ? 'Update for %s' : 'Add for %s', money(itemPrice(odId) * odQty));
+	}
+	function closeOd() { od.hidden = true; document.body.classList.remove('bn-modal-open'); }
+	function openOd(el) {
+		var id = el.getAttribute('data-item');
+		var it = items[id];
+		if (!it || !od) { return; }
+		odId = id;
+		odQty = state.cart[id] || 1;
+		$('[data-od-title]', od).textContent = it.name;
+		$('[data-od-name]', od).textContent = it.name;
+		$('[data-od-desc]', od).textContent = it.desc || '';
+		// Same picture as the row (its own photo, the service photo, or the icon tile).
+		var media = $('[data-od-media]', od);
+		var thumb = $('.bn-co-item-thumb', el);
+		var img = $('img', thumb);
+		var oldIc = $('.bn-od-ic', media);
+		if (oldIc) { oldIc.remove(); }
+		media.style.backgroundImage = img ? 'url("' + img.src.replace(/"/g, '%22') + '")' : '';
+		media.className = 'bn-od-media ' + (img ? 'has-img' : thumb.className.replace('bn-co-item-thumb', '').trim());
+		if (!img) { media.insertAdjacentHTML('afterbegin', '<span class="bn-od-ic">' + thumb.innerHTML + '</span>'); }
+		var hl = it.hl || [];
+		$('[data-od-about]', od).textContent = it.about || '';
+		$('[data-od-about]', od).hidden = !it.about;
+		$('[data-od-hl]', od).innerHTML = hl.map(function (h) { return '<li>' + h.svg + '<span>' + esc(h.label) + '</span></li>'; }).join('');
+		$('[data-od-info]', od).hidden = !it.about && !hl.length;
+		odRender();
+		od.hidden = false;
+		document.body.classList.add('bn-modal-open');
+		$('[data-od-close]', od).focus();
+	}
+	if (od) {
+		$$('[data-item]').forEach(function (el) {
+			el.addEventListener('click', function (e) {
+				if (e.target.closest('.bn-co-qty')) { return; } // Add / +/- work right in the row.
+				openOd(el);
+			});
+		});
+		$('[data-od-close]', od).addEventListener('click', closeOd);
+		od.addEventListener('click', function (e) { if (e.target === od) { closeOd(); } });
+		document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !od.hidden) { closeOd(); } });
+		$('[data-od-dec]', od).addEventListener('click', function () { odQty = Math.max(1, odQty - 1); odRender(); });
+		$('[data-od-inc]', od).addEventListener('click', function () { odQty = Math.min(10, odQty + 1); odRender(); });
+		$('[data-od-add]', od).addEventListener('click', function () { setQty(odId, odQty); closeOd(); });
+	}
 
 	var tabs = $$('[data-tab]');
 	tabs.forEach(function (t) {
@@ -218,8 +293,8 @@
 	}
 
 	/* Step 2: frequency, days, times ------------------------------------- */
-	var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (x) { return t(x); });
+	var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(function (x) { return t(x); });
 	var SLOTS = cfg.slots || { start: 8, end: 20, lead: 2, days: 14 };
 	var LEAD_MIN = SLOTS.lead * 60; // Same-day notice from Settings → Booking.
 	function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
@@ -229,15 +304,16 @@
 		var d = new Date(+p[0], +p[1] - 1, +p[2]);
 		var today = iso(new Date());
 		var tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
-		if (isoDate === today) { return 'Today, ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
-		if (isoDate === iso(tmr)) { return 'Tomorrow, ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
-		return DAYS[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
+		var dm = d.getDate() + ' ' + MONTHS[d.getMonth()];
+		if (isoDate === today) { return t('Today, %s', dm); }
+		if (isoDate === iso(tmr)) { return t('Tomorrow, %s', dm); }
+		return t('%1$s, %2$s', DAYS[d.getDay()], dm);
 	}
 	// Arrival windows of Settings → Booking → "Length of each time slot" minutes.
 	function hhmm(m) { return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2); }
 	function clock(m) {
 		var h = Math.floor(m / 60), mm = m % 60;
-		return (h % 12 || 12) + (mm ? ':' + ('0' + mm).slice(-2) : '') + ((h >= 12 && h < 24) ? 'PM' : 'AM');
+		return (h % 12 || 12) + (mm ? ':' + ('0' + mm).slice(-2) : '') + ((h >= 12 && h < 24) ? t('PM') : t('AM'));
 	}
 	function slots() {
 		var out = [];
@@ -247,7 +323,7 @@
 				start: m,
 				value: hhmm(m) + '-' + hhmm(m + step),
 				label: clock(m) + ' – ' + clock(m + step),
-				part: m < 720 ? 'Morning' : (m < 960 ? 'Afternoon' : 'Evening')
+				part: m < 720 ? t('Morning') : (m < 960 ? t('Afternoon') : t('Evening'))
 			});
 		}
 		return out;
@@ -271,8 +347,8 @@
 			b.type = 'button';
 			b.className = 'bn-co-day';
 			b.setAttribute('data-value', iso(d));
-			b.innerHTML = '<small>' + (i === 0 ? 'Today' : (i === 1 ? 'Tmrw' : DAYS[d.getDay()])) + '</small><strong>' + d.getDate() + '</strong><small>' + MONTHS[d.getMonth()] + '</small>';
-			if (!dayHasSlots(iso(d))) { b.disabled = true; b.title = 'Fully booked'; }
+			b.innerHTML = '<small>' + (i === 0 ? t('Today') : (i === 1 ? t('Tmrw') : DAYS[d.getDay()])) + '</small><strong>' + d.getDate() + '</strong><small>' + MONTHS[d.getMonth()] + '</small>';
+			if (!dayHasSlots(iso(d))) { b.disabled = true; b.title = t('Fully booked'); }
 			wrap.appendChild(b);
 		}
 		wrap.addEventListener('click', function (e) {
@@ -322,11 +398,45 @@
 		renderTimes();
 	}
 
+	/* Unfinished booking draft ------------------------------------------- */
+	// Once a valid email is typed, the cart and details are saved quietly so the customer
+	// can get one reminder email if they leave without paying.
+	var draftTimer;
+	var draftDirty = false;
+	function draftBody() {
+		var body = new FormData();
+		body.append('action', 'bn_checkout_draft');
+		body.append('nonce', cfg.nonce);
+		body.append('service', cfg.service.id);
+		body.append('token', state.draft || '');
+		body.append('cart', JSON.stringify(hourly ? state.hourly : state.cart));
+		['frequency', 'date', 'time', 'area', 'street', 'building', 'apartment', 'name', 'phone', 'email', 'message', 'voucher'].forEach(function (k) { body.append(k, state[k] || ''); });
+		body.append('address', state.lat ? state.address : '');
+		body.append('lat', state.lat || '');
+		body.append('lng', state.lng || '');
+		return body;
+	}
+	function draftReady() { return cfg.remind && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(state.email || '').trim()) && cartCount() > 0; }
+	function saveDraft() {
+		clearTimeout(draftTimer);
+		if (!draftReady()) { return; }
+		draftDirty = false;
+		fetch(cfg.ajax, { method: 'POST', body: draftBody(), credentials: 'same-origin' })
+			.then(function (r) { return r.json(); })
+			.then(function (res) { if (res && res.success && res.data.token) { state.draft = res.data.token; save(); } })
+			.catch(function () { draftDirty = true; });
+	}
+	function queueDraft() { draftDirty = true; clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 1500); }
+	// Leaving the page (closing the tab, going back): send the last changes.
+	window.addEventListener('pagehide', function () {
+		if (draftDirty && draftReady() && navigator.sendBeacon) { draftDirty = false; navigator.sendBeacon(cfg.ajax, draftBody()); }
+	});
+
 	/* Step 3: fields ----------------------------------------------------- */
 	$$('[data-field]').forEach(function (el) {
 		var k = el.getAttribute('data-field');
 		if (state[k]) { el.value = state[k]; }
-		var sync = function () { state[k] = el.value; clearError(k); update(); };
+		var sync = function () { state[k] = el.value; clearError(k); update(); if (state.draft || k === 'email') { queueDraft(); } };
 		el.addEventListener('input', sync);
 		el.addEventListener('change', sync);
 	});
@@ -357,7 +467,7 @@
 		var done = function (ok) {
 			state.voucher = ok ? code : '';
 			vMsg.className = 'bn-co-voucher-msg ' + (ok ? 'is-ok' : 'is-bad');
-			vMsg.textContent = ok ? 'Voucher ' + code + ' applied.' : 'This voucher code is not valid.';
+			vMsg.textContent = ok ? t('Voucher %s applied.', code) : t('This voucher code is not valid.');
 			update();
 		};
 		if (cfg.vouchers[code]) { done(true); return; }
@@ -367,7 +477,7 @@
 		body.append('nonce', cfg.nonce);
 		body.append('code', code);
 		vMsg.className = 'bn-co-voucher-msg';
-		vMsg.textContent = 'Checking…';
+		vMsg.textContent = t('Checking…');
 		fetch(cfg.ajax, { method: 'POST', body: body, credentials: 'same-origin' })
 			.then(function (r) { return r.json(); })
 			.then(function (res) {
@@ -396,31 +506,31 @@
 	function problems(n) {
 		var out = [];
 		if (!cfg.service.active || !areaInfo().on) {
-			out.push({ key: 'bar', msg: $('[data-area-off]').textContent || 'This service is not available in the selected area.' });
+			out.push({ key: 'bar', msg: $('[data-area-off]').textContent || t('This service is not available in the selected area.') });
 			return out;
 		}
 		if (n === LAST && totals().total < cfg.min) {
-			out.push({ key: 'bar', msg: 'The minimum booking amount is ' + money(cfg.min) + '.' });
+			out.push({ key: 'bar', msg: t('The minimum booking amount is %s.', money(cfg.min)) });
 		}
 		if (n === 1) {
 			if (hourly) {
-				if (!state.hourly.hours) { out.push({ key: 'bar', msg: 'Choose how many hours you need.' }); }
-				else if (!state.hourly.pros) { out.push({ key: 'bar', msg: 'Choose how many professionals you need.' }); }
-				else if (state.hourly.materials === null) { out.push({ key: 'bar', msg: 'Tell us if you need cleaning materials.' }); }
+				if (!state.hourly.hours) { out.push({ key: 'bar', msg: t('Choose how many hours you need.') }); }
+				else if (!state.hourly.pros) { out.push({ key: 'bar', msg: t('Choose how many professionals you need.') }); }
+				else if (state.hourly.materials === null) { out.push({ key: 'bar', msg: t('Tell us if you need cleaning materials.') }); }
 			} else if (!cartCount()) {
-				out.push({ key: 'bar', msg: 'Tap "Add" on at least one option.' });
+				out.push({ key: 'bar', msg: t('Tap "Add" on at least one option.') });
 			}
 		}
-		if (n === 2 && (!state.date || !state.time)) { out.push({ key: 'time', msg: 'Pick a time slot that suits you.' }); }
+		if (n === 2 && (!state.date || !state.time)) { out.push({ key: 'time', msg: t('Pick a time slot that suits you.') }); }
 		if (n === 3) {
-			if (state.street.trim().length < 3) { out.push({ key: 'street', msg: 'Please enter your area or street.' }); }
-			if (!state.building.trim()) { out.push({ key: 'building', msg: 'Please enter the building or villa name.' }); }
-			if (!state.apartment.trim()) { out.push({ key: 'apartment', msg: 'Please enter the apartment or villa number.' }); }
+			if (state.street.trim().length < 3) { out.push({ key: 'street', msg: t('Please enter your area or street.') }); }
+			if (!state.building.trim()) { out.push({ key: 'building', msg: t('Please enter the building or villa name.') }); }
+			if (!state.apartment.trim()) { out.push({ key: 'apartment', msg: t('Please enter the apartment or villa number.') }); }
 		}
 		if (n === 4) {
-			if (!state.name.trim()) { out.push({ key: 'name', msg: 'Please enter your name.' }); }
-			if (state.phone.replace(/\D/g, '').length < 7) { out.push({ key: 'phone', msg: 'Please enter a valid mobile number.' }); }
-			if (state.email && !/^\S+@\S+\.\S+$/.test(state.email)) { out.push({ key: 'email', msg: 'This email does not look right.' }); }
+			if (!state.name.trim()) { out.push({ key: 'name', msg: t('Please enter your name.') }); }
+			if (state.phone.replace(/\D/g, '').length < 7) { out.push({ key: 'phone', msg: t('Please enter a valid mobile number.') }); }
+			if (state.email && !/^\S+@\S+\.\S+$/.test(state.email)) { out.push({ key: 'email', msg: t('This email does not look right.') }); }
 		}
 		return out;
 	}
@@ -477,36 +587,38 @@
 		var lines = lineItems().map(function (l) { return esc(l[0]); }).join(', ');
 		var when = pretty(state.date) + ' · ' + timeLabel(state.time) + (cfg.service.freqs.length > 1 && state.frequency !== cfg.service.freqs[0][0] ? ' · ' + state.frequency : '');
 		$('[data-recap]').innerHTML =
-			'<div><span class="bn-co-recap-k">' + esc(cfg.service.title) + '</span><span class="bn-co-recap-v">' + lines + '</span><button type="button" class="bn-link" data-edit="1">Change</button></div>' +
-			'<div><span class="bn-co-recap-k">When</span><span class="bn-co-recap-v">' + esc(when) + '</span><button type="button" class="bn-link" data-edit="2">Change</button></div>' +
-			'<div><span class="bn-co-recap-k">Address</span><span class="bn-co-recap-v">' + esc(addrText()) + '</span><button type="button" class="bn-link" data-edit="3">Change</button></div>';
+			'<div><span class="bn-co-recap-k">' + esc(cfg.service.title) + '</span><span class="bn-co-recap-v">' + lines + '</span><button type="button" class="bn-link" data-edit="1">' + t('Change') + '</button></div>' +
+			'<div><span class="bn-co-recap-k">' + t('When') + '</span><span class="bn-co-recap-v">' + esc(when) + '</span><button type="button" class="bn-link" data-edit="2">' + t('Change') + '</button></div>' +
+			'<div><span class="bn-co-recap-k">' + t('Address') + '</span><span class="bn-co-recap-v">' + esc(addrText()) + '</span><button type="button" class="bn-link" data-edit="3">' + t('Change') + '</button></div>';
 		$$('[data-edit]').forEach(function (b) { b.addEventListener('click', function () { goTo(+b.getAttribute('data-edit'), true); }); });
 	}
 
 	/* Summary + bar ------------------------------------------------------ */
 	function addrText() { return [state.apartment, state.building, state.street, state.area].filter(function (x) { return x && x.trim(); }).join(', '); }
 	function update() {
-		var t = totals();
-		var sub = t.sub;
-		var disc = t.disc;
-		var total = t.total;
+		// Date, time, address… changed: the draft is sent again when the customer leaves.
+		if (state.draft) { draftDirty = true; }
+		var tot = totals();
+		var sub = tot.sub;
+		var disc = tot.disc;
+		var total = tot.total;
 		var lines = lineItems();
 		var count = cartCount();
 
 		var freqEl = $('[data-sum="freq"]');
 		if (freqEl) { freqEl.textContent = state.frequency; }
-		$('[data-sum-row="fdisc"]').hidden = $('[data-sum="fdisc"]').hidden = !t.fdisc;
-		$('[data-sum="fdisc"]').textContent = '- ' + money(t.fdisc) + ' (' + freqPct() + '%)';
-		$('[data-sum-row="afee"]').hidden = $('[data-sum="afee"]').hidden = !t.afee;
-		$('[data-sum="afee"]').textContent = money(t.afee);
-		$('[data-sum="aname"]').textContent = t.afee ? '(' + state.area + ')' : '';
+		$('[data-sum-row="fdisc"]').hidden = $('[data-sum="fdisc"]').hidden = !tot.fdisc;
+		$('[data-sum="fdisc"]').textContent = '- ' + money(tot.fdisc) + ' (' + freqPct() + '%)';
+		$('[data-sum-row="afee"]').hidden = $('[data-sum="afee"]').hidden = !tot.afee;
+		$('[data-sum="afee"]').textContent = money(tot.afee);
+		$('[data-sum="aname"]').textContent = tot.afee ? '(' + cityLabel(state.area) + ')' : '';
 		var areaSel = $('[data-area]');
 		if (areaSel) { areaSel.value = state.area; }
 		var areaName = $('[data-co-area-name]');
-		if (areaName) { areaName.textContent = state.area; }
+		if (areaName) { areaName.textContent = cityLabel(state.area); }
 		var off = $('[data-area-off]');
 		off.hidden = cfg.service.active && areaInfo().on;
-		off.textContent = !cfg.service.active ? 'Sorry, this service is not available right now.' : 'Sorry, ' + cfg.service.title + ' is not available in ' + state.area + ' yet. Please choose another area.';
+		off.textContent = !cfg.service.active ? t('Sorry, this service is not available right now.') : t('Sorry, %1$s is not available in %2$s yet. Please choose another area.', cfg.service.title, cityLabel(state.area));
 		renderPrices();
 		$$('[data-lines]').forEach(function (el) { el.hidden = !lines.length; });
 		// Like Justlife: "1x Haircut & Massage", the money is in the payment summary.
@@ -520,7 +632,7 @@
 		var addrShow = state.street ? addr : state.address;
 		$('[data-sum-row="addr"]').hidden = $('[data-sum="addr"]').hidden = !addrShow;
 		$('[data-sum="addr"]').textContent = addrShow;
-		$('[data-addr-label]').textContent = state.lat ? (state.address || 'Location pinned') + ' (change)' : 'Pin your location on the map';
+		$('[data-addr-label]').textContent = state.lat ? t('%s (change)', state.address || t('Location pinned')) : t('Pin your location on the map');
 		var pin = $('[data-open-map]');
 		if (pin) { pin.classList.toggle('is-set', !!state.lat); }
 
@@ -530,7 +642,7 @@
 		$('[data-sum="code"]').textContent = disc ? '(' + state.voucher.toUpperCase() + ')' : '';
 		$('[data-sum="total"]').textContent = money(total);
 		$('[data-total-mini]').textContent = money(total);
-		$('[data-count-mini]').textContent = hourly ? 'Total' : (count ? count + (count > 1 ? ' items' : ' item') + ' · Total' : 'Total');
+		$('[data-count-mini]').textContent = hourly || !count ? t('Total') : t(count > 1 ? '%d items · Total' : '%d item · Total', count);
 
 		var hint = $('[data-voucher-hint]');
 		var hasVoucher = !!cfg.vouchers[(state.voucher || '').toUpperCase()];
@@ -539,7 +651,7 @@
 
 		var ready = !problems(state.step).length;
 		nextBtn.classList.toggle('is-waiting', !ready);
-		nextBtn.textContent = state.step === LAST ? (state.payment === cfg.online ? 'Pay securely' : 'Confirm booking') + (total ? ' · ' + money(total) : '') : 'Continue';
+		nextBtn.textContent = state.step === LAST ? t(state.payment === cfg.online ? 'Pay securely' : 'Confirm booking') + (total ? ' · ' + money(total) : '') : t('Continue');
 		if (ready) { barError.textContent = ''; }
 		save();
 	}
@@ -566,15 +678,14 @@
 	function openMap() {
 		modal.hidden = false;
 		document.body.classList.add('bn-modal-open');
-		if (!window.L) { return; }
-		if (!map) {
-			map = L.map($('[data-map]'), { zoomControl: false }).setView(state.lat ? [state.lat, state.lng] : [cfg.map.lat, cfg.map.lng], 15);
-			L.control.zoom({ position: 'bottomright' }).addTo(map);
-			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
-			map.on('movestart', function () { modal.classList.add('is-moving'); });
-			map.on('moveend', function () { modal.classList.remove('is-moving'); });
-		}
-		setTimeout(function () { map.invalidateSize(); }, 50);
+		window.bnMap.ready(function () {
+			if (!map) {
+				map = window.bnMap.create($('[data-map]'), state.lat ? +state.lat : cfg.map.lat, state.lat ? +state.lng : cfg.map.lng, 15,
+					function () { modal.classList.add('is-moving'); },
+					function () { modal.classList.remove('is-moving'); });
+			}
+			setTimeout(function () { if (map) { map.resize(); } }, 50);
+		});
 	}
 	function closeMap() { modal.hidden = true; document.body.classList.remove('bn-modal-open'); }
 	$$('[data-open-map]').forEach(function (b) { b.addEventListener('click', openMap); });
@@ -583,27 +694,28 @@
 	document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) { closeMap(); } });
 	$('[data-map-locate]').addEventListener('click', function () {
 		if (!navigator.geolocation || !map) { return; }
-		navigator.geolocation.getCurrentPosition(function (p) { map.setView([p.coords.latitude, p.coords.longitude], 17); });
+		navigator.geolocation.getCurrentPosition(function (p) { map.setView(p.coords.latitude, p.coords.longitude, 17); });
 	});
 	var results = $('[data-map-results]');
 	var searchTimer;
 	function geosearch(q) {
-		var c = map ? map.getCenter() : { lat: cfg.map.lat, lng: cfg.map.lng };
-		fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1' + (cfg.country ? '&countrycodes=' + cfg.country : '') + '&q=' + encodeURIComponent(q) + '&viewbox=' + (c.lng - 1) + ',' + (c.lat + 1) + ',' + (c.lng + 1) + ',' + (c.lat - 1), { headers: { 'Accept-Language': 'en' } })
-			.then(function (r) { return r.json(); })
-			.then(function (list) {
-				results.innerHTML = '';
-				list.forEach(function (it) {
-					var li = document.createElement('li');
-					var b = document.createElement('button');
-					b.type = 'button';
-					b.textContent = it.display_name;
-					b.addEventListener('click', function () { map.setView([+it.lat, +it.lon], 17); results.hidden = true; });
-					li.appendChild(b);
-					results.appendChild(li);
+		var c = map ? map.center() : { lat: cfg.map.lat, lng: cfg.map.lng };
+		window.bnMap.search(q, c, function (list) {
+			results.innerHTML = '';
+			list.slice(0, 5).forEach(function (it) {
+				var li = document.createElement('li');
+				var b = document.createElement('button');
+				b.type = 'button';
+				b.textContent = it.label;
+				b.addEventListener('click', function () {
+					results.hidden = true;
+					it.locate(function (lat, lng) { if (map) { map.setView(lat, lng, 17); } });
 				});
-				results.hidden = !list.length;
-			}).catch(function () { results.hidden = true; });
+				li.appendChild(b);
+				results.appendChild(li);
+			});
+			results.hidden = !list.length;
+		});
 	}
 	$('[data-map-query]').addEventListener('input', function (e) {
 		clearTimeout(searchTimer);
@@ -615,50 +727,49 @@
 	$('[data-map-confirm]').addEventListener('click', function () {
 		var btn = this;
 		var label = btn.textContent;
-		var c = map ? map.getCenter() : { lat: cfg.map.lat, lng: cfg.map.lng };
+		var c = map ? map.center() : { lat: cfg.map.lat, lng: cfg.map.lng };
 		var lat = Math.round(c.lat * 1e6) / 1e6;
 		var lng = Math.round(c.lng * 1e6) / 1e6;
 		var pin = function (address) {
 			state.lat = lat;
 			state.lng = lng;
-			state.address = address || 'Location pinned';
+			state.address = address || t('Location pinned');
 			closeMap();
 			renderCities();
 			update();
 		};
 		btn.disabled = true;
-		btn.textContent = 'Checking…';
-		fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&lat=' + lat + '&lon=' + lng, { headers: { 'Accept-Language': 'en' } })
-			.then(function (r) { return r.json(); })
-			.then(function (d) {
-				var a = d && d.address;
-				var area = window.bnMatchCity ? window.bnMatchCity(a, cfg.cities, cfg.country) : '';
-				if (!area) {
-					// Outside our cities (or another country): keep the map open.
-					if (window.bnAlert) { window.bnAlert('Error', window.BN_AREA_ERROR); }
-					return;
-				}
-				state.area = area;
-				if (!state.street.trim()) {
-					state.street = [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', ');
-					$('[data-field="street"]').value = state.street;
-					clearError('street');
-				}
-				if (!state.building.trim() && (a.building || a.house_name || a.amenity)) {
-					state.building = a.building || a.house_name || a.amenity;
-					$('[data-field="building"]').value = state.building;
-					clearError('building');
-				}
-				pin(d.display_name.split(',').slice(0, 2).join(','));
-			})
-			.catch(function () { if (window.bnAlert) { window.bnAlert('Error', window.BN_AREA_CHECK_ERROR); } })
-			.then(function () { btn.disabled = false; btn.textContent = label; });
+		btn.textContent = t('Checking…');
+		window.bnMap.reverse(lat, lng, function (err, d) {
+			btn.disabled = false;
+			btn.textContent = label;
+			if (err) { if (window.bnAlert) { window.bnAlert(t('Error'), window.BN_AREA_CHECK_ERROR); } return; }
+			var a = d.address;
+			var area = window.bnMatchCity ? window.bnMatchCity(a, cfg.cities, cfg.country) : '';
+			if (!area) {
+				// Outside our cities (or another country): keep the map open.
+				if (window.bnAlert) { window.bnAlert(t('Error'), window.BN_AREA_ERROR); }
+				return;
+			}
+			state.area = area;
+			if (!state.street.trim()) {
+				state.street = [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', ');
+				$('[data-field="street"]').value = state.street;
+				clearError('street');
+			}
+			if (!state.building.trim() && (a.building || a.house_name || a.amenity)) {
+				state.building = a.building || a.house_name || a.amenity;
+				$('[data-field="building"]').value = state.building;
+				clearError('building');
+			}
+			pin(d.label);
+		});
 	});
 
 	/* Submit ------------------------------------------------------------- */
 	function submit() {
 		nextBtn.disabled = true;
-		nextBtn.textContent = 'Booking…';
+		nextBtn.textContent = t('Booking…');
 		var body = new FormData();
 		body.append('action', 'bn_checkout');
 		body.append('nonce', cfg.nonce);
@@ -668,29 +779,34 @@
 		body.append('address', state.lat ? state.address : '');
 		body.append('lat', state.lat || '');
 		body.append('lng', state.lng || '');
+		body.append('draft', state.draft || '');
+		clearTimeout(draftTimer);
+		draftDirty = false;
 
 		fetch(cfg.ajax, { method: 'POST', body: body, credentials: 'same-origin' })
 			.then(function (r) { return r.json(); })
 			.then(function (res) {
-				if (!res || !res.success) { throw new Error((res && res.data && res.data.message) || 'Something went wrong. Please try again.'); }
+				if (!res || !res.success) { throw new Error((res && res.data && res.data.message) || t('Something went wrong. Please try again.')); }
 				rememberCustomer();
+				state.draft = ''; // Now a real booking; the server removed the draft.
+				save();
 				if (res.data.redirect) {
 					// Online payment: continue on the secure Ziina payment page.
-					nextBtn.textContent = 'Redirecting to secure payment…';
+					nextBtn.textContent = t('Redirecting to secure payment…');
 					window.location.href = res.data.redirect;
 					return;
 				}
 				var total = money(res.data.total);
 				$('[data-ref]').textContent = '#' + res.data.ref;
 				$('[data-done-sum]').innerHTML = [
-					['Service', cfg.service.title],
-					['When', pretty(state.date) + ' · ' + timeLabel(state.time)],
-					['Address', addrText()],
-					['Total', total + ' (' + state.payment.toLowerCase() + ')']
+					[t('Service'), cfg.service.title],
+					[t('When'), pretty(state.date) + ' · ' + timeLabel(state.time)],
+					[t('Address'), addrText()],
+					[t('Total'), total + ' (' + state.payment.toLowerCase() + ')']
 				].map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('');
 				if (cfg.whatsapp) {
 					var wa = $('[data-done-wa]');
-					var msg = 'Hi, I just booked ' + cfg.service.title + ' (#' + res.data.ref + ') for ' + pretty(state.date) + ', ' + timeLabel(state.time) + '.';
+					var msg = t('Hi, I just booked %1$s (#%2$s) for %3$s, %4$s.', cfg.service.title, res.data.ref, pretty(state.date), timeLabel(state.time));
 					wa.href = cfg.whatsapp + (cfg.whatsapp.indexOf('?') === -1 ? '?' : '&') + 'text=' + encodeURIComponent(msg);
 					wa.hidden = false;
 				}
@@ -736,7 +852,7 @@
 	} else {
 		goTo(Math.min(LAST, Math.max(1, +new URL(window.location.href).searchParams.get('step') || 1)), false);
 		if (cfg.paid) {
-			barError.textContent = 'Payment for booking #' + cfg.paid.ref + ' was not completed. Please try again or choose another payment method.';
+			barError.textContent = t('Payment for booking #%s was not completed. Please try again or choose another payment method.', cfg.paid.ref);
 		}
 	}
 	// Like Justlife: no saved location yet → ask for it first (prices depend on the area).

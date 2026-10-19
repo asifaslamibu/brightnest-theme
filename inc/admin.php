@@ -39,6 +39,10 @@ function brightnest_admin_assets() {
 	}
 	wp_enqueue_style( 'brightnest-admin', BRIGHTNEST_URI . '/assets/admin/admin.css', array(), BRIGHTNEST_VERSION );
 	$screen = get_current_screen();
+	if ( 'bn_service_cat' === $screen->taxonomy && in_array( $screen->base, array( 'edit-tags', 'term' ), true ) ) {
+		wp_enqueue_media(); // Category icon image.
+		wp_enqueue_script( 'brightnest-settings', BRIGHTNEST_URI . '/assets/admin/settings.js', array(), BRIGHTNEST_VERSION, true );
+	}
 	if ( 'bn_service' === $screen->post_type && 'post' === $screen->base ) {
 		wp_enqueue_script( 'brightnest-settings', BRIGHTNEST_URI . '/assets/admin/settings.js', array(), BRIGHTNEST_VERSION, true );
 		wp_enqueue_media(); // Option photos.
@@ -68,6 +72,15 @@ function brightnest_admin_assets() {
 					'options'     => __( 'options', 'brightnest' ),
 					'photo'       => __( 'Photo (shown in the checkout)', 'brightnest' ),
 					'choosePhoto' => __( 'Choose option photo', 'brightnest' ),
+					'details'     => __( 'Popup details (shown when a customer clicks the option)', 'brightnest' ),
+					'about'       => __( 'About this option (popup text)', 'brightnest' ),
+					'nameAr'      => __( 'Arabic name (العربية)', 'brightnest' ),
+					'descAr'      => __( 'Arabic description', 'brightnest' ),
+					'aboutAr'     => __( 'Arabic popup text', 'brightnest' ),
+					'hlAr'        => __( 'Arabic highlights (same format)', 'brightnest' ),
+					'tabImg'      => __( 'Tab picture (checkout strip)', 'brightnest' ),
+					'tabAr'       => __( 'Arabic tab name', 'brightnest' ),
+					'highlights'  => __( 'Highlights, one per line. Optional icon first: shield | 60-Day Warranty (icons: shield, clock, star, check-circle, users, home, calendar, tag, ac, cleaning, sofa, water, pest, spa)', 'brightnest' ),
 				),
 			)
 		);

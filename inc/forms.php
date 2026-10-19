@@ -116,7 +116,7 @@ function brightnest_booking_form( $selected = '' ) {
 		)
 	);
 	$cities   = brightnest_cities();
-	$redirect = ( is_ssl() ? 'https://' : 'http://' ) . ( isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '' ) . strtok( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/', '?' );
+	$redirect = ( is_ssl() ? 'https://' : 'http://' ) . ( isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '' ) . strtok( esc_url_raw( isset( $GLOBALS['bn_request_uri'] ) ? $GLOBALS['bn_request_uri'] : '/' ), '?' ); // Original address, with /ar/ on the Arabic site.
 	?>
 	<form class="bn-form" id="bn-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 		<?php echo brightnest_form_notice(); // phpcs:ignore WordPress.Security.EscapeOutput ?>

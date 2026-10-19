@@ -15,7 +15,7 @@ $bn_cat   = ( $bn_terms && ! is_wp_error( $bn_terms ) ) ? $bn_terms[0] : null;
 		<?php if ( has_post_thumbnail( $bn_id ) ) : ?>
 			<?php echo get_the_post_thumbnail( $bn_id, 'brightnest-card', array( 'loading' => 'lazy' ) ); ?>
 		<?php else : ?>
-			<span class="bn-card-icon"><?php echo brightnest_icon( $bn_icon, 44 ); // phpcs:ignore ?></span>
+			<span class="bn-card-icon"><?php echo brightnest_service_icon_html( $bn_id, 44 ); // phpcs:ignore ?></span>
 		<?php endif; ?>
 		<?php if ( get_post_meta( $bn_id, '_bn_featured', true ) ) : ?>
 			<span class="bn-badge"><?php esc_html_e( 'Popular', 'brightnest' ); ?></span>

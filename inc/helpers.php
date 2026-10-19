@@ -18,6 +18,55 @@ function brightnest_cities() {
 }
 
 /**
+ * Uploaded icon picture (same box as a line icon).
+ */
+function brightnest_icon_img( $url, $size ) {
+	return sprintf( '<img class="bn-icon bn-icon-img" src="%1$s" width="%2$d" height="%2$d" alt="" loading="lazy" decoding="async">', esc_url( $url ), absint( $size ) );
+}
+
+/**
+ * Picture of a service as an icon: its own uploaded image, else its category's, else the line icon.
+ *
+ * @param int $post_id Service ID.
+ * @param int $size    Pixels.
+ */
+function brightnest_service_icon_html( $post_id, $size = 24 ) {
+	$img = (string) get_post_meta( $post_id, '_bn_icon_img', true );
+	if ( '' === $img && '' === (string) get_post_meta( $post_id, '_bn_icon', true ) ) {
+		$terms = get_the_terms( $post_id, 'bn_service_cat' );
+		$img   = $terms && ! is_wp_error( $terms ) ? (string) get_term_meta( $terms[0]->term_id, 'bn_icon_img', true ) : '';
+	}
+	return '' !== $img ? brightnest_icon_img( $img, $size ) : brightnest_icon( brightnest_service_icon( $post_id ), $size );
+}
+
+/**
+ * Picture of a category as an icon: uploaded image, else its line icon.
+ *
+ * @param int $term_id Category ID.
+ * @param int $size    Pixels.
+ */
+function brightnest_cat_icon_html( $term_id, $size = 24 ) {
+	$img = (string) get_term_meta( $term_id, 'bn_icon_img', true );
+	if ( '' !== $img ) {
+		return brightnest_icon_img( $img, $size );
+	}
+	$icon = get_term_meta( $term_id, 'bn_icon', true );
+	return brightnest_icon( $icon ? $icon : 'home', $size );
+}
+
+/**
+ * Admin: photo picker box (uses assets/admin/settings.js).
+ */
+function brightnest_admin_image_field( $name, $url, $empty ) {
+	echo '<div class="bn-set-imgbox" data-image>';
+	echo '<span class="bn-set-thumb" data-thumb data-empty="' . esc_attr( $empty ) . '">' . ( $url ? '<img src="' . esc_url( $url ) . '" alt="">' : esc_html( $empty ) ) . '</span>';
+	echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $url ) . '" data-url>';
+	echo '<button type="button" class="button" data-pick>' . esc_html__( 'Upload / choose image', 'brightnest' ) . '</button> ';
+	echo '<button type="button" class="button-link bn-opt-del" data-clear>' . esc_html__( 'Remove', 'brightnest' ) . '</button>';
+	echo '</div>';
+}
+
+/**
  * Icon key for a service (own icon > first category icon > default).
  */
 function brightnest_service_icon( $post_id ) {
@@ -134,7 +183,7 @@ function brightnest_menu_fallback() {
 		echo '<li><a href="' . esc_url( get_term_link( $term ) ) . '">' . esc_html( $term->name ) . '</a></li>';
 	}
 	echo '</ul></li>';
-	foreach ( array( 'about-us', 'faq', 'contact' ) as $slug ) {
+	foreach ( array( 'about-us', 'blogs', 'faq', 'contact' ) as $slug ) {
 		$page = get_page_by_path( $slug );
 		if ( $page ) {
 			echo '<li><a href="' . esc_url( get_permalink( $page ) ) . '">' . esc_html( get_the_title( $page ) ) . '</a></li>';
@@ -159,8 +208,14 @@ function brightnest_breadcrumbs() {
 		echo '<span>/</span><a href="' . esc_url( get_post_type_archive_link( 'bn_service' ) ) . '">' . esc_html__( 'Services', 'brightnest' ) . '</a><span>/</span><span aria-current="page">' . esc_html( single_term_title( '', false ) ) . '</span>';
 	} elseif ( is_post_type_archive( 'bn_service' ) ) {
 		echo '<span>/</span><span aria-current="page">' . esc_html__( 'Services', 'brightnest' ) . '</span>';
+	} elseif ( is_singular( 'post' ) && get_option( 'page_for_posts' ) ) {
+		// Blog post: Home / Blogs / title.
+		$blog = (int) get_option( 'page_for_posts' );
+		echo '<span>/</span><a href="' . esc_url( get_permalink( $blog ) ) . '">' . esc_html( get_the_title( $blog ) ) . '</a><span>/</span><span aria-current="page">' . esc_html( get_the_title() ) . '</span>';
 	} elseif ( is_singular() ) {
 		echo '<span>/</span><span aria-current="page">' . esc_html( get_the_title() ) . '</span>';
+	} elseif ( is_home() && get_option( 'page_for_posts' ) ) {
+		echo '<span>/</span><span aria-current="page">' . esc_html( get_the_title( (int) get_option( 'page_for_posts' ) ) ) . '</span>';
 	}
 	echo '</nav>';
 }
@@ -170,8 +225,10 @@ function brightnest_breadcrumbs() {
  */
 function brightnest_achievements() {
 	$rows = array();
-	foreach ( preg_split( '/
-||
+	foreach ( preg_split( '/
+
+|
+|
 /', (string) brightnest_opt( 'achievements' ) ) as $line ) {
 		$p = array_map( 'trim', explode( '|', $line, 2 ) );
 		if ( '' !== $p[0] && isset( $p[1] ) ) {

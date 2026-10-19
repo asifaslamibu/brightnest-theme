@@ -41,6 +41,10 @@ function brightnest_defaults() {
 		'linkedin'        => '',
 		'footer_about'    => 'BrightNest Clean connects you with vetted, background-checked home service professionals. Quality guaranteed on every booking.',
 		'booking_email'   => '',
+		'remind_on'       => '1',
+		'remind_hours'    => '1',
+		'remind_subject'  => 'Your {service} booking is almost done',
+		'remind_body'     => "Hi {name},\n\nYou were one step away from booking {service}. We saved your details, so finishing takes less than a minute:\n\n{link}\n\nQuestions? Call or WhatsApp us on {phone}.\n\n{site}",
 		'phone2'          => '',
 		'youtube'         => '',
 		'tiktok'          => '',
@@ -51,6 +55,7 @@ function brightnest_defaults() {
 		'vouchers'        => "WELCOME20:20%\nWB50:50",
 		'map_lat'         => '25.0804',
 		'map_lng'         => '55.1366',
+		'google_maps_key' => '',
 
 		// Homepage (BrightNest → Settings → Homepage). "|" marks the orange accent.
 		'hero_badge'         => 'Trusted by 3,600+ customers',
@@ -182,7 +187,21 @@ function brightnest_faqs( $service_id = 0 ) {
 		);
 	}
 	$own = $service_id ? get_post_meta( $service_id, '_bn_faqs', true ) : array();
-	return array_merge( is_array( $own ) ? $own : array(), $global );
+	$own = is_array( $own ) ? $own : array();
+	// Arabic site: each question's Arabic twin (same position), when filled in.
+	if ( function_exists( 'brightnest_show_ar' ) && brightnest_show_ar() ) {
+		$swap = function ( $rows, $ar ) {
+			foreach ( $rows as $i => $row ) {
+				if ( isset( $ar[ $i ][0], $ar[ $i ][1] ) && '' !== trim( $ar[ $i ][0] ) && '' !== trim( $ar[ $i ][1] ) ) {
+					$rows[ $i ] = array( $ar[ $i ][0], $ar[ $i ][1] );
+				}
+			}
+			return $rows;
+		};
+		$global = $swap( $global, (array) get_theme_mod( 'bn_faqs_ar', array() ) );
+		$own    = $service_id ? $swap( $own, (array) get_post_meta( $service_id, '_bn_ar_faqs', true ) ) : $own;
+	}
+	return array_merge( $own, $global );
 }
 
 /**
@@ -192,6 +211,11 @@ function brightnest_faqs( $service_id = 0 ) {
  * @return string
  */
 function brightnest_opt( $key ) {
+	// Arabic site: the Arabic twin of a text setting, when one is filled in.
+	$ar = function_exists( 'brightnest_opt_ar' ) ? brightnest_opt_ar( $key ) : null;
+	if ( null !== $ar ) {
+		return $ar;
+	}
 	$defaults = brightnest_defaults();
 	return get_theme_mod( 'bn_' . $key, isset( $defaults[ $key ] ) ? $defaults[ $key ] : '' );
 }
