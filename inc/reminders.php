@@ -36,7 +36,7 @@ add_action( 'init', 'brightnest_register_draft_type' );
 
 /** Fields a draft keeps (same names as the checkout state). */
 function brightnest_draft_fields() {
-	return array( 'frequency', 'date', 'time', 'area', 'street', 'building', 'apartment', 'name', 'phone', 'email', 'message', 'address', 'voucher' );
+	return array( 'frequency', 'date', 'time', 'area', 'place', 'street', 'building', 'apartment', 'directions', 'name', 'phone', 'email', 'message', 'address', 'voucher' );
 }
 
 /**
@@ -102,8 +102,6 @@ function brightnest_ajax_checkout_draft() {
 		$data[ $k ] = isset( $_POST[ $k ] ) ? sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) : '';
 	}
 	$data['email'] = $email;
-	$data['lat']   = isset( $_POST['lat'] ) ? (float) $_POST['lat'] : 0;
-	$data['lng']   = isset( $_POST['lng'] ) ? (float) $_POST['lng'] : 0;
 	// Cart: option id => qty, or the hourly choice { hours, pros, materials }.
 	$cart = isset( $_POST['cart'] ) ? json_decode( wp_unslash( $_POST['cart'] ), true ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	$clean = array();

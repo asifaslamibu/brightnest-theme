@@ -15,8 +15,8 @@ if ( ! $bn_reviews ) {
 		<div class="bn-carousel" data-carousel>
 			<div class="bn-carousel-head">
 				<div>
-					<span class="bn-eyebrow"><?php esc_html_e( 'Reviews', 'brightnest' ); ?></span>
-					<h2 class="bn-h2"><?php esc_html_e( 'What our customers say', 'brightnest' ); ?></h2>
+					<span class="bn-eyebrow"><?php echo esc_html( ! empty( $args['eyebrow'] ) ? $args['eyebrow'] : __( 'Reviews', 'brightnest' ) ); ?></span>
+					<h2 class="bn-h2"><?php echo ! empty( $args['title'] ) ? brightnest_accent( $args['title'] ) : esc_html__( 'What our customers say', 'brightnest' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></h2>
 				</div>
 				<div class="bn-carousel-nav">
 					<button type="button" class="bn-arrow" data-prev aria-label="<?php esc_attr_e( 'Previous', 'brightnest' ); ?>"><?php echo brightnest_icon( 'arrow-left', 18 ); // phpcs:ignore ?></button>

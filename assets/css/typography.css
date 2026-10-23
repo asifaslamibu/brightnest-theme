@@ -36,7 +36,7 @@ h3, h4 { line-height: 1.4; }
 /* Small text: 13px. */
 small, .bn-muted small, .bn-form-note, .bn-co-err, .bn-sc-foot small, .bn-breadcrumbs { font-size: 13px; }
 
-/* Buttons: 16px, bold, every word capitalised. */
+/* Buttons: every word capitalised (size and weight: see the end of this file). */
 .bn-btn, .bn-co-next, .bn-co-add, .bn-svc-book, .bn-jx-here, .bn-sv-subnav-cta, button.bn-btn {
 	font-size: 16px; font-weight: 700; letter-spacing: normal; text-transform: capitalize;
 }
@@ -50,3 +50,39 @@ input:not([type=checkbox]):not([type=radio]), select, textarea {
 /* Menu and footer links stay regular weight, as on Justlife. */
 .bn-menu a, .bn-footer a, .bn-jx-tile-name, .bn-topbar a { font-weight: 400; }
 .bn-menu .current-menu-item > a { font-weight: 700; }
+
+/* Buttons: compact and calm (premium look). One height per size so buttons side by side line up.
+   Loaded last, so this wins over the older button rules in main.css / components.css. */
+.bn-btn {
+	height: 44px; padding: 0 20px; gap: 8px; border-radius: 10px; border-width: 1px;
+	font-size: 15px; font-weight: 600; line-height: 1; letter-spacing: .01em;
+	box-shadow: none; transition: background-color .2s, border-color .2s, color .2s, box-shadow .2s;
+}
+.bn-btn:hover { transform: none; }
+.bn-btn:active { transform: translateY(1px); }
+.bn-btn:focus-visible { outline: 2px solid var(--bn-primary); outline-offset: 2px; }
+.bn-btn .bn-icon { width: 16px; height: 16px; }
+.bn-btn-lg { height: 48px; padding: 0 24px; font-size: 15px; margin-bottom: 0; }
+.bn-btn-sm { height: 36px; padding: 0 14px; font-size: 13.5px; border-radius: 8px; }
+.bn-btn-block { width: 100%; }
+
+.bn-btn-primary {
+	background: var(--bn-cta); border-color: var(--bn-cta); color: #fff;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, .08), 0 6px 14px -6px rgba(207, 74, 0, .45);
+}
+.bn-btn-primary:hover { background: var(--bn-cta-dark); border-color: var(--bn-cta-dark); color: #fff; box-shadow: 0 1px 2px rgba(16, 24, 40, .08); }
+.bn-btn-navy { background: var(--bn-primary); border-color: var(--bn-primary); color: #fff; }
+.bn-btn-navy:hover { background: var(--bn-primary-dark); border-color: var(--bn-primary-dark); }
+.bn-btn-wa { background: #1faa59; border-color: #1faa59; color: #fff; margin-top: 0; }
+.bn-btn-wa:hover { background: #188f4a; border-color: #188f4a; color: #fff; }
+.bn-btn-ghost, .bn-btn-light { background: #fff; border-color: #dfe3ec; color: var(--bn-ink); }
+.bn-btn-ghost:hover, .bn-btn-light:hover { border-color: var(--bn-primary); color: var(--bn-primary); }
+.bn-btn-outline-light { border-color: rgba(255, 255, 255, .55); color: #fff; }
+.bn-btn-outline-navy { border-color: var(--bn-primary); }
+
+/* Stacked buttons in a card keep a small gap. */
+.bn-btn-block + .bn-btn-block { margin-top: 10px; }
+
+/* Checkout: the main button stays a full-width pill, a little slimmer. */
+.bn-co-next { height: 50px; padding: 0 22px; font-size: 16px; font-weight: 600; }
+.bn-co-add { font-weight: 600; }

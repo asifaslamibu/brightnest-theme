@@ -22,8 +22,6 @@ html[dir="rtl"] .bn-icon-arrow-right { transform: scaleX(-1); }
 html[dir="rtl"] .bn-nav,
 html[dir="rtl"] .bn-nav-open .bn-nav { right: auto; left: 0; }
 html[dir="rtl"] .bn-header-actions { margin-left: 0; margin-right: auto; }
-html[dir="rtl"] .bn-hloc-open { padding: 0 14px 0 6px; }
-html[dir="rtl"] .bn-hloc-here { padding: 0 8px 0 14px; }
 html[dir="rtl"] .bn-hlang { font-family: 'Hanken Grotesk', sans-serif; }
 html[dir="rtl"] .bn-menu > .menu-item-has-children > a::after { margin-left: 0; margin-right: 8px; }
 html[dir="rtl"] .bn-menu .sub-menu { left: auto; right: 0; }
@@ -55,9 +53,6 @@ html[dir="rtl"] .bn-co-seg .bn-co-choice { text-align: center; }
 /* Prices, phone numbers and references read left-to-right inside Arabic text. */
 html[dir="rtl"] [data-money], html[dir="rtl"] [data-sum="total"], html[dir="rtl"] [data-sum="sub"], html[dir="rtl"] [data-total-mini], html[dir="rtl"] input[type="tel"] { unicode-bidi: isolate; direction: ltr; }
 html[dir="rtl"] input[type="tel"], html[dir="rtl"] input[type="email"] { text-align: right; }
-
-/* Map picker */
-html[dir="rtl"] .bn-map-search { padding: 4px 12px 4px 4px; }
 
 @media (max-width: 960px) {
 	html[dir="rtl"] .bn-header-actions { margin-right: auto; }

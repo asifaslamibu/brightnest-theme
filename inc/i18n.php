@@ -32,7 +32,11 @@ function brightnest_detect_lang() {
 	if ( defined( 'WP_CLI' ) || wp_doing_cron() ) {
 		return;
 	}
+	$gt = class_exists( 'GTranslate' ); // GTranslate does the Arabic (inc/gtranslate.php).
 	if ( wp_doing_ajax() ) {
+		if ( $gt ) {
+			return;
+		}
 		// Our checkout calls come from an /ar/ page: answer in Arabic (messages, emails).
 		$ref = isset( $_SERVER['HTTP_REFERER'] ) ? (string) wp_parse_url( wp_unslash( $_SERVER['HTTP_REFERER'] ), PHP_URL_PATH ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		if ( ( isset( $_REQUEST['bn_lang'] ) && 'ar' === $_REQUEST['bn_lang'] ) || 0 === strpos( $ref, brightnest_home_path() . 'ar/' ) || brightnest_home_path() . 'ar' === rtrim( $ref, '/' ) ) { // phpcs:ignore WordPress.Security.NonceVerification
@@ -46,9 +50,13 @@ function brightnest_detect_lang() {
 	$base = brightnest_home_path();
 	$uri  = $GLOBALS['bn_request_uri'];
 	if ( 0 === strpos( $uri, $base . 'ar/' ) || 0 === strpos( $uri, $base . 'ar?' ) || $base . 'ar' === $uri ) {
-		$GLOBALS['bn_lang']    = 'ar';
 		$rest                  = (string) substr( $uri, strlen( $base . 'ar' ) );
 		$_SERVER['REQUEST_URI'] = $base . ltrim( $rest, '/' );
+		if ( $gt ) {
+			$GLOBALS['bn_ar_redirect'] = $_SERVER['REQUEST_URI']; // The English page (brightnest_gt_ar_redirect()).
+		} else {
+			$GLOBALS['bn_lang'] = 'ar';
+		}
 	}
 }
 brightnest_detect_lang();
@@ -131,7 +139,7 @@ add_filter( 'redirect_canonical', 'brightnest_ar_no_canonical' );
  * Tell search engines about both languages.
  */
 function brightnest_hreflang() {
-	if ( is_admin() || is_404() ) {
+	if ( is_admin() || is_404() || class_exists( 'GTranslate' ) ) {
 		return;
 	}
 	$scheme = is_ssl() ? 'https://' : 'http://';
@@ -150,7 +158,7 @@ add_action( 'wp_head', 'brightnest_hreflang', 2 );
 function brightnest_i18n_keys() {
 	static $keys = null;
 	if ( null === $keys ) {
-		$skip = array( 'currency', 'cities', 'phone', 'phone2', 'whatsapp', 'email', 'booking_email', 'promo_code', 'vouchers', 'map_lat', 'map_lng', 'google_maps_key', 'country_code', 'facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'slot_start', 'slot_end', 'lead_hours', 'days_ahead', 'slot_length', 'pay_online', 'remind_on', 'remind_hours', 'service_fee', 'min_amount', 'area_fees' );
+		$skip = array( 'currency', 'cities', 'phone', 'phone2', 'whatsapp', 'email', 'booking_email', 'promo_code', 'greviews_name', 'greviews_embed', 'greviews_write_url', 'offer_code', 'offer_link', 'offer_style', 'offer_days', 'vouchers', 'country_code', 'facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'slot_start', 'slot_end', 'lead_hours', 'days_ahead', 'slot_length', 'pay_online', 'remind_on', 'remind_hours', 'service_fee', 'min_amount', 'area_fees' );
 		$keys = array();
 		foreach ( brightnest_defaults() as $k => $v ) {
 			if ( is_string( $v ) && ! in_array( $k, $skip, true ) && 0 !== strpos( $k, 'show_' ) && ! preg_match( '/(_image|_img_\d|^hero_image)$/', $k ) && ! preg_match( '/^stat_\d_num$/', $k ) ) {
@@ -178,6 +186,13 @@ function brightnest_opt_ar( $key ) {
 function brightnest_city_label( $city ) {
 	if ( ! brightnest_is_ar() ) {
 		return $city;
+	}
+	// Arabic name set in BrightNest → Cities & Areas, else the old Settings list.
+	if ( function_exists( 'brightnest_area_label' ) ) {
+		$label = brightnest_area_label( $city );
+		if ( $label !== $city ) {
+			return $label;
+		}
 	}
 	$en = brightnest_cities();
 	$ar = array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) get_theme_mod( 'bn_cities_ar', '' ) ) );
@@ -372,10 +387,9 @@ function brightnest_city_labels() {
 }
 
 /**
- * Hand the script words to the page (before map.js, which every page loads first).
+ * Hand the script words to the page (before main.js, which the other theme scripts load after).
  */
 function brightnest_js_i18n() {
-	$handle = wp_script_is( 'brightnest-map', 'enqueued' ) ? 'brightnest-map' : 'brightnest-main';
-	wp_add_inline_script( $handle, 'window.BN_I18N = ' . wp_json_encode( brightnest_is_ar() ? brightnest_js_strings() : new stdClass() ) . ';', 'before' );
+	wp_add_inline_script( 'brightnest-main','window.BN_I18N = ' . wp_json_encode( brightnest_is_ar() ? brightnest_js_strings() : new stdClass() ) . ';', 'before' );
 }
 add_action( 'wp_enqueue_scripts', 'brightnest_js_i18n', 100 );

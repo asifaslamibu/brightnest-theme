@@ -10,14 +10,6 @@
 .bn-logo { flex: 0 0 auto; }
 .bn-logo img { max-height: 44px; width: auto; }
 
-.bn-hloc { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; height: 46px; border-radius: 12px; background: var(--bn-primary-soft); color: var(--bn-primary); }
-.bn-hloc button { border: 0; background: none; color: inherit; cursor: pointer; height: 100%; display: inline-flex; align-items: center; }
-.bn-hloc-open { gap: 8px; padding: 0 6px 0 14px; min-width: 0; max-width: 280px; font-size: 15px; font-weight: 700; }
-.bn-hloc-open .bn-icon { flex: 0 0 auto; color: var(--bn-brand); }
-.bn-hloc-open span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bn-hloc-here { padding: 0 14px 0 8px; }
-.bn-hloc-here:hover, .bn-hloc-open:hover { color: var(--bn-brand); }
-.bn-hloc-here.is-busy { opacity: .5; pointer-events: none; }
 
 .bn-hsearch {
 	flex: 1 1 auto; max-width: 420px; display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 16px;
@@ -26,6 +18,13 @@
 .bn-hsearch:focus-within { border-color: var(--bn-primary); }
 .bn-hsearch input[type="search"] { flex: 1; min-width: 0; border: 0; outline: 0; background: none; padding: 0; height: 100%; font-size: 16px; color: #212121; }
 .bn-hsearch input::placeholder { color: #757575; }
+
+/* City/area dropdown in the header (services pages) */
+.bn-hdr-dd { flex: 0 1 280px; min-width: 0; z-index: 110; }
+.bn-hdr-dd .bn-jx-dd-btn { height: 46px; padding: 0 14px; border-radius: 12px; border-color: transparent; background: var(--bn-primary-soft); color: var(--bn-primary); font-weight: 700; }
+.bn-hdr-dd .bn-jx-dd-btn.is-set span { color: var(--bn-primary); font-weight: 700; }
+.bn-hdr-dd .bn-jx-dd-chev { color: var(--bn-primary); }
+.bn-hdr-dd .bn-jx-dd-panel { min-width: 320px; }
 
 .bn-header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .bn-hround {
@@ -66,17 +65,15 @@
 .bn-nav-social a { width: 34px; height: 34px; background: var(--bn-soft); color: var(--bn-primary); }
 .bn-nav-social a:hover { background: var(--bn-primary); color: #fff; }
 
-@media (max-width: 1100px) {
-	.bn-hloc-open { max-width: 200px; }
-}
 @media (max-width: 960px) {
 	/* Two rows like the Justlife app: logo + actions, then location and search. */
 	.bn-header-inner { flex-wrap: wrap; gap: 10px 12px; min-height: 0; padding-top: 10px; padding-bottom: 10px; }
 	.bn-logo img { max-height: 38px; }
 	.bn-header-actions { order: 2; }
-	.bn-hloc { order: 3; flex: 1 1 100%; height: 42px; }
-	.bn-hloc-open { flex: 1; max-width: none; }
 	.bn-hsearch { order: 4; flex: 1 1 100%; max-width: none; height: 44px; }
+	.bn-hdr-dd { order: 3; flex: 1 1 100%; }
+	.bn-hdr-dd .bn-jx-dd-btn { height: 42px; }
+	.bn-hdr-dd .bn-jx-dd-panel { min-width: 0; }
 	.bn-hround, .bn-nav-toggle { height: 42px; }
 	.bn-hround { width: 42px; }
 }
@@ -110,3 +107,11 @@
 @media (max-width: 640px) {
 	.bn-jlf-bottom { flex-direction: column; align-items: flex-start; }
 }
+/* GTranslate switch in the header (inc/gtranslate.php): only the other language shows. */
+.bn-gt-switch { display: inline-flex; }
+.bn-gt-switch a { color: inherit; text-decoration: none; }
+.bn-gt-switch a.gt-current-lang { display: none; }
+.bn-gt-switch a[data-gt-lang="ar"] { font-family: 'IBM Plex Sans Arabic', 'Hanken Grotesk', Tahoma, sans-serif; }
+/* Google's own bar and tooltip stay hidden. */
+body { top: 0 !important; }
+.skiptranslate iframe, #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }

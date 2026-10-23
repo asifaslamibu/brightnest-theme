@@ -33,16 +33,14 @@ $bn_example = $bn_example ? wp_strip_all_tags( html_entity_decode( get_the_title
 			<?php endif; ?>
 		</div>
 
-		<?php // Location like Justlife: the label opens the map, the target pins the current position. ?>
-		<div class="bn-hloc">
-			<button type="button" class="bn-hloc-open" data-loc-open>
-				<?php echo brightnest_icon( 'pin', 18 ); // phpcs:ignore ?>
-				<span data-loc-label data-empty="<?php esc_attr_e( 'Set your location', 'brightnest' ); ?>"><?php esc_html_e( 'Set your location', 'brightnest' ); ?></span>
-			</button>
-			<button type="button" class="bn-hloc-here" data-loc-here aria-label="<?php esc_attr_e( 'Use my current location', 'brightnest' ); ?>">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
-			</button>
-		</div>
+		<?php
+		// Inner pages: the city/area dropdown sits in the header (it sets the prices on checkout).
+		// Not on the homepage (the hero has it) or the checkout (it has its own above the options).
+		$bn_hdr_dd = ! is_front_page() && ! ( function_exists( 'brightnest_is_checkout' ) && brightnest_is_checkout() );
+		if ( $bn_hdr_dd ) {
+			get_template_part( 'template-parts/area-dropdown', null, array( 'class' => 'bn-hdr-dd', 'placeholder' => __( 'Select your area', 'brightnest' ) ) );
+		}
+		?>
 
 		<form class="bn-hsearch" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 			<?php echo brightnest_icon( 'search', 18 ); // phpcs:ignore ?>
@@ -52,7 +50,11 @@ $bn_example = $bn_example ? wp_strip_all_tags( html_entity_decode( get_the_title
 
 		<div class="bn-header-actions">
 			<?php // Language switch like Justlife: "العربية" on the English site, "English" on the Arabic one. ?>
-			<a class="bn-hlang" href="<?php echo esc_url( brightnest_switch_url() ); ?>" hreflang="<?php echo brightnest_is_ar() ? 'en' : 'ar'; ?>" lang="<?php echo brightnest_is_ar() ? 'en' : 'ar'; ?>"><?php echo brightnest_is_ar() ? 'English' : 'العربية'; ?></a>
+			<?php if ( brightnest_gt_on() ) : ?>
+				<?php brightnest_gt_switch(); // GTranslate: English / العربية. ?>
+			<?php else : ?>
+				<a class="bn-hlang" href="<?php echo esc_url( brightnest_switch_url() ); ?>" hreflang="<?php echo brightnest_is_ar() ? 'en' : 'ar'; ?>" lang="<?php echo brightnest_is_ar() ? 'en' : 'ar'; ?>"><?php echo brightnest_is_ar() ? 'English' : 'العربية'; ?></a>
+			<?php endif; ?>
 			<?php if ( brightnest_opt( 'phone' ) ) : ?>
 				<a class="bn-hround" href="<?php echo esc_url( brightnest_tel_url() ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s phone */ __( 'Call %s', 'brightnest' ), brightnest_opt( 'phone' ) ) ); ?>"><?php echo brightnest_icon( 'phone', 18 ); // phpcs:ignore ?></a>
 			<?php endif; ?>

@@ -57,17 +57,64 @@
 		}
 		// Right-to-left (Arabic): the track starts at the right and scrollLeft runs negative.
 		var dir = getComputedStyle(track).direction === 'rtl' ? -1 : 1;
+		// Dots (one per "page" of cards), when the carousel has a [data-dots] holder.
+		var dots = carousel.querySelector('[data-dots]');
+		function pages() { return Math.max(1, Math.ceil((track.scrollWidth - 2) / Math.max(1, step()))); }
+		function page() { return Math.min(pages() - 1, Math.round(Math.abs(track.scrollLeft) / Math.max(1, step()))); }
+		function drawDots() {
+			if (!dots) { return; }
+			var n = pages();
+			if (dots.children.length !== n) {
+				dots.innerHTML = '';
+				for (var i = 0; i < n; i++) {
+					var b = document.createElement('button');
+					b.type = 'button';
+					b.setAttribute('aria-label', String(i + 1));
+					b.addEventListener('click', (function (k) { return function () { go(k); }; })(i));
+					dots.appendChild(b);
+				}
+			}
+			var cur = page();
+			Array.prototype.forEach.call(dots.children, function (b, i) { b.classList.toggle('is-active', i === cur); });
+			dots.hidden = n < 2;
+		}
+		function go(k) { track.scrollTo({ left: k * step() * dir, behavior: 'smooth' }); }
 		function update() {
 			var max = track.scrollWidth - track.clientWidth - 2;
 			var pos = Math.abs(track.scrollLeft);
 			if (prev) { prev.disabled = pos <= 2; }
 			if (next) { next.disabled = pos >= max; }
+			drawDots();
 		}
 		if (prev) { prev.addEventListener('click', function () { track.scrollBy({ left: -step() * dir, behavior: 'smooth' }); }); }
 		if (next) { next.addEventListener('click', function () { track.scrollBy({ left: step() * dir, behavior: 'smooth' }); }); }
 		track.addEventListener('scroll', update, { passive: true });
 		window.addEventListener('resize', update);
 		update();
+
+		// Autoplay (data-autoplay="ms"): next page, back to the first after the last. It waits while the
+		// visitor points at, touches or tabs into the slider, while it is off screen, and for reduced motion.
+		var every = +carousel.getAttribute('data-autoplay') || 0;
+		if (!every || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { return; }
+		var hold = false;
+		var seen = true;
+		var resumeAt = 0;
+		var stop = function () { hold = true; };
+		var start = function () { hold = false; };
+		carousel.addEventListener('mouseenter', stop);
+		carousel.addEventListener('mouseleave', start);
+		carousel.addEventListener('focusin', stop);
+		carousel.addEventListener('focusout', start);
+		track.addEventListener('touchstart', function () { resumeAt = Date.now() + 8000; }, { passive: true });
+		if ('IntersectionObserver' in window) {
+			new IntersectionObserver(function (es) { seen = es[0].isIntersecting; }, { threshold: 0.3 }).observe(carousel);
+		}
+		setInterval(function () {
+			if (hold || !seen || document.hidden || Date.now() < resumeAt) { return; }
+			if (carousel.querySelector('.bn-more.is-open')) { return; } // Someone is reading a card.
+			var pos = Math.abs(track.scrollLeft);
+			if (pos >= track.scrollWidth - track.clientWidth - 2) { go(0); } else { track.scrollBy({ left: step() * dir, behavior: 'smooth' }); }
+		}, every);
 	});
 
 	/* Reveal on scroll */
@@ -241,23 +288,6 @@
 		document.addEventListener('keydown', onKey);
 		ok.focus();
 	};
-
-	/* Which of our service cities a reverse-geocoded OpenStreetMap address is in ('' = none). */
-	window.bnMatchCity = function (address, cities, country) {
-		if (!address) { return ''; }
-		// Another country is never accepted, even if a city name happens to match.
-		if (country && String(address.country_code || '').toLowerCase() !== country) { return ''; }
-		var parts = ['city', 'town', 'village', 'municipality', 'county', 'state_district', 'state', 'region'].map(function (k) { return String(address[k] || '').toLowerCase(); }).filter(Boolean);
-		var hit = '';
-		(cities || []).forEach(function (c) {
-			var name = String(c).toLowerCase().trim();
-			if (!hit && name && parts.some(function (p) { return p.indexOf(name) !== -1; })) { hit = c; }
-		});
-		return hit;
-	};
-	var I18N = window.BN_I18N || {};
-	window.BN_AREA_ERROR = I18N['We do not currently operate in this area.'] || 'We do not currently operate in this area.';
-	window.BN_AREA_CHECK_ERROR = I18N['We could not check this location. Please check your connection and try again.'] || 'We could not check this location. Please check your connection and try again.';
 
 	/* Services category bar: keep the active category in view on phones */
 	var catBar = document.querySelector('.bn-ar-cats');

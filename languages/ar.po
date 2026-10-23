@@ -1048,3 +1048,234 @@ msgstr "بك"
 
 msgid "voucher code is ready, please select one or more options from the list to get this voucher code applied!"
 msgstr "رمز القسيمة جاهز، يرجى اختيار خيار واحد أو أكثر من القائمة لتطبيق رمز القسيمة!"
+
+msgid "All areas"
+msgstr "كل المناطق"
+
+msgid "Popular areas"
+msgstr "المناطق الأكثر طلباً"
+
+msgid "No area found."
+msgstr "لم يتم العثور على المنطقة."
+
+msgid "Ask us on WhatsApp if we serve your area"
+msgstr "اسألنا على WhatsApp إذا كنا نخدم منطقتك"
+
+msgid "Hi, do you serve my area?"
+msgstr "مرحباً، هل تقدمون خدماتكم في منطقتي؟"
+
+msgid "Search area"
+msgstr "ابحث عن منطقة"
+
+msgid "Search area, e.g. Marina, JVC, Mirdif…"
+msgstr "ابحث عن منطقة، مثل مارينا، JVC، مردف…"
+
+msgid "Select your area"
+msgstr "اختر منطقتك"
+
+msgid "Select your area to see prices"
+msgstr "اختر منطقتك لعرض الأسعار"
+
+msgid "Select your area to see the services and prices there."
+msgstr "اختر منطقتك لعرض الخدمات والأسعار المتوفرة فيها."
+
+msgid "Select your city / area…"
+msgstr "اختر مدينتك / منطقتك…"
+
+msgid "Zone"
+msgstr "المنطقة"
+
+msgid "Additional directions"
+msgstr "إرشادات إضافية"
+
+msgid "(optional)"
+msgstr "(اختياري)"
+
+msgid "e.g. Floor 12, next to the lift, gate code 1234"
+msgstr "مثال: الطابق 12، بجانب المصعد، رمز البوابة 1234"
+
+msgid "per hour"
+msgstr "في الساعة"
+
+msgid "Prices for %s"
+msgstr "الأسعار في %s"
+
+msgid "+ %s area charge per booking"
+msgstr "+ %s رسوم المنطقة لكل حجز"
+
+msgid "Sorry, %1$s is not available in %2$s yet."
+msgstr "عذراً، خدمة %1$s غير متوفرة في %2$s حتى الآن."
+
+msgid "Bright Nest Blog"
+msgstr "مدونة برايت نست"
+
+msgid "Search articles…"
+msgstr "ابحث في المقالات…"
+
+msgid "Search articles"
+msgstr "ابحث في المقالات"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "All"
+msgstr "الكل"
+
+msgid "Blog categories"
+msgstr "أقسام المدونة"
+
+msgid "Tips and guides about %s from the Bright Nest team."
+msgstr "نصائح وأدلة حول %s من فريق برايت نست."
+
+msgid "Cleaning tips, home care guides and news from the Bright Nest team in Dubai."
+msgstr "نصائح التنظيف وأدلة العناية بالمنزل وأخبار فريق برايت نست في دبي."
+
+msgid "No articles here yet."
+msgstr "لا توجد مقالات هنا بعد."
+
+msgid "Need help at home?"
+msgstr "تحتاج مساعدة في المنزل؟"
+
+msgid "Vetted professionals, clear prices and secure online payment."
+msgstr "محترفون موثوقون، أسعار واضحة ودفع آمن عبر الإنترنت."
+
+msgid "Share this article"
+msgstr "شارك هذا المقال"
+
+msgid "Share on %s"
+msgstr "شارك على %s"
+
+msgid "Copy link"
+msgstr "نسخ الرابط"
+
+msgid "Copied"
+msgstr "تم النسخ"
+
+msgid "Keep reading"
+msgstr "تابع القراءة"
+
+msgid "Updated %s"
+msgstr "آخر تحديث %s"
+
+msgid "%d min read"
+msgstr "%d دقائق قراءة"
+
+msgid "Need a hand at home?"
+msgstr "تحتاج يد العون في المنزل؟"
+
+msgid "Book a vetted Bright Nest professional in a minute. Clear prices, secure online payment."
+msgstr "احجز محترفاً موثوقاً من برايت نست خلال دقيقة. أسعار واضحة ودفع آمن عبر الإنترنت."
+
+msgid "Show less"
+msgstr "عرض أقل"
+
+msgid "Load more"
+msgstr "عرض المزيد"
+
+msgid "All articles"
+msgstr "كل المقالات"
+
+msgid "Hi, I would like a quote for %s."
+msgstr "مرحباً، أريد عرض سعر لخدمة %s."
+
+msgid "Leave a comment"
+msgstr "اترك تعليقاً"
+
+msgid "Post comment"
+msgstr "نشر التعليق"
+
+msgid "Your email address will not be published."
+msgstr "لن يتم نشر بريدك الإلكتروني."
+
+msgid "Select your options to see the price."
+msgstr "اختر الخيارات لمعرفة السعر."
+
+msgid "All %d article from the Bright Nest team, newest first."
+msgstr "كل المقالات (%d) من فريق برايت نست، الأحدث أولاً."
+
+msgid "All %d articles from the Bright Nest team, newest first."
+msgstr "كل المقالات (%d) من فريق برايت نست، الأحدث أولاً."
+
+msgid "Filter articles by title…"
+msgstr "ابحث عن مقال بالعنوان…"
+
+msgid "Filter articles by title"
+msgstr "ابحث عن مقال بالعنوان"
+
+msgid "Years"
+msgstr "السنوات"
+
+msgid "Latest articles"
+msgstr "أحدث المقالات"
+
+msgid "%d article"
+msgstr "%d مقال"
+
+msgid "%d articles"
+msgstr "%d مقالات"
+
+msgid "No article matches that title."
+msgstr "لا يوجد مقال بهذا العنوان."
+
+msgid "Archive"
+msgstr "الأرشيف"
+
+msgid "Browse all articles by month"
+msgstr "تصفح كل المقالات حسب الشهر"
+
+msgid "Articles from %s"
+msgstr "مقالات %s"
+
+msgid "Articles by %s"
+msgstr "مقالات بقلم %s"
+
+msgid "— we fill it in at the checkout."
+msgstr "— سنضيفه لك تلقائياً عند الدفع."
+
+msgid "No thanks"
+msgstr "لا، شكراً"
+
+msgid "Special offer"
+msgstr "عرض خاص"
+
+msgid "Claim your discount"
+msgstr "احصل على الخصم"
+
+msgid "Google reviews"
+msgstr "تقييمات جوجل"
+
+msgid "%s Google review"
+msgstr "%s تقييم على جوجل"
+
+msgid "%s Google reviews"
+msgstr "%s تقييمات على جوجل"
+
+msgid "Reviews on Google"
+msgstr "التقييمات على جوجل"
+
+msgid "Write a review"
+msgstr "اكتب تقييماً"
+
+msgid "See all reviews on Google"
+msgstr "عرض كل التقييمات على جوجل"
+
+msgid "Verified on Google"
+msgstr "موثّق على جوجل"
+
+msgid "%s out of 5 stars"
+msgstr "%s من 5 نجوم"
+
+msgid "Connect your Google reviews"
+msgstr "اربط تقييمات جوجل"
+
+msgid "Cleaning guide"
+msgstr "دليل التنظيف"
+
+msgid "Read the full guide"
+msgstr "اقرأ الدليل كاملاً"
+
+msgid "%d topic covered"
+msgstr "%d موضوع"
+
+msgid "%d topics covered"
+msgstr "%d مواضيع"

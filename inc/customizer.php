@@ -13,7 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * @return array
  */
 function brightnest_defaults() {
-	return array(
+	return array_merge(
+		array(
 		'hero_title'      => 'Cleaning & repairs, | done right.',
 		'hero_subtitle'   => 'Book trusted cleaning, maintenance, moving and 25+ home services in a few clicks. Vetted professionals, upfront prices.',
 		'hero_image'      => '',
@@ -41,6 +42,18 @@ function brightnest_defaults() {
 		'linkedin'        => '',
 		'footer_about'    => 'BrightNest Clean connects you with vetted, background-checked home service professionals. Quality guaranteed on every booking.',
 		'booking_email'   => '',
+		'show_sv_included' => '1',
+		'show_sv_prices'   => '1',
+		'show_sv_faq'      => '1',
+		'show_sv_related'  => '1',
+		'show_sv_whatsapp' => '1',
+		'sv_about_title'    => 'About our {service} service', // Not %s: get_theme_mod() fills %s in defaults with the theme URL.
+		'sv_included_title' => "What's included",
+		'sv_prices_title'   => 'Prices',
+		'sv_faq_title'      => 'FAQ',
+		'sv_related_title'  => 'Related services',
+		'sv_from_label'     => 'Starting from',
+		'sv_book_label'     => 'Book now',
 		'remind_on'       => '1',
 		'remind_hours'    => '1',
 		'remind_subject'  => 'Your {service} booking is almost done',
@@ -53,9 +66,6 @@ function brightnest_defaults() {
 300+|Team members
 7k|5-star reviews",
 		'vouchers'        => "WELCOME20:20%\nWB50:50",
-		'map_lat'         => '25.0804',
-		'map_lng'         => '55.1366',
-		'google_maps_key' => '',
 
 		// Homepage (BrightNest → Settings → Homepage). "|" marks the orange accent.
 		'hero_badge'         => 'Trusted by 3,600+ customers',
@@ -128,6 +138,23 @@ One team for the whole home|Cleaning, AC, pest control, repairs and more in one 
 		'app_text'      => 'Send us a message to book, move a visit or ask for a quote. A real person from our team will reply during working hours.',
 		'country'       => 'United Arab Emirates',
 		'country_code'  => 'AE',
+		'greviews_name'      => 'Bright Nest Clean Dubai',
+		'greviews_embed'     => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1861009.767268528!2d53.94857525!3d24.353991299999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa44e875164106dd1%3A0x2ffbd6370d4afe1e!2sBright%20Nest%20Clean%20Dubai!5e0!3m2!1sen!2s!4v1792672088001!5m2!1sen!2s',
+		'greviews_write_url' => '',
+		'offer_on'        => '0',
+		'offer_style'     => 'design',
+		'offer_image'     => '',
+		'offer_badge'     => '20%',
+		'offer_badge_sub' => 'OFF',
+		'offer_title'     => 'Save On Your First Service',
+		'offer_text'      => 'Enjoy special savings on cleaning, pest control and maintenance services across the UAE.',
+		'offer_btn'       => 'Claim your discount',
+		'offer_link'      => '',
+		'offer_code'      => 'WELCOME20',
+		'offer_days'      => '7',
+		),
+		// Homepage copy (inc/home-content.php).
+		function_exists( 'brightnest_home_defaults' ) ? brightnest_home_defaults() : array()
 	);
 }
 
@@ -257,8 +284,6 @@ function brightnest_customize_register( $wp_customize ) {
 		'booking_email' => array( 'bn_contact', __( 'Send booking notifications to (defaults to admin email)', 'brightnest' ), 'text' ),
 		'address'       => array( 'bn_contact', __( 'Address', 'brightnest' ), 'text' ),
 		'vouchers'      => array( 'bn_promo', __( 'Voucher codes, one per line: CODE:20% (percent) or CODE:50 (fixed amount)', 'brightnest' ), 'textarea' ),
-		'map_lat'       => array( 'bn_contact', __( 'Checkout map default latitude', 'brightnest' ), 'text' ),
-		'map_lng'       => array( 'bn_contact', __( 'Checkout map default longitude', 'brightnest' ), 'text' ),
 		'hours'         => array( 'bn_contact', __( 'Working hours', 'brightnest' ), 'text' ),
 		'facebook'      => array( 'bn_social', __( 'Facebook URL', 'brightnest' ), 'url' ),
 		'instagram'     => array( 'bn_social', __( 'Instagram URL', 'brightnest' ), 'url' ),

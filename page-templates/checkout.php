@@ -64,15 +64,7 @@ $bn_price   = function ( $n ) {
 			</p>
 		<?php endif; ?>
 		<?php $bn_areas = brightnest_service_areas( $bn_sid ); ?>
-		<?php // The area (and so the prices) comes from the customer's location. ?>
-		<button type="button" class="bn-co-locpill" data-loc-open>
-			<span class="bn-co-locpill-ic"><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?></span>
-			<span class="bn-co-locpill-text">
-				<strong data-loc-label data-empty="<?php esc_attr_e( 'Set your location to see prices', 'brightnest' ); ?>"><?php esc_html_e( 'Set your location to see prices', 'brightnest' ); ?></strong>
-				<small>· <b data-co-area-name></b></small>
-			</span>
-			<span class="bn-co-locpill-change"><?php esc_html_e( 'Change', 'brightnest' ); ?></span>
-		</button>
+		<?php // The area (and so the prices) is the one picked before (pop-up, header or homepage); without one the area pop-up opens here. ?>
 		<div class="bn-co-area" hidden>
 			<label for="bn-co-area"><?php esc_html_e( 'Service area', 'brightnest' ); ?></label>
 			<select id="bn-co-area" data-area>
@@ -220,24 +212,10 @@ $bn_price   = function ( $n ) {
 			<section class="bn-co-step" data-step="3" hidden aria-label="<?php esc_attr_e( 'Address', 'brightnest' ); ?>">
 				<div class="bn-co-block">
 					<h2 class="bn-co-q"><?php esc_html_e( 'Where do you need the service?', 'brightnest' ); ?></h2>
-					<button type="button" class="bn-co-pin" data-open-map>
-						<?php echo brightnest_icon( 'pin', 18 ); // phpcs:ignore ?>
-						<span data-addr-label><?php esc_html_e( 'Pin your location on the map', 'brightnest' ); ?></span>
-					</button>
-				</div>
-				<div class="bn-co-block">
-					<?php $bn_cities = brightnest_cities(); ?>
-					<?php if ( count( $bn_cities ) > 1 ) : ?>
-						<h3 class="bn-co-label"><?php esc_html_e( 'City', 'brightnest' ); ?></h3>
-						<div class="bn-co-seg bn-co-cities" data-cities role="radiogroup" aria-label="<?php esc_attr_e( 'City', 'brightnest' ); ?>">
-							<?php foreach ( $bn_cities as $bn_city ) : ?>
-								<button type="button" class="bn-co-choice" data-value="<?php echo esc_attr( $bn_city ); ?>"><?php echo esc_html( brightnest_city_label( $bn_city ) ); ?></button>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
+					<?php // The area is the one picked before (pop-up, header or homepage): shown here, not typed again. ?>
 					<div class="bn-field" data-wrap="street">
 						<label for="bn-co-street"><?php esc_html_e( 'Area / Street', 'brightnest' ); ?></label>
-						<input id="bn-co-street" class="bn-co-input" data-field="street" autocomplete="address-line1" placeholder="<?php esc_attr_e( 'e.g. Dubai Marina, Al Marsa Street', 'brightnest' ); ?>">
+						<span class="bn-co-ro"><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?><input id="bn-co-street" class="bn-co-input" data-field="street" readonly tabindex="-1" aria-readonly="true"></span>
 						<p class="bn-co-err" data-err="street"></p>
 					</div>
 					<div class="bn-co-fields">
@@ -251,6 +229,10 @@ $bn_price   = function ( $n ) {
 							<input id="bn-co-apartment" class="bn-co-input" data-field="apartment" placeholder="<?php esc_attr_e( 'e.g. 1204', 'brightnest' ); ?>">
 							<p class="bn-co-err" data-err="apartment"></p>
 						</div>
+					</div>
+					<div class="bn-field" data-wrap="directions">
+						<label for="bn-co-directions"><?php esc_html_e( 'Additional directions', 'brightnest' ); ?> <span class="bn-co-opt"><?php esc_html_e( '(optional)', 'brightnest' ); ?></span></label>
+						<input id="bn-co-directions" class="bn-co-input" data-field="directions" maxlength="200" placeholder="<?php esc_attr_e( 'e.g. Floor 12, next to the lift, gate code 1234', 'brightnest' ); ?>">
 					</div>
 				</div>
 			</section>
@@ -356,11 +338,11 @@ $bn_price   = function ( $n ) {
 			</div>
 			<div class="bn-co-card">
 				<h2 class="bn-co-card-title"><?php esc_html_e( 'Payment Summary', 'brightnest' ); ?></h2>
-				<dl class="bn-co-dl bn-co-money">
+				<p class="bn-co-pending" data-sum-pending><?php echo brightnest_icon( 'tag', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Select your options to see the price.', 'brightnest' ); ?></p>
+				<dl class="bn-co-dl bn-co-money" data-sum-money hidden>
 					<dt><?php esc_html_e( 'Subtotal', 'brightnest' ); ?></dt><dd data-sum="sub"><?php echo esc_html( $bn_cur ); ?> 0.00</dd>
 					<dt data-sum-row="fdisc" hidden><?php esc_html_e( 'Frequency discount', 'brightnest' ); ?></dt><dd data-sum="fdisc" hidden class="bn-co-green"></dd>
 					<dt data-sum-row="disc" hidden><?php esc_html_e( 'Discount', 'brightnest' ); ?> <span data-sum="code"></span></dt><dd data-sum="disc" hidden class="bn-co-green"></dd>
-					<dt data-sum-row="afee" hidden><?php echo esc_html( brightnest_opt( 'area_fee_label' ) ); ?> <span data-sum="aname"></span></dt><dd data-sum="afee" hidden></dd>
 					<?php $bn_fee = brightnest_service_fee(); ?>
 					<dt><?php echo esc_html( brightnest_opt( 'service_fee_label' ) ); ?></dt>
 					<dd class="<?php echo $bn_fee ? '' : 'bn-co-green'; ?>"><?php echo $bn_fee ? esc_html( $bn_cur . ' ' . number_format_i18n( $bn_fee, 2 ) ) : esc_html__( 'Free', 'brightnest' ); ?></dd>
@@ -405,30 +387,6 @@ $bn_price   = function ( $n ) {
 					<button type="button" data-od-inc aria-label="<?php esc_attr_e( 'Increase', 'brightnest' ); ?>">+</button>
 				</div>
 				<button type="button" class="bn-btn bn-btn-primary bn-od-add" data-od-add></button>
-			</div>
-		</div>
-	</div>
-
-	<!-- Address picker modal -->
-	<div class="bn-modal" data-map-modal hidden role="dialog" aria-modal="true" aria-labelledby="bn-map-title">
-		<div class="bn-modal-box">
-			<div class="bn-modal-head">
-				<h2 id="bn-map-title"><?php esc_html_e( 'Select Address', 'brightnest' ); ?></h2>
-				<button type="button" class="bn-modal-close" data-map-close aria-label="<?php esc_attr_e( 'Close', 'brightnest' ); ?>"><?php echo brightnest_icon( 'close', 22 ); // phpcs:ignore ?></button>
-			</div>
-			<div class="bn-map-wrap">
-				<form class="bn-map-search" data-map-search>
-					<?php echo brightnest_icon( 'pin', 18 ); // phpcs:ignore ?>
-					<input type="search" data-map-query placeholder="<?php esc_attr_e( 'Search area, street or building', 'brightnest' ); ?>" aria-label="<?php esc_attr_e( 'Search location', 'brightnest' ); ?>">
-					<button type="button" class="bn-map-locate" data-map-locate aria-label="<?php esc_attr_e( 'Use my current location', 'brightnest' ); ?>"><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?> <span class="bn-map-locate-text"><?php esc_html_e( 'Locate me', 'brightnest' ); ?></span></button>
-				</form>
-				<ul class="bn-map-results" data-map-results hidden></ul>
-				<div class="bn-map" data-map></div>
-				<div class="bn-map-pin" aria-hidden="true">
-					<span class="bn-map-tip"><?php esc_html_e( 'Move the map to set the exact position', 'brightnest' ); ?></span>
-					<svg width="40" height="48" viewBox="0 0 24 30"><path d="M12 0C5.4 0 0 5.3 0 11.9 0 20.8 12 30 12 30s12-9.2 12-18.1C24 5.3 18.6 0 12 0z" fill="#e5383b"/><circle cx="12" cy="11.5" r="4.5" fill="#fff"/></svg>
-				</div>
-				<button type="button" class="bn-btn bn-btn-primary bn-map-confirm" data-map-confirm><?php esc_html_e( 'Confirm Pin Location', 'brightnest' ); ?></button>
 			</div>
 		</div>
 	</div>

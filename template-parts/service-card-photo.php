@@ -7,7 +7,7 @@
  */
 
 $bn_id    = isset( $args['id'] ) ? (int) $args['id'] : get_the_ID();
-$bn_price = get_post_meta( $bn_id, '_bn_price', true );
+$bn_price = brightnest_service_from( $bn_id )[0];
 $bn_terms = get_the_terms( $bn_id, 'bn_service_cat' );
 $bn_cat   = ( $bn_terms && ! is_wp_error( $bn_terms ) ) ? $bn_terms[0] : null;
 ?>

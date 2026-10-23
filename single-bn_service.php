@@ -15,8 +15,7 @@ while ( have_posts() ) :
 	$bn_inc_ar   = brightnest_show_ar() ? brightnest_ar_meta( $bn_id, 'includes' ) : null; // Arabic list when filled in.
 	$bn_includes = array_filter( array_map( 'trim', explode( "\n", (string) ( null !== $bn_inc_ar ? $bn_inc_ar : get_post_meta( $bn_id, '_bn_includes', true ) ) ) ) );
 	$bn_duration = get_post_meta( $bn_id, '_bn_duration', true );
-	$bn_price    = get_post_meta( $bn_id, '_bn_price', true );
-	$bn_unit     = get_post_meta( $bn_id, '_bn_price_unit', true );
+	list( $bn_price, $bn_unit ) = brightnest_service_from( $bn_id ); // Same "from" price as the cards and the hourly table.
 	$bn_rating   = get_post_meta( $bn_id, '_bn_rating', true );
 	$bn_reviews  = get_post_meta( $bn_id, '_bn_review_count', true );
 	$bn_cur      = brightnest_opt( 'currency' );
@@ -27,95 +26,71 @@ while ( have_posts() ) :
 	$bn_book     = brightnest_checkout_url( $bn_id );
 	$bn_title    = get_the_title();
 	$bn_wa       = brightnest_whatsapp_url( sprintf( /* translators: %s service */ __( 'Hi, I would like to book %s.', 'brightnest' ), wp_strip_all_tags( html_entity_decode( $bn_title ) ) ) );
+	// Settings → Service page: which sections show (the same on every service page).
+	$bn_show     = array(
+		'included' => '1' === (string) brightnest_opt( 'show_sv_included' ),
+		'prices'   => '1' === (string) brightnest_opt( 'show_sv_prices' ),
+		'faq'      => '1' === (string) brightnest_opt( 'show_sv_faq' ),
+		'related'  => '1' === (string) brightnest_opt( 'show_sv_related' ),
+	);
+	$bn_show_wa  = '1' === (string) brightnest_opt( 'show_sv_whatsapp' );
 	$bn_money    = function ( $n ) use ( $bn_cur ) {
 		return $bn_cur . ' ' . number_format_i18n( $n, floor( $n ) == $n ? 0 : 2 );
 	};
+	// Base price in a span; the script at the bottom applies the area's price change (× $mult, e.g. hours).
+	$bn_amt      = function ( $n, $mult = 1 ) use ( $bn_money ) {
+		return '<span data-bn-amt="' . esc_attr( (float) $n ) . '" data-bn-mult="' . esc_attr( (float) $mult ) . '">' . esc_html( $bn_money( (float) $n * $mult ) ) . '</span>';
+	};
 	?>
 
-	<section class="bn-sv-hero">
-		<div class="bn-container bn-sv-hero-grid">
-			<div class="bn-sv-hero-copy">
+	<?php // Simple service page: light hero, the service text, what's included, prices, FAQ. ?>
+	<section class="bn-ss-hero">
+		<div class="bn-container bn-ss-hero-grid">
+			<div class="bn-ss-hero-copy">
 				<?php brightnest_breadcrumbs(); ?>
-				<?php if ( $bn_cat ) : ?>
-					<a class="bn-sv-chip" href="<?php echo esc_url( get_term_link( $bn_cat ) ); ?>"><?php echo brightnest_service_icon_html( $bn_id, 16 ); // phpcs:ignore ?> <?php echo esc_html( $bn_cat->name ); ?></a>
+				<h1><?php echo esc_html( brightnest_page_h1() ); ?></h1>
+				<?php if ( '' !== $bn_rating ) : ?>
+					<p class="bn-ss-rating">★ <strong><?php echo esc_html( number_format_i18n( (float) $bn_rating, 1 ) ); ?></strong><?php if ( $bn_reviews ) : ?> <span>(<?php echo esc_html( number_format_i18n( (int) $bn_reviews ) ); ?>)</span><?php endif; ?></p>
 				<?php endif; ?>
-				<h1><?php the_title(); ?></h1>
 				<?php if ( has_excerpt() ) : ?>
-					<p class="bn-sv-lead"><?php echo esc_html( get_the_excerpt() ); ?></p>
+					<p class="bn-ss-lead"><?php echo esc_html( get_the_excerpt() ); ?></p>
 				<?php endif; ?>
-				<ul class="bn-sv-facts">
-					<?php if ( '' !== $bn_price ) : ?>
-						<li><small><?php esc_html_e( 'Starting from', 'brightnest' ); ?></small><strong><?php echo esc_html( $bn_money( (float) $bn_price ) ); ?></strong><?php if ( $bn_unit ) : ?><em><?php echo esc_html( $bn_unit ); ?></em><?php endif; ?></li>
-					<?php endif; ?>
-					<?php if ( $bn_duration ) : ?>
-						<li><small><?php esc_html_e( 'Duration', 'brightnest' ); ?></small><strong><?php echo esc_html( $bn_duration ); ?></strong></li>
-					<?php endif; ?>
-					<?php if ( $bn_count ) : ?>
-						<li><small><?php esc_html_e( 'Choose from', 'brightnest' ); ?></small><strong><?php echo esc_html( sprintf( /* translators: %d options */ _n( '%d option', '%d options', $bn_count, 'brightnest' ), $bn_count ) ); ?></strong></li>
-					<?php elseif ( $bn_hourly ) : ?>
-						<li><small><?php esc_html_e( 'Book by', 'brightnest' ); ?></small><strong><?php esc_html_e( 'the hour', 'brightnest' ); ?></strong></li>
-					<?php endif; ?>
-					<?php if ( '' !== $bn_rating ) : ?>
-						<li><small><?php esc_html_e( 'Rating', 'brightnest' ); ?></small><strong>★ <?php echo esc_html( number_format_i18n( (float) $bn_rating, 1 ) ); ?></strong><?php if ( $bn_reviews ) : ?><em>(<?php echo esc_html( number_format_i18n( (int) $bn_reviews ) ); ?>)</em><?php endif; ?></li>
-					<?php endif; ?>
-				</ul>
-				<div class="bn-sv-actions">
-					<a class="bn-btn bn-btn-primary bn-btn-lg" href="<?php echo esc_url( $bn_book ); ?>"><?php esc_html_e( 'Book now', 'brightnest' ); ?> <?php echo brightnest_icon( 'arrow-right', 18 ); // phpcs:ignore ?></a>
-					<?php if ( $bn_wa ) : ?>
-						<a class="bn-btn bn-btn-outline-light bn-btn-lg" href="<?php echo esc_url( $bn_wa ); ?>" target="_blank" rel="noopener"><?php echo brightnest_icon( 'whatsapp', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Ask on WhatsApp', 'brightnest' ); ?></a>
-					<?php endif; ?>
-				</div>
-				<ul class="bn-sv-trust">
-					<li><?php echo brightnest_icon( 'shield', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Vetted professionals', 'brightnest' ); ?></li>
-					<li><?php echo brightnest_icon( 'tag', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Secure online payment', 'brightnest' ); ?></li>
-					<li><?php echo brightnest_icon( 'check-circle', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Satisfaction guarantee', 'brightnest' ); ?></li>
-				</ul>
-			</div>
-			<div class="bn-sv-hero-art">
-				<div class="bn-sv-frame">
-					<?php if ( has_post_thumbnail() ) : ?>
-						<?php the_post_thumbnail( 'brightnest-hero', array( 'alt' => esc_attr( $bn_title ) ) ); ?>
-					<?php else : ?>
-						<span class="bn-sv-frame-icon"><?php echo brightnest_service_icon_html( $bn_id, 110 ); // phpcs:ignore ?></span>
-					<?php endif; ?>
-				</div>
 				<?php if ( '' !== $bn_price ) : ?>
-					<div class="bn-sv-pricetag"><small><?php esc_html_e( 'From', 'brightnest' ); ?></small><strong><?php echo esc_html( $bn_money( (float) $bn_price ) ); ?></strong></div>
+					<p class="bn-ss-price"><small><?php echo esc_html( brightnest_sv_text( 'sv_from_label' ) ); ?></small> <strong><?php echo $bn_amt( (float) $bn_price ); // phpcs:ignore WordPress.Security.EscapeOutput ?></strong><?php if ( $bn_unit ) : ?> <span><?php echo esc_html( $bn_unit ); ?></span><?php endif; ?></p>
 				<?php endif; ?>
-				<span class="bn-spark bn-sv-spark-1"></span><span class="bn-spark bn-sv-spark-2"></span>
+				<?php // Filled by the script below: the chosen area, its extra charge, or "not offered here". ?>
+				<p class="bn-ss-area" data-bn-area-note hidden></p>
+				<div class="bn-ss-actions">
+					<a class="bn-btn bn-btn-primary bn-btn-lg" href="<?php echo esc_url( $bn_book ); ?>"><?php echo esc_html( brightnest_sv_text( 'sv_book_label' ) ); ?></a>
+					<?php if ( $bn_wa && $bn_show_wa ) : ?>
+						<a class="bn-btn bn-btn-wa bn-btn-lg" href="<?php echo esc_url( $bn_wa ); ?>" target="_blank" rel="noopener"><?php echo brightnest_icon( 'whatsapp', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'WhatsApp', 'brightnest' ); ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+			<div class="bn-ss-hero-img">
+				<?php if ( has_post_thumbnail() ) : ?>
+					<?php the_post_thumbnail( 'brightnest-hero', array( 'alt' => esc_attr( $bn_title ) ) ); ?>
+				<?php else : ?>
+					<span class="bn-ss-hero-icon"><?php echo brightnest_service_icon_html( $bn_id, 96 ); // phpcs:ignore ?></span>
+				<?php endif; ?>
 			</div>
 		</div>
 	</section>
 
-	<nav class="bn-sv-subnav" aria-label="<?php esc_attr_e( 'On this page', 'brightnest' ); ?>" data-subnav>
-		<div class="bn-container">
-			<a href="#overview" class="is-active"><?php esc_html_e( 'Overview', 'brightnest' ); ?></a>
-			<?php if ( $bn_includes ) : ?><a href="#included"><?php esc_html_e( "What's included", 'brightnest' ); ?></a><?php endif; ?>
-			<?php if ( $bn_hourly || $bn_has_opts ) : ?><a href="#pricing"><?php esc_html_e( 'Prices', 'brightnest' ); ?></a><?php endif; ?>
-			<a href="#how"><?php esc_html_e( 'How it works', 'brightnest' ); ?></a>
-			<a href="#faq"><?php esc_html_e( 'FAQ', 'brightnest' ); ?></a>
-			<a class="bn-sv-subnav-cta" href="<?php echo esc_url( $bn_book ); ?>"><?php esc_html_e( 'Book now', 'brightnest' ); ?></a>
-		</div>
-	</nav>
-
 	<div class="bn-container bn-sv-layout">
 		<div class="bn-sv-main">
 
-			<section class="bn-sv-sec" id="overview">
-				<span class="bn-eyebrow"><?php esc_html_e( 'Overview', 'brightnest' ); ?></span>
-				<h2 class="bn-sv-h2"><?php echo esc_html( sprintf( /* translators: %s service */ __( 'About our %s service', 'brightnest' ), $bn_title ) ); ?></h2>
-				<div class="bn-prose"><?php the_content(); ?></div>
-				<div class="bn-sv-highlights">
-					<div><?php echo brightnest_icon( 'users', 22 ); // phpcs:ignore ?><strong><?php esc_html_e( 'Trained team', 'brightnest' ); ?></strong><span><?php esc_html_e( 'Verified & uniformed', 'brightnest' ); ?></span></div>
-					<div><?php echo brightnest_icon( 'clock', 22 ); // phpcs:ignore ?><strong><?php esc_html_e( 'On time', 'brightnest' ); ?></strong><span><?php esc_html_e( 'Hourly slots, 7 days', 'brightnest' ); ?></span></div>
-					<div><?php echo brightnest_icon( 'deep-clean', 22 ); // phpcs:ignore ?><strong><?php esc_html_e( 'Pro equipment', 'brightnest' ); ?></strong><span><?php esc_html_e( 'Safe, eco-friendly products', 'brightnest' ); ?></span></div>
-				</div>
-			</section>
+			<?php $bn_has_text = '' !== trim( wp_strip_all_tags( get_the_content() ) ); ?>
+			<?php if ( $bn_has_text || has_excerpt() ) : ?>
+				<section class="bn-sv-sec" id="overview">
+					<h2 class="bn-sv-h2"><?php echo esc_html( str_replace( '{service}', wp_strip_all_tags( html_entity_decode( $bn_title ) ), brightnest_sv_text( 'sv_about_title' ) ) ); ?></h2>
+					<div class="bn-prose"><?php if ( $bn_has_text ) : ?><?php the_content(); ?><?php else : ?><p><?php echo esc_html( get_the_excerpt() ); ?></p><?php endif; ?></div>
+				</section>
+			<?php endif; ?>
 
-			<?php if ( $bn_includes ) : ?>
+			<?php if ( $bn_includes && $bn_show['included'] ) : ?>
 				<section class="bn-sv-sec" id="included">
-					<span class="bn-eyebrow"><?php esc_html_e( "What's included", 'brightnest' ); ?></span>
-					<h2 class="bn-sv-h2"><?php esc_html_e( 'Everything that comes with your booking', 'brightnest' ); ?></h2>
+					<h2 class="bn-sv-h2"><?php echo esc_html( brightnest_sv_text( 'sv_included_title' ) ); ?></h2>
 					<ul class="bn-sv-incl">
 						<?php foreach ( $bn_includes as $bn_n => $bn_item ) : ?>
 							<li><span><?php echo brightnest_icon( 'check', 16 ); // phpcs:ignore ?></span><?php echo esc_html( $bn_item ); ?></li>
@@ -124,19 +99,20 @@ while ( have_posts() ) :
 				</section>
 			<?php endif; ?>
 
-			<?php if ( $bn_hourly ) : ?>
+			<?php if ( ! $bn_show['prices'] ) : ?>
+				<?php // Prices switched off in Settings → Service page. ?>
+			<?php elseif ( $bn_hourly ) : ?>
 				<section class="bn-sv-sec" id="pricing">
-					<span class="bn-eyebrow"><?php esc_html_e( 'Prices', 'brightnest' ); ?></span>
-					<h2 class="bn-sv-h2"><?php esc_html_e( 'Simple hourly pricing', 'brightnest' ); ?></h2>
+					<h2 class="bn-sv-h2"><?php echo esc_html( brightnest_sv_text( 'sv_prices_title' ) ); ?></h2>
 					<div class="bn-sv-rate">
-						<div class="bn-sv-rate-main"><small><?php esc_html_e( 'Per professional, per hour', 'brightnest' ); ?></small><strong><?php echo esc_html( $bn_money( $bn_hourly['rate'] ) ); ?></strong>
-							<?php if ( $bn_hourly['materials'] > 0 ) : ?><span><?php echo esc_html( sprintf( /* translators: %s amount */ __( '+ %s / hour with cleaning materials', 'brightnest' ), $bn_money( $bn_hourly['materials'] ) ) ); ?></span><?php endif; ?>
+						<div class="bn-sv-rate-main"><small><?php esc_html_e( 'Per professional, per hour', 'brightnest' ); ?></small><strong><?php echo $bn_amt( $bn_hourly['rate'] ); // phpcs:ignore WordPress.Security.EscapeOutput ?></strong>
+							<?php if ( $bn_hourly['materials'] > 0 ) : ?><span><?php echo str_replace( '%%MAT%%', $bn_amt( $bn_hourly['materials'] ), esc_html( sprintf( /* translators: %s amount */ __( '+ %s / hour with cleaning materials', 'brightnest' ), '%%MAT%%' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span><?php endif; ?>
 						</div>
 						<table class="bn-sv-table">
 							<thead><tr><th><?php esc_html_e( 'Duration', 'brightnest' ); ?></th><th><?php esc_html_e( '1 professional', 'brightnest' ); ?></th><th><?php esc_html_e( '2 professionals', 'brightnest' ); ?></th></tr></thead>
 							<tbody>
 								<?php foreach ( array( 2, 3, 4, 5 ) as $bn_h ) : ?>
-									<tr><td><?php echo esc_html( sprintf( /* translators: %d hours */ __( '%d hours', 'brightnest' ), $bn_h ) ); ?></td><td><?php echo esc_html( $bn_money( $bn_hourly['rate'] * $bn_h ) ); ?></td><td><?php echo esc_html( $bn_money( $bn_hourly['rate'] * $bn_h * 2 ) ); ?></td></tr>
+									<tr><td><?php echo esc_html( sprintf( /* translators: %d hours */ __( '%d hours', 'brightnest' ), $bn_h ) ); ?></td><td><?php echo $bn_amt( $bn_hourly['rate'], $bn_h ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td><td><?php echo $bn_amt( $bn_hourly['rate'], $bn_h * 2 ); // phpcs:ignore WordPress.Security.EscapeOutput ?></td></tr>
 								<?php endforeach; ?>
 							</tbody>
 						</table>
@@ -144,8 +120,7 @@ while ( have_posts() ) :
 				</section>
 			<?php elseif ( $bn_has_opts ) : ?>
 				<section class="bn-sv-sec" id="pricing">
-					<span class="bn-eyebrow"><?php esc_html_e( 'Prices', 'brightnest' ); ?></span>
-					<h2 class="bn-sv-h2"><?php esc_html_e( 'Packages & prices', 'brightnest' ); ?></h2>
+					<h2 class="bn-sv-h2"><?php echo esc_html( brightnest_sv_text( 'sv_prices_title' ) ); ?></h2>
 					<?php if ( count( $bn_groups ) > 1 ) : ?>
 						<div class="bn-sv-tabs" role="tablist" data-price-tabs>
 							<?php foreach ( $bn_groups as $bn_gi => $bn_g ) : ?>
@@ -162,8 +137,8 @@ while ( have_posts() ) :
 										<?php if ( $bn_it['desc'] ) : ?><span><?php echo esc_html( $bn_it['desc'] ); ?></span><?php endif; ?>
 									</div>
 									<div class="bn-sv-pkg-price">
-										<?php if ( $bn_it['old'] ) : ?><del><?php echo esc_html( $bn_money( $bn_it['old'] ) ); ?></del><?php endif; ?>
-										<strong><?php echo esc_html( $bn_money( $bn_it['price'] ) ); ?></strong>
+										<?php if ( $bn_it['old'] ) : ?><del><?php echo $bn_amt( $bn_it['old'] ); // phpcs:ignore WordPress.Security.EscapeOutput ?></del><?php endif; ?>
+										<strong><?php echo $bn_amt( $bn_it['price'] ); // phpcs:ignore WordPress.Security.EscapeOutput ?></strong>
 									</div>
 									<a class="bn-btn bn-btn-navy bn-btn-sm" href="<?php echo esc_url( add_query_arg( 'add', $bn_it['id'], $bn_book ) ); ?>"><?php esc_html_e( 'Book', 'brightnest' ); ?></a>
 								</li>
@@ -171,53 +146,44 @@ while ( have_posts() ) :
 						</ul>
 					<?php endforeach; ?>
 				</section>
+			<?php elseif ( '' !== $bn_price ) : ?>
+				<section class="bn-sv-sec" id="pricing">
+					<h2 class="bn-sv-h2"><?php echo esc_html( brightnest_sv_text( 'sv_prices_title' ) ); ?></h2>
+					<ul class="bn-sv-pkgs">
+						<li>
+							<div class="bn-sv-pkg-info"><strong><?php echo esc_html( wp_strip_all_tags( html_entity_decode( $bn_title ) ) ); ?></strong><?php if ( $bn_unit ) : ?><span><?php echo esc_html( $bn_unit ); ?></span><?php endif; ?></div>
+							<div class="bn-sv-pkg-price"><strong><?php echo $bn_amt( (float) $bn_price ); // phpcs:ignore WordPress.Security.EscapeOutput ?></strong></div>
+							<a class="bn-btn bn-btn-navy bn-btn-sm" href="<?php echo esc_url( $bn_book ); ?>"><?php esc_html_e( 'Book', 'brightnest' ); ?></a>
+						</li>
+					</ul>
+				</section>
 			<?php endif; ?>
 
-			<section class="bn-sv-sec" id="how">
-				<span class="bn-eyebrow"><?php esc_html_e( 'How it works', 'brightnest' ); ?></span>
-				<h2 class="bn-sv-h2"><?php esc_html_e( 'Book in three easy steps', 'brightnest' ); ?></h2>
-				<ol class="bn-sv-steps">
-					<li><em>1</em><div><strong><?php esc_html_e( 'Choose your service', 'brightnest' ); ?></strong><span><?php esc_html_e( 'Pick a package or the hours you need. You see the price before you book.', 'brightnest' ); ?></span></div></li>
-					<li><em>2</em><div><strong><?php esc_html_e( 'Pick a date & time', 'brightnest' ); ?></strong><span><?php esc_html_e( 'Hourly slots from 8 AM, including same-day when available.', 'brightnest' ); ?></span></div></li>
-					<li><em>3</em><div><strong><?php esc_html_e( 'We take care of it', 'brightnest' ); ?></strong><span><?php esc_html_e( 'Our team arrives on time and gets the job done.', 'brightnest' ); ?></span></div></li>
-				</ol>
-			</section>
-
-			<section class="bn-sv-sec" id="faq">
-				<span class="bn-eyebrow"><?php esc_html_e( 'FAQ', 'brightnest' ); ?></span>
-				<h2 class="bn-sv-h2"><?php esc_html_e( 'Questions customers ask', 'brightnest' ); ?></h2>
-				<?php get_template_part( 'template-parts/faq' ); ?>
-			</section>
+			<?php if ( $bn_show['faq'] ) : ?>
+				<section class="bn-sv-sec" id="faq">
+					<h2 class="bn-sv-h2"><?php echo esc_html( brightnest_sv_text( 'sv_faq_title' ) ); ?></h2>
+					<?php get_template_part( 'template-parts/faq' ); ?>
+				</section>
+			<?php endif; ?>
 		</div>
 
 		<aside class="bn-sv-side">
 			<div class="bn-sv-book">
 				<div class="bn-sv-book-head">
-					<small><?php esc_html_e( 'Starting from', 'brightnest' ); ?></small>
-					<strong><?php echo '' !== $bn_price ? esc_html( $bn_money( (float) $bn_price ) ) : esc_html__( 'Get a quote', 'brightnest' ); ?></strong>
+					<small><?php echo esc_html( brightnest_sv_text( 'sv_from_label' ) ); ?></small>
+					<strong><?php echo '' !== $bn_price ? $bn_amt( (float) $bn_price ) : esc_html__( 'Get a quote', 'brightnest' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></strong>
 					<?php if ( $bn_unit ) : ?><span><?php echo esc_html( $bn_unit ); ?></span><?php endif; ?>
 				</div>
-				<ul class="bn-sv-book-list">
-					<li><?php echo brightnest_icon( 'check', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Pay securely by card, Apple Pay or Google Pay', 'brightnest' ); ?></li>
-					<li><?php echo brightnest_icon( 'check', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Free rescheduling up to 12h before', 'brightnest' ); ?></li>
-					<li><?php echo brightnest_icon( 'check', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Re-do guarantee within 24h', 'brightnest' ); ?></li>
-				</ul>
-				<a class="bn-btn bn-btn-primary bn-btn-block bn-btn-lg" href="<?php echo esc_url( $bn_book ); ?>"><?php esc_html_e( 'Book now', 'brightnest' ); ?> <?php echo brightnest_icon( 'arrow-right', 18 ); // phpcs:ignore ?></a>
-				<?php if ( $bn_wa ) : ?>
+				<a class="bn-btn bn-btn-primary bn-btn-block bn-btn-lg" href="<?php echo esc_url( $bn_book ); ?>"><?php echo esc_html( brightnest_sv_text( 'sv_book_label' ) ); ?></a>
+				<?php if ( $bn_wa && $bn_show_wa ) : ?>
 					<a class="bn-btn bn-btn-wa bn-btn-block" href="<?php echo esc_url( $bn_wa ); ?>" target="_blank" rel="noopener"><?php echo brightnest_icon( 'whatsapp', 18 ); // phpcs:ignore ?> <?php esc_html_e( 'Book on WhatsApp', 'brightnest' ); ?></a>
 				<?php endif; ?>
 				<?php if ( brightnest_opt( 'phone' ) ) : ?>
 					<a class="bn-sv-call" href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo brightnest_icon( 'phone', 16 ); // phpcs:ignore ?> <?php echo esc_html( sprintf( /* translators: %s phone */ __( 'Or call %s', 'brightnest' ), brightnest_opt( 'phone' ) ) ); ?></a>
 				<?php endif; ?>
 			</div>
-			<div class="bn-sv-guarantee">
-				<?php echo brightnest_icon( 'shield', 26 ); // phpcs:ignore ?>
-				<div><strong><?php esc_html_e( 'Bright Nest guarantee', 'brightnest' ); ?></strong><span><?php esc_html_e( 'Not happy? We come back and fix it for free.', 'brightnest' ); ?></span></div>
-			</div>
 		</aside>
 	</div>
-
-	<?php get_template_part( 'template-parts/reviews' ); ?>
 
 	<?php
 	$bn_related = $bn_cat ? get_posts(
@@ -244,15 +210,12 @@ while ( have_posts() ) :
 			)
 		);
 	}
-	if ( $bn_related ) :
+	if ( $bn_related && $bn_show['related'] ) :
 		?>
 		<section class="bn-section bn-sv-related">
 			<div class="bn-container">
 				<div class="bn-svcs-head">
-					<div>
-						<span class="bn-eyebrow"><?php esc_html_e( 'You may also need', 'brightnest' ); ?></span>
-						<h2 class="bn-h2"><?php esc_html_e( 'Related services', 'brightnest' ); ?></h2>
-					</div>
+						<h2 class="bn-sv-h2"><?php echo esc_html( brightnest_sv_text( 'sv_related_title' ) ); ?></h2>
 					<a class="bn-btn bn-btn-navy" href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php esc_html_e( 'All services', 'brightnest' ); ?></a>
 				</div>
 				<div class="bn-sc-grid">
@@ -262,23 +225,61 @@ while ( have_posts() ) :
 		</section>
 	<?php endif; ?>
 
-	<section class="bn-sv-cta">
-		<div class="bn-container">
-			<div class="bn-sv-cta-inner">
-				<div>
-					<h2><?php echo esc_html( sprintf( /* translators: %s service */ __( 'Ready to book %s?', 'brightnest' ), $bn_title ) ); ?></h2>
-					<p><?php esc_html_e( 'Pick a day and time. It takes less than a minute.', 'brightnest' ); ?></p>
-				</div>
-				<a class="bn-btn bn-btn-light bn-btn-lg" href="<?php echo esc_url( $bn_book ); ?>"><?php esc_html_e( 'Book now', 'brightnest' ); ?> <?php echo brightnest_icon( 'arrow-right', 18 ); // phpcs:ignore ?></a>
-			</div>
-		</div>
-	</section>
-
 	<div class="bn-sv-mbar">
-		<div><small><?php esc_html_e( 'From', 'brightnest' ); ?></small><strong><?php echo '' !== $bn_price ? esc_html( $bn_money( (float) $bn_price ) ) : ''; ?></strong></div>
-		<a class="bn-btn bn-btn-primary" href="<?php echo esc_url( $bn_book ); ?>"><?php esc_html_e( 'Book now', 'brightnest' ); ?></a>
+		<div><small><?php esc_html_e( 'From', 'brightnest' ); ?></small><strong><?php echo '' !== $bn_price ? $bn_amt( (float) $bn_price ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput ?></strong></div>
+		<a class="bn-btn bn-btn-primary" href="<?php echo esc_url( $bn_book ); ?>"><?php echo esc_html( brightnest_sv_text( 'sv_book_label' ) ); ?></a>
 	</div>
 
+	<?php
+	// Prices for the customer's area (BrightNest → Cities & Areas, and the service's own on/off per city).
+	$bn_area_data = array(
+		'cur'    => $bn_cur,
+		'cities' => array(),
+		'places' => array(),
+		'labels' => function_exists( 'brightnest_city_labels' ) ? brightnest_city_labels() : array(),
+		'txt'    => array(
+			'for'  => __( 'Prices for %s', 'brightnest' ),
+			'off'  => __( 'Sorry, %1$s is not available in %2$s yet.', 'brightnest' ),
+		),
+	);
+	foreach ( brightnest_service_areas( $bn_id ) as $bn_c => $bn_r ) {
+		$bn_area_data['cities'][ $bn_c ] = array( 'on' => (bool) $bn_r['on'], 'adj' => (float) $bn_r['adj'] );
+	}
+	foreach ( brightnest_service_places( $bn_id ) as $bn_k => $bn_r ) {
+		$bn_area_data['places'][ $bn_k ] = array( 'on' => (bool) $bn_r['on'], 'adj' => (float) $bn_r['adj'] );
+	}
+	?>
+	<script>
+	/* Service page: show prices for the area the customer picked (same rounding as the checkout). */
+	(function () {
+		var D = <?php echo wp_json_encode( $bn_area_data ); ?>;
+		var title = <?php echo wp_json_encode( wp_strip_all_tags( html_entity_decode( $bn_title ) ) ); ?>;
+		var money = function (n) { return D.cur + ' ' + Number(n).toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
+		var fill = function (s) { var a = Array.prototype.slice.call(arguments, 1), i = 0; return s.replace(/%(\d)\$s|%s/g, function (m, n) { return n ? a[n - 1] : a[i++]; }); };
+		function render() {
+			var loc = null;
+			try { loc = JSON.parse(localStorage.getItem('bn_location') || 'null'); } catch (e) { /* ignore */ }
+			var city = loc && loc.area && D.cities[loc.area] ? loc.area : '';
+			var row = city ? D.cities[city] : { on: true, adj: 0 };
+			var key = city && loc.street ? city + '|' + loc.street : '';
+			if (key && D.places[key]) { row = row.on ? D.places[key] : row; }
+			var f = 1 + (row.adj || 0) / 100;
+			document.querySelectorAll('[data-bn-amt]').forEach(function (el) {
+				var unit = Math.round(+el.getAttribute('data-bn-amt') * f * 100) / 100;
+				el.textContent = money(Math.round(unit * +el.getAttribute('data-bn-mult') * 100) / 100);
+			});
+			var note = document.querySelector('[data-bn-area-note]');
+			if (!note) { return; }
+			var place = city ? ((loc.street ? loc.street + ', ' : '') + (D.labels[city] || city)) : '';
+			note.classList.toggle('is-off', !!city && !row.on);
+			if (!city) { note.hidden = true; return; }
+			note.hidden = false;
+			note.textContent = !row.on ? fill(D.txt.off, title, place) : fill(D.txt.for, place); // An area charge is not named; it is in the checkout subtotal.
+		}
+		render();
+		document.addEventListener('bn:location', render); // Area changed in the header picker.
+	})();
+	</script>
 	<?php
 	// Service schema for SEO.
 	$bn_schema = array(
