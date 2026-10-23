@@ -1,5 +1,6 @@
 /* Services hub behaviour.
- * Homepage: once a location is chosen (now or on an earlier visit) the services hub opens.
+ * Homepage: picking an area (pop-up, hero or header) opens the services hub. The homepage itself
+ * always stays reachable (a saved area does not redirect it).
  * Hub: works with or without a location; the search box filters the cards as you type. */
 (function () {
 	'use strict';
@@ -7,21 +8,11 @@
 	var cfg = window.BN_HUB;
 	if (!cfg || !cfg.hub) { return; }
 
-	var hasLocation = function () {
-		try {
-			var loc = JSON.parse(localStorage.getItem('bn_location') || 'null');
-			return !!(loc && loc.lat);
-		} catch (e) { return false; }
-	};
-
 	if (cfg.front) {
-		// ?home in the URL keeps the landing page (e.g. to change the location from the homepage).
-		var stay = /[?&]home\b/.test(window.location.search);
-		if (!stay && hasLocation()) {
-			window.location.replace(cfg.hub);
-			return;
-		}
-		document.addEventListener('bn:location', function () { window.location.href = cfg.hub; });
+		// Any area pick on the homepage (first-visit pop-up, hero or header) opens the services hub.
+		document.addEventListener('bn:location', function () {
+			window.location.href = cfg.hub;
+		});
 		return;
 	}
 

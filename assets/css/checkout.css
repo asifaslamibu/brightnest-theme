@@ -2,9 +2,6 @@
 
 .bn-checkout-page { background: var(--bn-soft); }
 .bn-checkout-page .bn-wa-float { display: none; }
-.bn-checkout-page .bn-footer { padding-top: 0; }
-.bn-checkout-page .bn-footer-grid, .bn-checkout-page .bn-footer-areas { display: none; }
-.bn-checkout-page .bn-footer-bottom { margin-top: 0; }
 
 .bn-co { padding: 28px 0 60px; }
 .bn-co-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start; }
@@ -207,6 +204,8 @@
 	.bn-co-side { position: static; padding: 0 16px 120px; }
 	.bn-co-tabs { top: 74px; }
 	.admin-bar .bn-co-tabs { top: 120px; }
+	/* Keep the footer clear of the fixed "Continue" bar. */
+	.bn-checkout-page .bn-footer { padding-bottom: 110px; }
 }
 
 @media (max-width: 640px) {
@@ -274,14 +273,6 @@
 .has-error .bn-co-input { border-color: #d92d20; background: #fff5f4; }
 .bn-co-input { font-size: 16px; padding: 13px 14px; }
 .bn-field label { font-size: 14px; }
-
-/* Optional map pin */
-.bn-co-pin {
-	display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 0; border: 0; background: none;
-	color: var(--bn-primary); font-weight: 600; font-size: 14px; cursor: pointer; text-align: left;
-}
-.bn-co-pin:hover { color: var(--bn-primary-dark); text-decoration: underline; }
-.bn-co-pin.is-set { color: #15803d; }
 
 /* Optional extras behind a link */
 .bn-co-more { margin-top: 12px; }
@@ -366,18 +357,7 @@
 	.bn-co-area select { flex: 1; min-width: 0; }
 }
 
-/* Location pill (Justlife style) — the area and prices follow the chosen location. */
-.bn-co-locpill {
-	display: flex; align-items: center; gap: 12px; width: 100%; max-width: 520px; margin-top: 14px; padding: 10px 14px; cursor: pointer; text-align: left;
-	border: 1px solid var(--bn-line); border-radius: 14px; background: var(--bn-primary-soft); color: var(--bn-ink); transition: border-color .2s, box-shadow .2s;
-}
-.bn-co-locpill:hover { border-color: var(--bn-primary); box-shadow: 0 0 0 4px rgba(38, 45, 114, .08); }
-.bn-co-locpill-ic { flex: 0 0 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: #fff; color: var(--bn-brand); }
-.bn-co-locpill-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.bn-co-locpill-text small { color: var(--bn-muted); }
-.bn-co-locpill-text small b { color: var(--bn-primary); }
-.bn-co-locpill-text strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bn-co-locpill-change { flex: 0 0 auto; font-weight: 700; color: var(--bn-brand); font-size: 14px; }
+/* Service area: the prices follow the city chosen in the area dropdown. */
 .bn-co-area[hidden] { display: none; }
 
 /* ==========================================================================
@@ -404,16 +384,6 @@
 .bn-co-rating span { color: #424242; font-size: 13px; }
 
 /* Location: one quiet line under the rating. */
-.bn-co-locpill {
-	display: inline-flex; width: auto; max-width: 100%; margin-top: 12px; padding: 6px 14px 6px 6px; gap: 8px;
-	border: 1px solid #e0e0e0; border-radius: 99px; background: #fff; color: #212121;
-}
-.bn-co-locpill-ic { flex: 0 0 28px; height: 28px; border-radius: 50%; background: #fff1e8; color: var(--bn-brand); }
-.bn-co-locpill-text { flex-direction: row; align-items: baseline; gap: 6px; }
-.bn-co-locpill-text strong { font-weight: 400; font-size: 15px; }
-.bn-co-locpill-text small { white-space: nowrap; color: #757575; font-size: 14px; }
-.bn-co-locpill-text small b { font-weight: 400; color: #757575; }
-.bn-co-locpill-change { font-size: 14px; font-weight: 700; color: var(--bn-primary); }
 
 /* Main card */
 @media (min-width: 961px) { .bn-co-grid { grid-template-columns: minmax(0, 1fr) 364px; gap: 24px; } }
@@ -502,7 +472,6 @@
 	.bn-co-item-thumb { flex-basis: 80px; height: 80px; }
 	.bn-co-item h3 { font-size: 16px; }
 	.bn-co-title { font-size: 22px; }
-	.bn-co-locpill-text strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 /* Phones: the two-row header scrolls away on the checkout so the category tabs can stick to the top. */
@@ -556,3 +525,19 @@
 	.bn-od-hl li { min-height: 96px; padding: 12px 6px; font-size: 12px; }
 }
 .bn-co-hint { margin: 6px 0 0; font-size: 13px; color: #757575; }
+
+/* Optional "Additional directions" field on step 3 */
+.bn-co-opt { font-weight: 400; color: var(--bn-muted); }
+[data-wrap="directions"] { margin-top: 14px; }
+
+/* Payment summary before the options are chosen */
+.bn-co-pending { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 14px; border-radius: 10px; background: #f5f6fb; color: var(--bn-muted); font-size: 14px; }
+.bn-co-pending .bn-icon { flex: 0 0 auto; color: var(--bn-brand); }
+.bn-co-pending[hidden] { display: none; }
+.bn-co-money[hidden] { display: none; }
+
+/* "Area / Street": the picked area, read-only */
+.bn-co-ro { position: relative; display: block; }
+.bn-co-ro .bn-icon { position: absolute; inset-inline-start: 14px; top: 50%; transform: translateY(-50%); color: var(--bn-brand); pointer-events: none; }
+.bn-co-ro .bn-co-input[readonly] { padding-inline-start: 40px; background: #eef0f6; color: var(--bn-ink); font-weight: 600; cursor: default; }
+.bn-co-ro .bn-co-input[readonly]:focus { outline: none; box-shadow: none; border-color: transparent; }

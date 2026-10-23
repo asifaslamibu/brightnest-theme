@@ -34,7 +34,7 @@
 	/* State -------------------------------------------------------------- */
 	var state = {
 		cart: {}, hourly: { hours: 0, pros: 0, materials: null }, frequency: (cfg.service.freqs[0] || [''])[0], date: '', time: '', message: '',
-		lat: null, lng: null, address: '', area: cfg.cities[0] || '', street: '', building: '', apartment: '',
+		area: cfg.cities[0] || '', place: '', street: '', building: '', apartment: '', directions: '', // place = the area inside the city (area dropdown)
 		name: '', phone: '', email: '', payment: (cfg.payments && cfg.payments[0]) || 'Cash after service', voucher: cfg.voucher || '', step: 1,
 		draft: '' // Token of the saved "unfinished booking" draft (see inc/reminders.php).
 	};
@@ -52,6 +52,8 @@
 		state.step = 1;
 	}
 	if (cfg.voucher) { state.voucher = cfg.voucher; }
+	// Claimed in the offer pop-up (template-parts/offer-popup.php).
+	if (!state.voucher) { try { var claimed = localStorage.getItem('bn_offer_code'); if (claimed && cfg.vouchers[claimed]) { state.voucher = claimed; } } catch (e) { /* ignore */ } }
 	Object.keys(state.cart).forEach(function (id) { if (!items[id]) { delete state.cart[id]; } });
 	// "Book" on a package in the service page price list (?add=item-id) pre-selects it.
 	var addId = new URL(window.location.href).searchParams.get('add');
@@ -60,16 +62,17 @@
 	// Returning customer: reuse the details from their last booking.
 	var customer = readJSON(localStorage, CUSTOMER_KEY);
 	if (customer) {
-		['name', 'phone', 'email', 'street', 'building', 'apartment', 'area', 'lat', 'lng', 'address'].forEach(function (k) {
+		['name', 'phone', 'email', 'street', 'building', 'apartment', 'directions', 'area'].forEach(function (k) {
 			if (!state[k] && customer[k]) { state[k] = customer[k]; }
 		});
 	}
-	// Location picked in the homepage hero.
+	// City/area chosen in the area dropdown.
 	var picked = readJSON(localStorage, 'bn_location');
-	if (!state.lat && picked && picked.lat) {
-		state.lat = picked.lat; state.lng = picked.lng; state.address = picked.label || '';
-		if (!state.street && picked.street) { state.street = picked.street; }
-		if (picked.area && cfg.cities.indexOf(picked.area) !== -1) { state.area = picked.area; }
+	// "Area / Street" is read-only: it is the picked area (or only the city, when no area was picked).
+	if (picked && picked.area && cfg.cities.indexOf(picked.area) !== -1) {
+		state.area = picked.area;
+		state.place = picked.street || '';
+		state.street = picked.street || picked.area;
 	}
 	if (cfg.cities.indexOf(state.area) === -1) { state.area = cfg.cities[0] || ''; }
 	if (!cfg.service.freqs.some(function (f) { return f[0] === state.frequency; })) { state.frequency = (cfg.service.freqs[0] || [''])[0]; }
@@ -82,7 +85,12 @@
 		return cfg.currency + ' ' + Number(n).toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
 	}
 	/* Area pricing: each service can cost more/less per city, or not be offered there. */
-	function areaInfo() { return cfg.service.areas[state.area] || { on: false, adj: 0, prices: {} }; }
+	// The area's own setting (Areas & prices → Prices per area) if it has one, else its city's. A city that is off is off everywhere.
+	function areaInfo() {
+		var city = cfg.service.areas[state.area] || { on: false, adj: 0, prices: {} };
+		var own = city.on && state.place && cfg.service.places ? cfg.service.places[state.area + '|' + state.place] : null;
+		return own || city;
+	}
 	function unit(price) { return Math.round(price * (1 + areaInfo().adj / 100) * 100) / 100; }
 	/* Same rules as the server: an area's own price wins, otherwise base ± area %. */
 	function ownPrice(key) { var p = areaInfo().prices; return p && p[key] ? +p[key] : 0; }
@@ -123,7 +131,9 @@
 		var sub = subtotal();
 		var fdisc = Math.round(sub * freqPct()) / 100;
 		var disc = discount(sub - fdisc);
-		var afee = +(cfg.areaFees && cfg.areaFees[state.area]) || 0;
+		// An area's own charge (Settings → Booking → Area charges), otherwise its city's.
+		var own = state.place && cfg.placeFees ? cfg.placeFees[state.area + '|' + state.place] : undefined;
+		var afee = own !== undefined ? +own : (+(cfg.areaFees && cfg.areaFees[state.area]) || 0);
 		return { sub: sub, fdisc: fdisc, disc: disc, afee: afee, total: Math.round((Math.max(0, sub - fdisc - disc) + (+cfg.fee || 0) + afee) * 100) / 100 };
 	}
 	function cartCount() {
@@ -410,10 +420,7 @@
 		body.append('service', cfg.service.id);
 		body.append('token', state.draft || '');
 		body.append('cart', JSON.stringify(hourly ? state.hourly : state.cart));
-		['frequency', 'date', 'time', 'area', 'street', 'building', 'apartment', 'name', 'phone', 'email', 'message', 'voucher'].forEach(function (k) { body.append(k, state[k] || ''); });
-		body.append('address', state.lat ? state.address : '');
-		body.append('lat', state.lat || '');
-		body.append('lng', state.lng || '');
+		['frequency', 'date', 'time', 'area', 'place', 'street', 'building', 'apartment', 'directions', 'name', 'phone', 'email', 'message', 'voucher'].forEach(function (k) { body.append(k, state[k] || ''); });
 		return body;
 	}
 	function draftReady() { return cfg.remind && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(state.email || '').trim()) && cartCount() > 0; }
@@ -445,12 +452,14 @@
 	function renderCities() {
 		$$('[data-cities] .bn-co-choice').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-value') === state.area); });
 	}
+	// Another city: the area picked in the dropdown no longer applies (the city's charge does).
+	function setCity(city) { if (city !== state.area) { state.place = ''; } state.area = city; renderCities(); update(); }
 	var areaSelect = $('[data-area]');
 	if (areaSelect) {
-		areaSelect.addEventListener('change', function () { state.area = areaSelect.value; renderCities(); update(); });
+		areaSelect.addEventListener('change', function () { setCity(areaSelect.value); });
 	}
 	$$('[data-cities] .bn-co-choice').forEach(function (b) {
-		b.addEventListener('click', function () { state.area = b.getAttribute('data-value'); renderCities(); update(); });
+		b.addEventListener('click', function () { setCity(b.getAttribute('data-value')); });
 	});
 	$$('[name="bn_pay"]').forEach(function (r) {
 		r.checked = r.value === state.payment;
@@ -594,7 +603,7 @@
 	}
 
 	/* Summary + bar ------------------------------------------------------ */
-	function addrText() { return [state.apartment, state.building, state.street, state.area].filter(function (x) { return x && x.trim(); }).join(', '); }
+	function addrText() { return [state.apartment, state.building, state.street, state.street === state.area ? '' : state.area].filter(function (x) { return x && x.trim(); }).join(', '); }
 	function update() {
 		// Date, time, address… changed: the draft is sent again when the customer leaves.
 		if (state.draft) { draftDirty = true; }
@@ -609,39 +618,36 @@
 		if (freqEl) { freqEl.textContent = state.frequency; }
 		$('[data-sum-row="fdisc"]').hidden = $('[data-sum="fdisc"]').hidden = !tot.fdisc;
 		$('[data-sum="fdisc"]').textContent = '- ' + money(tot.fdisc) + ' (' + freqPct() + '%)';
-		$('[data-sum-row="afee"]').hidden = $('[data-sum="afee"]').hidden = !tot.afee;
-		$('[data-sum="afee"]').textContent = money(tot.afee);
-		$('[data-sum="aname"]').textContent = tot.afee ? '(' + cityLabel(state.area) + ')' : '';
 		var areaSel = $('[data-area]');
 		if (areaSel) { areaSel.value = state.area; }
 		var areaName = $('[data-co-area-name]');
 		if (areaName) { areaName.textContent = cityLabel(state.area); }
 		var off = $('[data-area-off]');
 		off.hidden = cfg.service.active && areaInfo().on;
-		off.textContent = !cfg.service.active ? t('Sorry, this service is not available right now.') : t('Sorry, %1$s is not available in %2$s yet. Please choose another area.', cfg.service.title, cityLabel(state.area));
+		off.textContent = !cfg.service.active ? t('Sorry, this service is not available right now.') : t('Sorry, %1$s is not available in %2$s yet. Please choose another area.', cfg.service.title, (state.place ? state.place + ', ' : '') + cityLabel(state.area));
 		renderPrices();
-		$$('[data-lines]').forEach(function (el) { el.hidden = !lines.length; });
+		// No prices (or service lines) until the options of step 1 are chosen.
+		var chosen = hourly ? hourlyReady() : count > 0;
+		$('[data-sum-pending]').hidden = chosen;
+		$('[data-sum-money]').hidden = !chosen;
+		$$('[data-lines]').forEach(function (el) { el.hidden = !chosen || !lines.length; });
 		// Like Justlife: "1x Haircut & Massage", the money is in the payment summary.
 		$('[data-lines-list]').innerHTML = lines.map(function (l) { return '<li>' + esc(String(l[0]).replace(/^(\d+) × /, '$1x ')) + '</li>'; }).join('');
 
 		var hasDate = !!(state.date && state.time);
 		$('[data-sum-row="date"]').hidden = $('[data-sum="date"]').hidden = !hasDate;
 		$('[data-sum="date"]').textContent = hasDate ? pretty(state.date) + ', ' + timeLabel(state.time) : '';
-		var addr = addrText();
-		// The chosen map location shows from step 1; the typed address replaces it on step 3.
-		var addrShow = state.street ? addr : state.address;
+		var addrShow = state.street ? addrText() : '';
 		$('[data-sum-row="addr"]').hidden = $('[data-sum="addr"]').hidden = !addrShow;
 		$('[data-sum="addr"]').textContent = addrShow;
-		$('[data-addr-label]').textContent = state.lat ? t('%s (change)', state.address || t('Location pinned')) : t('Pin your location on the map');
-		var pin = $('[data-open-map]');
-		if (pin) { pin.classList.toggle('is-set', !!state.lat); }
 
-		$('[data-sum="sub"]').textContent = money(sub);
+		// The area charge is not shown as its own line: it is part of the subtotal shown (the total is the same).
+		$('[data-sum="sub"]').textContent = money(sub + tot.afee);
 		$('[data-sum-row="disc"]').hidden = $('[data-sum="disc"]').hidden = !disc;
 		$('[data-sum="disc"]').textContent = '- ' + money(disc);
 		$('[data-sum="code"]').textContent = disc ? '(' + state.voucher.toUpperCase() + ')' : '';
 		$('[data-sum="total"]').textContent = money(total);
-		$('[data-total-mini]').textContent = money(total);
+		$('[data-total-mini]').textContent = chosen ? money(total) : '—';
 		$('[data-count-mini]').textContent = hourly || !count ? t('Total') : t(count > 1 ? '%d items · Total' : '%d item · Total', count);
 
 		var hint = $('[data-voucher-hint]');
@@ -655,116 +661,20 @@
 		if (ready) { barError.textContent = ''; }
 		save();
 	}
-	/* Location pill (Justlife style): choosing a location sets the area, address and prices. */
+	/* Area dropdown: choosing a city/area sets the area, street and prices. */
 	document.addEventListener('bn:location', function (e) {
 		var loc = e.detail || {};
-		if (loc.lat) { state.lat = loc.lat; state.lng = loc.lng; state.address = loc.label || state.address; }
-		if (loc.street && !String(state.street || '').trim()) {
-			state.street = loc.street;
+		if (loc.area) {
+			state.street = loc.street || loc.area;
 			var st = $('[data-field="street"]');
-			if (st) { st.value = loc.street; }
+			if (st) { st.value = state.street; }
 		}
-		if (loc.area && cfg.cities.indexOf(loc.area) !== -1) { state.area = loc.area; }
+		if (loc.area && cfg.cities.indexOf(loc.area) !== -1) { state.area = loc.area; state.place = loc.street || ''; }
 		if (typeof renderCities === 'function') { renderCities(); }
-		if (loc.label) { document.querySelectorAll('[data-loc-label]').forEach(function (el) { el.textContent = loc.label; }); }
 		update();
 	});
 
 	$('[data-summary-toggle]').addEventListener('click', function () { $('[data-side]').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
-
-	/* Map (optional) ----------------------------------------------------- */
-	var modal = $('[data-map-modal]');
-	var map = null;
-	function openMap() {
-		modal.hidden = false;
-		document.body.classList.add('bn-modal-open');
-		window.bnMap.ready(function () {
-			if (!map) {
-				map = window.bnMap.create($('[data-map]'), state.lat ? +state.lat : cfg.map.lat, state.lat ? +state.lng : cfg.map.lng, 15,
-					function () { modal.classList.add('is-moving'); },
-					function () { modal.classList.remove('is-moving'); });
-			}
-			setTimeout(function () { if (map) { map.resize(); } }, 50);
-		});
-	}
-	function closeMap() { modal.hidden = true; document.body.classList.remove('bn-modal-open'); }
-	$$('[data-open-map]').forEach(function (b) { b.addEventListener('click', openMap); });
-	$('[data-map-close]').addEventListener('click', closeMap);
-	modal.addEventListener('click', function (e) { if (e.target === modal) { closeMap(); } });
-	document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) { closeMap(); } });
-	$('[data-map-locate]').addEventListener('click', function () {
-		if (!navigator.geolocation || !map) { return; }
-		navigator.geolocation.getCurrentPosition(function (p) { map.setView(p.coords.latitude, p.coords.longitude, 17); });
-	});
-	var results = $('[data-map-results]');
-	var searchTimer;
-	function geosearch(q) {
-		var c = map ? map.center() : { lat: cfg.map.lat, lng: cfg.map.lng };
-		window.bnMap.search(q, c, function (list) {
-			results.innerHTML = '';
-			list.slice(0, 5).forEach(function (it) {
-				var li = document.createElement('li');
-				var b = document.createElement('button');
-				b.type = 'button';
-				b.textContent = it.label;
-				b.addEventListener('click', function () {
-					results.hidden = true;
-					it.locate(function (lat, lng) { if (map) { map.setView(lat, lng, 17); } });
-				});
-				li.appendChild(b);
-				results.appendChild(li);
-			});
-			results.hidden = !list.length;
-		});
-	}
-	$('[data-map-query]').addEventListener('input', function (e) {
-		clearTimeout(searchTimer);
-		var q = e.target.value.trim();
-		if (q.length < 3) { results.hidden = true; return; }
-		searchTimer = setTimeout(function () { geosearch(q); }, 450);
-	});
-	$('[data-map-search]').addEventListener('submit', function (e) { e.preventDefault(); var q = $('[data-map-query]').value.trim(); if (q.length >= 3) { geosearch(q); } });
-	$('[data-map-confirm]').addEventListener('click', function () {
-		var btn = this;
-		var label = btn.textContent;
-		var c = map ? map.center() : { lat: cfg.map.lat, lng: cfg.map.lng };
-		var lat = Math.round(c.lat * 1e6) / 1e6;
-		var lng = Math.round(c.lng * 1e6) / 1e6;
-		var pin = function (address) {
-			state.lat = lat;
-			state.lng = lng;
-			state.address = address || t('Location pinned');
-			closeMap();
-			renderCities();
-			update();
-		};
-		btn.disabled = true;
-		btn.textContent = t('Checking…');
-		window.bnMap.reverse(lat, lng, function (err, d) {
-			btn.disabled = false;
-			btn.textContent = label;
-			if (err) { if (window.bnAlert) { window.bnAlert(t('Error'), window.BN_AREA_CHECK_ERROR); } return; }
-			var a = d.address;
-			var area = window.bnMatchCity ? window.bnMatchCity(a, cfg.cities, cfg.country) : '';
-			if (!area) {
-				// Outside our cities (or another country): keep the map open.
-				if (window.bnAlert) { window.bnAlert(t('Error'), window.BN_AREA_ERROR); }
-				return;
-			}
-			state.area = area;
-			if (!state.street.trim()) {
-				state.street = [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', ');
-				$('[data-field="street"]').value = state.street;
-				clearError('street');
-			}
-			if (!state.building.trim() && (a.building || a.house_name || a.amenity)) {
-				state.building = a.building || a.house_name || a.amenity;
-				$('[data-field="building"]').value = state.building;
-				clearError('building');
-			}
-			pin(d.label);
-		});
-	});
 
 	/* Submit ------------------------------------------------------------- */
 	function submit() {
@@ -775,10 +685,7 @@
 		body.append('nonce', cfg.nonce);
 		body.append('service', cfg.service.id);
 		body.append('cart', JSON.stringify(hourly ? state.hourly : state.cart));
-		['frequency', 'date', 'time', 'message', 'area', 'street', 'building', 'apartment', 'name', 'phone', 'email', 'payment', 'voucher'].forEach(function (k) { body.append(k, state[k] || ''); });
-		body.append('address', state.lat ? state.address : '');
-		body.append('lat', state.lat || '');
-		body.append('lng', state.lng || '');
+		['frequency', 'date', 'time', 'message', 'area', 'place', 'street', 'building', 'apartment', 'directions', 'name', 'phone', 'email', 'payment', 'voucher'].forEach(function (k) { body.append(k, state[k] || ''); });
 		body.append('draft', state.draft || '');
 		clearTimeout(draftTimer);
 		draftDirty = false;
@@ -826,7 +733,7 @@
 
 	function rememberCustomer() {
 		try {
-			localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name: state.name, phone: state.phone, email: state.email, street: state.street, building: state.building, apartment: state.apartment, area: state.area, lat: state.lat, lng: state.lng, address: state.address }));
+			localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name: state.name, phone: state.phone, email: state.email, street: state.street, building: state.building, apartment: state.apartment, directions: state.directions, area: state.area }));
 		} catch (e) { /* ignore */ }
 	}
 
@@ -854,12 +761,5 @@
 		if (cfg.paid) {
 			barError.textContent = t('Payment for booking #%s was not completed. Please try again or choose another payment method.', cfg.paid.ref);
 		}
-	}
-	// Like Justlife: no saved location yet → ask for it first (prices depend on the area).
-	if (!readJSON(localStorage, 'bn_location') && state.step === 1) {
-		setTimeout(function () {
-			var pill = document.querySelector('[data-loc-open]');
-			if (pill && document.querySelector('[data-loc-modal]')) { pill.click(); }
-		}, 700);
 	}
 })();

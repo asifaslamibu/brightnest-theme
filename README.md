@@ -16,7 +16,7 @@ Custom home-services marketplace theme (cleaning, maintenance, moving, pest cont
 - **Checkout** (`/checkout/?service=ID&step=1&voucher=CODE`):
   1. Options with category tabs and quantity steppers
   2. Frequency, date and time slots
-  3. Address (map pin via Leaflet + OpenStreetMap) and contact details
+  3. Address (city, street, building) and contact details
   4. Review, payment method (cash / card on arrival), voucher, confirm
 - Live booking & payment summary sidebar; prices and vouchers are recalculated on the server.
 - **Bookings** inbox in wp-admin with status (New / Confirmed / Completed / Cancelled) and email notifications.
@@ -52,7 +52,7 @@ Leave empty to sell the service itself at its starting price.
 
 ## Location
 
-The homepage hero asks *"Where would you like to receive your service?"* (OpenStreetMap search or GPS). The chosen location is remembered in the browser and pre-fills the checkout, so the map pop-up is skipped.
+The homepage hero asks *"Where would you like to receive your service?"* (a searchable dropdown of the served cities and their areas). The chosen city/area is remembered in the browser and pre-fills the checkout.
 
 ## Credits
 

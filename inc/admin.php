@@ -159,6 +159,7 @@ function brightnest_admin_menu() {
 	add_submenu_page( 'brightnest', __( 'Dashboard', 'brightnest' ), __( 'Dashboard', 'brightnest' ), 'edit_posts', 'brightnest', 'brightnest_dashboard_page' );
 	add_submenu_page( 'brightnest', __( 'Add Service', 'brightnest' ), __( 'Add Service', 'brightnest' ), 'edit_posts', 'post-new.php?post_type=bn_service' );
 	add_submenu_page( 'brightnest', __( 'Service Categories', 'brightnest' ), __( 'Categories', 'brightnest' ), 'manage_categories', 'edit-tags.php?taxonomy=bn_service_cat&post_type=bn_service' );
+	add_submenu_page( 'brightnest', __( 'Cities & Areas', 'brightnest' ), __( 'Cities & Areas', 'brightnest' ), 'manage_categories', 'edit-tags.php?taxonomy=bn_area&post_type=bn_service' );
 }
 add_action( 'admin_menu', 'brightnest_admin_menu', 9 );
 
@@ -178,7 +179,7 @@ function brightnest_admin_menu_order() {
 		'edit.php?post_type=bn_service'                           => array( 2, __( 'Services', 'brightnest' ) ),
 		'post-new.php?post_type=bn_service'                       => array( 3, __( 'Add Service', 'brightnest' ) ),
 		'edit-tags.php?taxonomy=bn_service_cat&post_type=bn_service' => array( 4, __( 'Categories', 'brightnest' ) ),
-		'edit.php?post_type=bn_review'                            => array( 5, __( 'Reviews', 'brightnest' ) ),
+		'edit-tags.php?taxonomy=bn_area&post_type=bn_service'     => array( 4.5, __( 'Cities & Areas', 'brightnest' ) ),
 		'brightnest-settings'                                     => array( 6, __( 'Settings', 'brightnest' ) ),
 	);
 	$items = $submenu['brightnest'];
@@ -192,7 +193,7 @@ function brightnest_admin_menu_order() {
 		function ( $a, $b ) use ( $labels ) {
 			$pa = isset( $labels[ $a[2] ] ) ? $labels[ $a[2] ][0] : 50;
 			$pb = isset( $labels[ $b[2] ] ) ? $labels[ $b[2] ][0] : 50;
-			return $pa - $pb;
+			return $pa <=> $pb; // Positions can be decimals (4.5 = right after Categories).
 		}
 	);
 	$submenu['brightnest'] = $items; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
@@ -297,13 +298,6 @@ function brightnest_dashboard_data() {
  */
 function brightnest_setup_checklist() {
 	$defaults = brightnest_defaults();
-	$reviews  = get_posts( array( 'post_type' => 'bn_review', 'posts_per_page' => -1, 'fields' => 'ids' ) );
-	$real     = array_filter(
-		$reviews,
-		function ( $id ) {
-			return 0 !== strpos( get_the_title( $id ), 'Sample Customer' );
-		}
-	);
 	$with_img = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => 1, 'fields' => 'ids', 'meta_key' => '_thumbnail_id' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 	$cust     = admin_url( 'admin.php?page=brightnest-settings' );
 	$name     = get_bloginfo( 'name' );
@@ -318,7 +312,7 @@ function brightnest_setup_checklist() {
 		array( $name && $name !== strtolower( $name ), __( 'Set a proper site title (e.g. "BrightNest Clean")', 'brightnest' ), admin_url( 'options-general.php' ) ),
 		array( has_custom_logo(), __( 'Upload your logo', 'brightnest' ), admin_url( 'customize.php?autofocus[section]=title_tagline' ) ),
 		array( ! empty( $with_img ), __( 'Add photos to your services', 'brightnest' ), admin_url( 'edit.php?post_type=bn_service' ) ),
-		array( count( $real ) > 0 && count( $real ) === count( $reviews ), __( 'Replace sample reviews with real ones', 'brightnest' ), admin_url( 'edit.php?post_type=bn_review' ) ),
+		array( '' !== brightnest_greviews_embed(), __( 'Connect your Google reviews', 'brightnest' ), admin_url( 'admin.php?page=brightnest-settings&tab=homepage' ) ),
 	);
 }
 
@@ -585,7 +579,7 @@ function brightnest_dashboard_page() {
 					<a href="<?php echo esc_url( $req_url ); ?>"><span class="dashicons dashicons-calendar-alt"></span><?php esc_html_e( 'Bookings', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=bn_service' ) ); ?>"><span class="dashicons dashicons-list-view"></span><?php esc_html_e( 'Services', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'edit-tags.php?taxonomy=bn_service_cat&post_type=bn_service' ) ); ?>"><span class="dashicons dashicons-category"></span><?php esc_html_e( 'Categories', 'brightnest' ); ?></a>
-					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=bn_review' ) ); ?>"><span class="dashicons dashicons-star-filled"></span><?php esc_html_e( 'Reviews', 'brightnest' ); ?></a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=brightnest-settings&tab=homepage' ) ); ?>"><span class="dashicons dashicons-star-filled"></span><?php esc_html_e( 'Google reviews', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=brightnest-settings&tab=booking' ) ); ?>"><span class="dashicons dashicons-tickets-alt"></span><?php esc_html_e( 'Vouchers', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=brightnest-settings' ) ); ?>"><span class="dashicons dashicons-admin-generic"></span><?php esc_html_e( 'Settings', 'brightnest' ); ?></a>
 				</div>
@@ -641,7 +635,7 @@ function brightnest_service_column_content( $col, $post_id ) {
 			}
 			break;
 		case 'bn_price':
-			$p = get_post_meta( $post_id, '_bn_price', true );
+			$p = brightnest_service_from( $post_id )[0];
 			echo '' !== $p ? esc_html( brightnest_opt( 'currency' ) . ' ' . number_format_i18n( (float) $p ) ) : '—';
 			break;
 		case 'bn_booking':
@@ -887,7 +881,7 @@ function brightnest_export_bookings() {
 	}
 	$cols = array(
 		'ref' => 'Ref', 'type' => 'Type', 'status' => 'Status', 'service' => 'Service', 'items' => 'Items', 'date' => 'Date', 'time' => 'Time',
-		'name' => 'Name', 'phone' => 'Phone', 'email' => 'Email', 'area' => 'City', 'address' => 'Address', 'location' => 'Map pin',
+		'name' => 'Name', 'phone' => 'Phone', 'email' => 'Email', 'area' => 'City', 'place' => 'Area', 'address' => 'Address', 'directions' => 'Directions',
 		'subtotal' => 'Subtotal', 'discount' => 'Discount', 'voucher' => 'Voucher', 'total' => 'Total', 'payment' => 'Payment',
 		'frequency' => 'Frequency', 'message' => 'Customer notes', 'admin_notes' => 'Admin notes',
 	);

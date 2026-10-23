@@ -392,11 +392,22 @@ a.bn-kpi:hover { color: var(--bna-ink); border-color: #c9d7e3; box-shadow: 0 8px
 	.bn-jobs .bn-job-pay, .bn-jobs .bn-booking-actions { grid-column: 2; justify-self: start; justify-content: flex-start; }
 }
 .bn-panel-full { grid-column: 1 / -1; }
-.bn-set-areas { border-collapse: collapse; }
-.bn-set-areas th { text-align: left; padding: 6px 16px 6px 0; font-weight: 600; }
-.bn-set-areas td { padding: 6px 0; }
-.bn-set-areas label { display: inline-flex; align-items: center; gap: 6px; }
-.bn-set-areas input { width: 110px; }
+/* Area charges: one per city, then (optional) one per area, grouped by zone */
+.bn-set-field.bn-set-areafees { grid-column: 1 / -1; }
+.bn-set-areafees { display: grid; gap: 12px; }
+.bn-set-afcity { border: 1px solid var(--bna-line); border-radius: 12px; padding: 12px 14px; background: #fff; }
+.bn-set-afrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bn-set-afrow strong { font-size: 14px; color: var(--bna-ink); }
+.bn-set-afrow label, .bn-set-afgrid label { display: inline-flex; align-items: center; gap: 6px; }
+.bn-set-field .bn-set-afrow input[type=number] { width: 120px; }
+.bn-set-afmore { margin-top: 10px; border-top: 1px dashed var(--bna-line); padding-top: 10px; }
+.bn-set-afmore > summary { cursor: pointer; font-weight: 600; color: var(--bna-brand); }
+.bn-set-afmore .description { margin: 8px 0 4px; }
+.bn-set-afzone { margin: 14px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--bna-muted); }
+.bn-set-afgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 16px; }
+.bn-set-afgrid label { justify-content: space-between; padding: 4px 8px; border-radius: 8px; background: var(--bna-soft); }
+.bn-set-afgrid label span { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bn-set-field .bn-set-afgrid input[type=number] { width: 90px; min-height: 32px; flex: 0 0 auto; }
 
 /* Areas & prices */
 .bn-adm-areas td { vertical-align: top; }
@@ -412,6 +423,19 @@ a.bn-kpi:hover { color: var(--bna-ink); border-color: #c9d7e3; box-shadow: 0 8px
 .bn-ar-prices .bn-opt-money { max-width: 150px; }
 .bn-ar-base { color: var(--bna-muted); white-space: nowrap; }
 .bn-adm-areas > tbody > tr > th { vertical-align: top; padding-top: 18px; }
+
+/* Prices per area inside a city */
+.bn-adm-areas { width: 100%; max-width: 920px; }
+.bn-adm-areas > tbody > tr.bn-ar-places-row > td { padding-top: 0; }
+.bn-ar-places { margin: 0 0 8px; padding: 10px 14px; border: 1px solid var(--bna-line); border-radius: 10px; background: #fff; }
+.bn-ar-places > summary { cursor: pointer; font-weight: 600; color: var(--bna-brand); }
+.bn-ar-places .bn-adm-help { margin: 8px 0 4px; }
+.bn-ar-zone { margin: 16px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--bna-muted); }
+.bn-ar-place-list { width: 100%; border-collapse: collapse; }
+.bn-ar-place-list > tbody > tr > th { width: 210px; padding: 6px 12px 6px 0; text-align: left; font-weight: 500; vertical-align: top; padding-top: 12px; }
+.bn-ar-place-list > tbody > tr > td { padding: 4px 0; border-bottom: 1px solid #f0f0f1; }
+.bn-ar-place-list > tbody > tr.is-set > th { color: var(--bna-brand); font-weight: 700; }
+.bn-ar-place-list .bn-ar-own { margin: 6px 0 4px; }
 
 /* Option photo button in the price list */
 .bn-opt-img {

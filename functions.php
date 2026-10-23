@@ -7,19 +7,26 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BRIGHTNEST_VERSION', '3.17.2' );
+define( 'BRIGHTNEST_VERSION', '3.32.0' );
 define( 'BRIGHTNEST_DIR', get_template_directory() );
 define( 'BRIGHTNEST_URI', get_template_directory_uri() );
 
 require BRIGHTNEST_DIR . '/inc/i18n.php'; // First: it reads the /ar/ prefix before WordPress parses the request.
 require BRIGHTNEST_DIR . '/inc/icons.php';
 require BRIGHTNEST_DIR . '/inc/post-types.php';
+require BRIGHTNEST_DIR . '/inc/areas.php';
 require BRIGHTNEST_DIR . '/inc/meta-boxes.php';
 require BRIGHTNEST_DIR . '/inc/customizer.php';
+require BRIGHTNEST_DIR . '/inc/home-content.php';
+require BRIGHTNEST_DIR . '/inc/google-reviews.php';
+require BRIGHTNEST_DIR . '/inc/seo.php';
+require BRIGHTNEST_DIR . '/inc/guide.php';
+require BRIGHTNEST_DIR . '/inc/gtranslate.php';
 require BRIGHTNEST_DIR . '/inc/forms.php';
 require BRIGHTNEST_DIR . '/inc/checkout.php';
 require BRIGHTNEST_DIR . '/inc/payments.php';
 require BRIGHTNEST_DIR . '/inc/reminders.php';
+require BRIGHTNEST_DIR . '/inc/cache.php';
 require BRIGHTNEST_DIR . '/inc/settings.php';
 if ( is_admin() ) {
 	require BRIGHTNEST_DIR . '/inc/admin.php';
@@ -75,29 +82,26 @@ function brightnest_assets() {
 		wp_enqueue_style( 'brightnest-front', BRIGHTNEST_URI . '/assets/css/front.css', array( 'brightnest-home' ), BRIGHTNEST_VERSION );
 		wp_enqueue_style( 'brightnest-home-jl', BRIGHTNEST_URI . '/assets/css/home-jl.css', array( 'brightnest-front' ), BRIGHTNEST_VERSION );
 		wp_enqueue_style( 'brightnest-home-jx', BRIGHTNEST_URI . '/assets/css/home-jx.css', array( 'brightnest-home-jl' ), BRIGHTNEST_VERSION );
+		wp_enqueue_style( 'brightnest-home-v2', BRIGHTNEST_URI . '/assets/css/home-v2.css', array( 'brightnest-home-jx' ), BRIGHTNEST_VERSION );
 
+	}
+	// Blog page, categories and articles.
+	if ( is_front_page() || is_home() || is_category() || is_tag() || is_date() || is_author() || is_page_template( 'page-templates/blog-archive.php' ) || is_page_template( 'page-templates/guide.php' ) || is_singular( 'post' ) || ( is_search() && 'bn_service' !== get_query_var( 'post_type' ) ) ) {
+		wp_enqueue_style( 'brightnest-blog', BRIGHTNEST_URI . '/assets/css/blog.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
+	}
+	if ( is_page_template( 'page-templates/guide.php' ) ) {
+		// The cleaning guide: article laid out in cards (inc/guide.php).
+		wp_enqueue_style( 'brightnest-art', BRIGHTNEST_URI . '/assets/css/art.css', array( 'brightnest-blog' ), BRIGHTNEST_VERSION );
+		wp_enqueue_script( 'brightnest-art', BRIGHTNEST_URI . '/assets/js/art.js', array(), BRIGHTNEST_VERSION, true );
 	}
 	$bn_hub_page = is_post_type_archive( 'bn_service' ) || is_tax( 'bn_service_cat' ) || ( is_search() && 'bn_service' === get_query_var( 'post_type' ) );
 	if ( ! is_admin() ) {
-		// "Set my location" map picker: header pill on every page, plus homepage, hub and checkout.
-		brightnest_map_assets();
+		// The customer's area comes from the area dropdown (template-parts/area-dropdown.php).
 		wp_enqueue_style( 'brightnest-location', BRIGHTNEST_URI . '/assets/css/location.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
-		wp_enqueue_script( 'brightnest-location', BRIGHTNEST_URI . '/assets/js/location.js', array( 'brightnest-map' ), BRIGHTNEST_VERSION, true );
-		wp_localize_script(
-			'brightnest-location',
-			'BN_LOC',
-			array(
-				'lat'    => (float) brightnest_opt( 'map_lat' ),
-				'lng'    => (float) brightnest_opt( 'map_lng' ),
-				'cities' => brightnest_cities(),
-				'cityLabels' => brightnest_city_labels(), // Shown names (Arabic site).
-				'country' => strtolower( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) ),
-			)
-		);
 		if ( $bn_hub_page ) {
 			wp_enqueue_style( 'brightnest-hub', BRIGHTNEST_URI . '/assets/css/hub.css', array( 'brightnest-components' ), BRIGHTNEST_VERSION );
 		}
-		wp_enqueue_script( 'brightnest-hub', BRIGHTNEST_URI . '/assets/js/hub.js', array( 'brightnest-location' ), BRIGHTNEST_VERSION, true );
+		wp_enqueue_script( 'brightnest-hub', BRIGHTNEST_URI . '/assets/js/hub.js', array( 'brightnest-main' ), BRIGHTNEST_VERSION, true );
 		wp_localize_script(
 			'brightnest-hub',
 			'BN_HUB',
@@ -124,8 +128,8 @@ add_action( 'wp_enqueue_scripts', 'brightnest_assets' );
 function brightnest_typography_css() {
 	wp_enqueue_style( 'brightnest-chrome', BRIGHTNEST_URI . '/assets/css/chrome.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
 	wp_enqueue_style( 'brightnest-typography', BRIGHTNEST_URI . '/assets/css/typography.css', array( 'brightnest-chrome' ), BRIGHTNEST_VERSION );
-	if ( is_rtl() ) {
-		// Arabic site: an Arabic typeface and right-to-left fixes.
+	if ( is_rtl() || brightnest_gt_on() ) {
+		// Arabic site (or GTranslate, which can turn any page Arabic): an Arabic typeface and right-to-left fixes.
 		wp_enqueue_style( 'brightnest-font-ar', 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap', array(), null );
 		wp_enqueue_style( 'brightnest-rtl', BRIGHTNEST_URI . '/assets/css/rtl.css', array( 'brightnest-typography' ), BRIGHTNEST_VERSION );
 	}
@@ -221,8 +225,13 @@ function brightnest_meta_tags() {
 	$desc  = '';
 	$image = BRIGHTNEST_URI . '/assets/img/logo.png';
 	if ( is_front_page() ) {
-		$desc  = brightnest_opt( 'hero_subtitle' );
+		$desc  = brightnest_opt( 'home_seo_desc' ) ? brightnest_opt( 'home_seo_desc' ) : brightnest_opt( 'hero_subtitle' );
 		$image = brightnest_img_opt( 'hero_img_1', 'about-1.jpg' );
+	} elseif ( is_singular() && brightnest_seo_description() ) {
+		$desc = brightnest_seo_description(); // Typed in the "Google (SEO)" box.
+		if ( has_post_thumbnail( get_queried_object() ) ) {
+			$image = get_the_post_thumbnail_url( get_queried_object(), 'large' );
+		}
 	} elseif ( is_singular() ) {
 		$post = get_queried_object();
 		$desc = has_excerpt( $post ) ? get_the_excerpt( $post ) : wp_trim_words( wp_strip_all_tags( preg_replace( '#<p class="bn-legal-note">.*?</p>#s', '', strip_shortcodes( $post->post_content ) ) ), 28, '…' );
@@ -240,7 +249,9 @@ function brightnest_meta_tags() {
 	}
 	$url = is_singular() ? get_permalink() : home_url( add_query_arg( array() ) );
 	if ( $desc ) {
-		echo '<meta name="description" content="' . esc_attr( wp_html_excerpt( $desc, 160, '…' ) ) . '">' . "\n";
+		// A description typed in Settings → Homepage is used as written; others are cut to 160 characters.
+		$full = ( is_front_page() && brightnest_opt( 'home_seo_desc' ) ) || brightnest_seo_description();
+		echo '<meta name="description" content="' . esc_attr( $full ? $desc : wp_html_excerpt( $desc, 160, '…' ) ) . '">' . "\n";
 	}
 	echo '<meta property="og:type" content="' . ( is_singular( array( 'post' ) ) ? 'article' : 'website' ) . '">' . "\n";
 	echo '<meta property="og:site_name" content="' . esc_attr( get_bloginfo( 'name' ) ) . '">' . "\n";
@@ -277,44 +288,4 @@ function brightnest_excerpt_more() {
 	return '&hellip;';
 }
 add_filter( 'excerpt_more', 'brightnest_excerpt_more' );
-
-/**
- * Map library for the location pickers: Google Maps when a key is set in Settings,
- * otherwise Leaflet + OpenStreetMap. Both go through assets/js/map.js (window.bnMap).
- */
-function brightnest_map_assets() {
-	if ( wp_script_is( 'brightnest-map', 'enqueued' ) ) {
-		return;
-	}
-	$key = trim( (string) brightnest_opt( 'google_maps_key' ) );
-	if ( ! $key ) {
-		wp_enqueue_style( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css', array(), '1.9.4' );
-		wp_enqueue_script( 'leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', array(), '1.9.4', true );
-	}
-	wp_enqueue_script( 'brightnest-map', BRIGHTNEST_URI . '/assets/js/map.js', $key ? array() : array( 'leaflet' ), BRIGHTNEST_VERSION, true );
-	wp_localize_script(
-		'brightnest-map',
-		'BN_MAP',
-		array(
-			'key'     => $key ? 'yes' : '', // The key itself only goes in the Google script URL.
-			'country' => strtolower( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) ),
-		)
-	);
-	if ( $key ) {
-		$args = array(
-			'key'       => $key,
-			'v'         => 'weekly',
-			'libraries' => 'places',
-			'loading'   => 'async',
-			'callback'  => 'bnGmapsReady',
-			'language'  => 'en',
-		);
-		$region = strtoupper( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) );
-		if ( $region ) {
-			$args['region'] = $region;
-		}
-		// After map.js, so the callback exists when Google calls it.
-		wp_enqueue_script( 'google-maps', add_query_arg( array_map( 'rawurlencode', $args ), 'https://maps.googleapis.com/maps/api/js' ), array( 'brightnest-map' ), null, array( 'in_footer' => true, 'strategy' => 'async' ) );
-	}
-}
 

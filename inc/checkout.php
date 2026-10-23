@@ -250,55 +250,172 @@ function brightnest_hide_inactive_services( $query ) {
 add_action( 'pre_get_posts', 'brightnest_hide_inactive_services' );
 
 /**
- * Per-area availability and pricing for a service, for every city in Settings → Business:
- * [ city => [ 'on' => bool, 'mode' => same|pct|own, 'adj' => percent,
- *             'prices' => [ option key => price ], 'rate' => hourly rate, 'materials' => materials rate ] ]
+ * One saved area row (city or "city|area") in its clean form:
+ * [ 'on' => bool, 'mode' => same|pct|own, 'adj' => percent,
+ *   'prices' => [ option key => price ], 'rate' => hourly rate, 'materials' => materials rate ]
  * mode "same" = base prices, "pct" = base ± adj %, "own" = the area's own prices
  * (options left empty fall back to the base price).
+ *
+ * @param array $row Saved row.
  */
-function brightnest_service_areas( $post_id ) {
+function brightnest_area_row( $row ) {
+	$row  = is_array( $row ) ? $row : array();
+	$adj  = isset( $row['adj'] ) ? max( -90, min( 500, (float) $row['adj'] ) ) : 0;
+	$mode = isset( $row['mode'] ) && in_array( $row['mode'], array( 'same', 'pct', 'own' ), true ) ? $row['mode'] : ( $adj ? 'pct' : 'same' );
+	$prices = array();
+	foreach ( ( isset( $row['prices'] ) && is_array( $row['prices'] ) ) ? $row['prices'] : array() as $k => $v ) {
+		if ( '' !== (string) $v && (float) $v > 0 ) {
+			$prices[ sanitize_key( $k ) ] = round( (float) $v, 2 );
+		}
+	}
+	return array(
+		'on'        => ! isset( $row['on'] ) || '0' !== (string) $row['on'],
+		'mode'      => $mode,
+		'adj'       => 'pct' === $mode ? $adj : 0,
+		'prices'    => 'own' === $mode ? $prices : array(),
+		'rate'      => 'own' === $mode && ! empty( $row['rate'] ) ? round( (float) $row['rate'], 2 ) : 0,
+		'materials' => 'own' === $mode && isset( $row['materials'] ) && '' !== (string) $row['materials'] ? round( (float) $row['materials'], 2 ) : null,
+	);
+}
+
+/**
+ * Per-city availability and pricing for a service, for every city in Settings → Business:
+ * [ city => row ] (see brightnest_area_row()).
+ */
+function brightnest_service_areas( $post_id, $raw = false ) {
 	$saved = get_post_meta( $post_id, '_bn_areas', true );
 	$saved = is_array( $saved ) ? $saved : array();
+	$terms = $raw ? array() : brightnest_area_term_prices();
 	$out   = array();
 	foreach ( brightnest_cities() as $city ) {
-		$row  = isset( $saved[ $city ] ) ? $saved[ $city ] : array();
-		$adj  = isset( $row['adj'] ) ? max( -90, min( 500, (float) $row['adj'] ) ) : 0;
-		$mode = isset( $row['mode'] ) && in_array( $row['mode'], array( 'same', 'pct', 'own' ), true ) ? $row['mode'] : ( $adj ? 'pct' : 'same' );
-		$prices = array();
-		foreach ( ( isset( $row['prices'] ) && is_array( $row['prices'] ) ) ? $row['prices'] : array() as $k => $v ) {
-			if ( '' !== (string) $v && (float) $v > 0 ) {
-				$prices[ sanitize_key( $k ) ] = round( (float) $v, 2 );
-			}
+		$row = brightnest_area_row( isset( $saved[ $city ] ) ? $saved[ $city ] : array() );
+		// "Same price" in the service: the city's price change from Cities & Areas applies.
+		if ( ! $raw && 'same' === $row['mode'] && isset( $terms['city'][ $city ]['adj'] ) ) {
+			$row['mode'] = 'pct';
+			$row['adj']  = $terms['city'][ $city ]['adj'];
 		}
-		$out[ $city ] = array(
-			'on'        => ! isset( $row['on'] ) || '0' !== (string) $row['on'],
-			'mode'      => $mode,
-			'adj'       => 'pct' === $mode ? $adj : 0,
-			'prices'    => 'own' === $mode ? $prices : array(),
-			'rate'      => 'own' === $mode && ! empty( $row['rate'] ) ? round( (float) $row['rate'], 2 ) : 0,
-			'materials' => 'own' === $mode && isset( $row['materials'] ) && '' !== (string) $row['materials'] ? round( (float) $row['materials'], 2 ) : null,
-		);
+		$out[ $city ] = $row;
 	}
 	return $out;
 }
 
 /**
+ * Areas inside a city with their own setting for a service (Areas & prices → "Prices per area"):
+ * [ "city|area" => row ]. An area without one follows its city.
+ */
+function brightnest_service_places( $post_id, $raw = false ) {
+	$saved = get_post_meta( $post_id, '_bn_areas', true );
+	$terms = $raw ? array() : brightnest_area_term_prices();
+	$out   = array();
+	foreach ( brightnest_city_areas() as $city => $places ) {
+		// The service's own city setting (not "same price") wins over the areas' price changes.
+		$city_row = brightnest_area_row( is_array( $saved ) && isset( $saved[ $city ] ) ? $saved[ $city ] : array() );
+		foreach ( $places as $place ) {
+			$key = $city . '|' . $place;
+			if ( is_array( $saved ) && isset( $saved[ $key ] ) ) {
+				$out[ $key ] = brightnest_area_row( $saved[ $key ] );
+			} elseif ( ! $raw && 'same' === $city_row['mode'] && isset( $terms['place'][ $key ]['adj'] ) && ( ! isset( $terms['city'][ $city ]['adj'] ) || $terms['place'][ $key ]['adj'] !== $terms['city'][ $city ]['adj'] ) ) {
+				// The area (or its zone) has its own price change in Cities & Areas.
+				$out[ $key ] = array_merge( $city_row, array( 'mode' => 'pct', 'adj' => $terms['place'][ $key ]['adj'] ) );
+			}
+		}
+	}
+	return $out;
+}
+
+/**
+ * Price changes and charges set in BrightNest → Cities & Areas, with an area taking its zone's and
+ * then its city's value when it has none of its own:
+ * [ 'city' => [ city => [ adj, fee ] ], 'place' => [ "city|area" => [ adj, fee ] ] ]  (null = not set).
+ */
+function brightnest_area_term_prices() {
+	static $map = null;
+	if ( null !== $map ) {
+		return $map;
+	}
+	$map = array( 'city' => array(), 'place' => array() );
+	if ( ! taxonomy_exists( 'bn_area' ) ) {
+		return $map;
+	}
+	$terms = get_terms( array( 'taxonomy' => 'bn_area', 'hide_empty' => false ) );
+	if ( is_wp_error( $terms ) ) {
+		return $map;
+	}
+	$by   = array();
+	foreach ( $terms as $t ) {
+		$by[ $t->term_id ] = $t;
+	}
+	$own  = function ( $t, $key ) {
+		$v = get_term_meta( $t->term_id, $key, true );
+		return '' === (string) $v ? null : (float) $v;
+	};
+	$name = function ( $t ) {
+		return html_entity_decode( $t->name, ENT_QUOTES, 'UTF-8' );
+	};
+	foreach ( $terms as $t ) {
+		// Walk up to the city, collecting the nearest set values.
+		$chain = array( $t );
+		$p     = $t;
+		while ( $p->parent && isset( $by[ $p->parent ] ) ) {
+			$p       = $by[ $p->parent ];
+			$chain[] = $p;
+		}
+		$city = end( $chain );
+		$vals = array( 'adj' => null, 'fee' => null );
+		foreach ( $chain as $c ) {
+			foreach ( array( 'adj' => 'bn_adj', 'fee' => 'bn_fee' ) as $k => $meta ) {
+				if ( null === $vals[ $k ] ) {
+					$vals[ $k ] = $own( $c, $meta );
+				}
+			}
+		}
+		if ( $t->term_id === $city->term_id ) {
+			$map['city'][ $name( $city ) ] = $vals;
+		} else {
+			$map['place'][ $name( $city ) . '|' . $name( $t ) ] = $vals; // Zones too; areas are what customers pick.
+		}
+	}
+	return $map;
+}
+
+/**
+ * The row that prices a service in a city or in one of its areas ("city|area"):
+ * the area's own row when it has one, else the city's. A city that is off is off in all its areas.
+ *
+ * @param int    $post_id Service.
+ * @param string $area    City, or "city|area".
+ */
+function brightnest_service_area_row( $post_id, $area ) {
+	$parts = explode( '|', (string) $area, 2 );
+	$areas = brightnest_service_areas( $post_id );
+	$city  = isset( $areas[ $parts[0] ] ) ? $areas[ $parts[0] ] : null;
+	if ( ! $city || ! $city['on'] || 1 === count( $parts ) ) {
+		return $city;
+	}
+	$places = brightnest_service_places( $post_id );
+	return isset( $places[ $area ] ) ? $places[ $area ] : $city;
+}
+
+/**
  * Price multiplier for a service in an area (1 = base price), or null when it isn't offered there.
+ *
+ * @param string $area City, or "city|area".
  */
 function brightnest_area_factor( $post_id, $area ) {
-	$areas = brightnest_service_areas( $post_id );
-	if ( ! isset( $areas[ $area ] ) || ! $areas[ $area ]['on'] ) {
+	$row = brightnest_service_area_row( $post_id, $area );
+	if ( ! $row || ! $row['on'] ) {
 		return null;
 	}
-	return 1 + $areas[ $area ]['adj'] / 100;
+	return 1 + $row['adj'] / 100;
 }
 
 /**
  * Unit price of one option in an area: the area's own price if set, else base × % change.
+ *
+ * @param string $area City, or "city|area".
  */
 function brightnest_area_item_price( $post_id, $area, $item ) {
-	$areas = brightnest_service_areas( $post_id );
-	$row   = isset( $areas[ $area ] ) ? $areas[ $area ] : null;
+	$row = brightnest_service_area_row( $post_id, $area );
 	if ( $row && isset( $item['key'], $row['prices'][ $item['key'] ] ) ) {
 		return $row['prices'][ $item['key'] ];
 	}
@@ -307,10 +424,11 @@ function brightnest_area_item_price( $post_id, $area, $item ) {
 
 /**
  * Hourly config for an area: own rate / materials rate replace the base ones when set.
+ *
+ * @param string $area City, or "city|area".
  */
 function brightnest_area_hourly( $post_id, $area, $config ) {
-	$areas = brightnest_service_areas( $post_id );
-	$row   = isset( $areas[ $area ] ) ? $areas[ $area ] : null;
+	$row = brightnest_service_area_row( $post_id, $area );
 	if ( ! $row ) {
 		return $config;
 	}
@@ -321,11 +439,50 @@ function brightnest_area_hourly( $post_id, $area, $config ) {
 }
 
 /**
- * Fixed extra charge for an area (Settings → Booking → Area charges), 0 = none.
+ * Fixed extra charge for a city, or for one of its areas (Settings → Booking → Area charges), 0 = none.
+ * Saved as [ city => fee, "city|area" => fee ]; an area without its own charge uses the city's.
+ *
+ * @param string $city  City (Settings → Business).
+ * @param string $place Area inside the city, from brightnest_city_areas() ('' = the whole city).
  */
-function brightnest_area_fee( $area ) {
+function brightnest_area_fee( $city, $place = '' ) {
+	// Charge set in Cities & Areas (the area's, else its zone's, else its city's) comes first.
+	$terms = brightnest_area_term_prices();
+	if ( '' !== $place && isset( $terms['place'][ $city . '|' . $place ]['fee'] ) ) {
+		return max( 0, $terms['place'][ $city . '|' . $place ]['fee'] );
+	}
+	if ( '' === $place && isset( $terms['city'][ $city ]['fee'] ) ) {
+		return max( 0, $terms['city'][ $city ]['fee'] );
+	}
 	$fees = brightnest_opt( 'area_fees' );
-	return is_array( $fees ) && isset( $fees[ $area ] ) ? max( 0, (float) $fees[ $area ] ) : 0;
+	if ( ! is_array( $fees ) ) {
+		return 0;
+	}
+	if ( '' !== $place && isset( $fees[ $city . '|' . $place ] ) ) {
+		return max( 0, (float) $fees[ $city . '|' . $place ] );
+	}
+	return isset( $fees[ $city ] ) ? max( 0, (float) $fees[ $city ] ) : 0;
+}
+
+/**
+ * Areas that have their own charge, for the checkout: [ "city|area" => fee ].
+ */
+function brightnest_place_fees() {
+	$fees = brightnest_opt( 'area_fees' );
+	$out  = array();
+	foreach ( is_array( $fees ) ? $fees : array() as $key => $fee ) {
+		if ( false !== strpos( (string) $key, '|' ) ) {
+			$out[ $key ] = max( 0, (float) $fee );
+		}
+	}
+	// Areas whose charge comes from Cities & Areas (own, zone's or city's).
+	foreach ( brightnest_area_term_prices()['place'] as $key => $v ) {
+		if ( null !== $v['fee'] ) {
+			$parts       = explode( '|', $key, 2 );
+			$out[ $key ] = brightnest_area_fee( $parts[0], $parts[1] );
+		}
+	}
+	return $out;
 }
 
 /**
@@ -459,10 +616,9 @@ function brightnest_checkout_assets() {
 	if ( ! brightnest_is_checkout() ) {
 		return;
 	}
-	brightnest_map_assets();
 	wp_enqueue_style( 'brightnest-location', BRIGHTNEST_URI . '/assets/css/location.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
 	wp_enqueue_style( 'brightnest-checkout', BRIGHTNEST_URI . '/assets/css/checkout.css', array( 'brightnest-location' ), BRIGHTNEST_VERSION );
-	wp_enqueue_script( 'brightnest-checkout', BRIGHTNEST_URI . '/assets/js/checkout.js', array( 'brightnest-map' ), BRIGHTNEST_VERSION, true );
+	wp_enqueue_script( 'brightnest-checkout', BRIGHTNEST_URI . '/assets/js/checkout.js', array( 'brightnest-main' ), BRIGHTNEST_VERSION, true );
 
 	$service_id = isset( $_GET['service'] ) ? absint( $_GET['service'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
 	if ( ! $service_id || 'bn_service' !== get_post_type( $service_id ) ) {
@@ -480,10 +636,6 @@ function brightnest_checkout_assets() {
 			'cities'   => brightnest_cities(),
 			'cityLabels' => brightnest_city_labels(), // Shown names (Arabic site).
 			'country'  => strtolower( substr( preg_replace( '/[^A-Za-z]/', '', (string) brightnest_opt( 'country_code' ) ), 0, 2 ) ),
-			'map'      => array(
-				'lat' => (float) brightnest_opt( 'map_lat' ),
-				'lng' => (float) brightnest_opt( 'map_lng' ),
-			),
 			'voucher'  => isset( $_GET['voucher'] ) ? strtoupper( sanitize_key( $_GET['voucher'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 			// Only codes the visitor already has (link or promo banner); others are checked on the server.
 			'vouchers' => brightnest_public_vouchers(),
@@ -500,11 +652,13 @@ function brightnest_checkout_assets() {
 				'hourly'   => brightnest_hourly_config( $service_id ),
 				'freqs'    => brightnest_service_frequencies( $service_id ),
 				'areas'    => brightnest_service_areas( $service_id ),
+				'places'   => (object) brightnest_service_places( $service_id ), // Areas with their own setting: "city|area" => row.
 				'active'   => brightnest_service_active( $service_id ),
 			),
 			'fee'      => brightnest_service_fee(),
 			'feeLabel' => brightnest_opt( 'service_fee_label' ),
 			'areaFees' => (object) array_map( 'brightnest_area_fee', array_combine( brightnest_cities(), brightnest_cities() ) ),
+			'placeFees' => (object) brightnest_place_fees(), // Areas with their own charge: "city|area" => fee.
 			'min'      => max( 2, (float) brightnest_opt( 'min_amount' ) ),
 			'home'     => home_url( '/' ),
 			'whatsapp' => brightnest_whatsapp_url(),
@@ -538,11 +692,18 @@ function brightnest_ajax_checkout() {
 		wp_send_json_error( array( 'message' => __( 'Sorry, this service is not available right now.', 'brightnest' ) ), 400 );
 	}
 	// Area: must be one of our cities and offered there; its price change applies to every price.
-	$area   = isset( $_POST['area'] ) ? sanitize_text_field( wp_unslash( $_POST['area'] ) ) : '';
-	$factor = brightnest_area_factor( $service_id, $area );
+	// The area inside the city (from the dropdown) must belong to it, or it is ignored and the city's prices apply.
+	$area      = isset( $_POST['area'] ) ? sanitize_text_field( wp_unslash( $_POST['area'] ) ) : '';
+	$place     = isset( $_POST['place'] ) ? sanitize_text_field( wp_unslash( $_POST['place'] ) ) : '';
+	$bn_places = brightnest_city_areas();
+	if ( ! isset( $bn_places[ $area ] ) || ! in_array( $place, $bn_places[ $area ], true ) ) {
+		$place = '';
+	}
+	$price_at = $place ? $area . '|' . $place : $area; // City, or "city|area" when the area has its own prices.
+	$factor   = brightnest_area_factor( $service_id, $price_at );
 	if ( null === $factor ) {
 		/* translators: %s: area */
-		wp_send_json_error( array( 'message' => sprintf( __( 'Sorry, this service is not available in %s yet.', 'brightnest' ), $area ) ), 400 );
+		wp_send_json_error( array( 'message' => sprintf( __( 'Sorry, this service is not available in %s yet.', 'brightnest' ), $place ? $place . ', ' . $area : $area ) ), 400 );
 	}
 
 	$cart  = isset( $_POST['cart'] ) ? json_decode( wp_unslash( $_POST['cart'] ), true ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -551,7 +712,7 @@ function brightnest_ajax_checkout() {
 	$sub    = 0;
 	$hourly = brightnest_hourly_config( $service_id );
 	if ( $hourly ) {
-		$priced = is_array( $cart ) ? brightnest_price_hourly( brightnest_area_hourly( $service_id, $area, $hourly ), $cart ) : null;
+		$priced = is_array( $cart ) ? brightnest_price_hourly( brightnest_area_hourly( $service_id, $price_at, $hourly ), $cart ) : null;
 		if ( $priced ) {
 			list( $sub, $lines ) = $priced;
 		}
@@ -560,7 +721,7 @@ function brightnest_ajax_checkout() {
 			$id  = sanitize_key( $id );
 			$qty = min( 10, max( 0, (int) $qty ) );
 			if ( $qty && isset( $items[ $id ] ) ) {
-				$unit    = brightnest_area_item_price( $service_id, $area, $items[ $id ] );
+				$unit    = brightnest_area_item_price( $service_id, $price_at, $items[ $id ] );
 				$sub    += $unit * $qty;
 				$lines[] = $qty . ' x ' . $items[ $id ]['name'] . ' (' . brightnest_opt( 'currency' ) . ' ' . number_format( $unit * $qty, 2 ) . ')';
 			}
@@ -571,9 +732,10 @@ function brightnest_ajax_checkout() {
 	}
 
 	$f = array();
-	foreach ( array( 'name', 'phone', 'email', 'date', 'time', 'area', 'building', 'apartment', 'street', 'address', 'payment', 'voucher', 'frequency' ) as $k ) {
+	foreach ( array( 'name', 'phone', 'email', 'date', 'time', 'area', 'place', 'building', 'apartment', 'directions', 'street', 'address', 'payment', 'voucher', 'frequency' ) as $k ) {
 		$f[ $k ] = isset( $_POST[ $k ] ) ? sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) : '';
 	}
+	$f['place'] = $place; // Checked above.
 	// Only payment methods enabled in Settings → Booking are accepted.
 	$bn_methods = array_keys( brightnest_payment_methods() );
 	if ( ! in_array( isset( $_POST['payment'] ) ? wp_unslash( $_POST['payment'] ) : '', $bn_methods, true ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -582,8 +744,6 @@ function brightnest_ajax_checkout() {
 	$f['payment'] = sanitize_text_field( wp_unslash( $_POST['payment'] ) );
 	$f['message'] = isset( $_POST['message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['message'] ) ) : '';
 	$f['email']   = sanitize_email( $f['email'] );
-	$lat          = isset( $_POST['lat'] ) ? (float) $_POST['lat'] : 0;
-	$lng          = isset( $_POST['lng'] ) ? (float) $_POST['lng'] : 0;
 
 	if ( '' === $f['name'] || '' === $f['phone'] || '' === $f['date'] || '' === $f['time'] ) {
 		wp_send_json_error( array( 'message' => __( 'Please complete all required fields.', 'brightnest' ) ), 400 );
@@ -619,7 +779,7 @@ function brightnest_ajax_checkout() {
 
 	$discount = brightnest_voucher_discount( $f['voucher'], $sub - $freq_disc );
 	$fee      = brightnest_service_fee();
-	$area_fee = brightnest_area_fee( $area );
+	$area_fee = brightnest_area_fee( $area, $f['place'] );
 	$total    = round( max( 0, $sub - $freq_disc - $discount ) + $fee + $area_fee, 2 );
 	$min      = max( 2, (float) brightnest_opt( 'min_amount' ) ); // Ziina's own minimum is AED 2.
 	if ( $total < $min ) {
@@ -628,7 +788,9 @@ function brightnest_ajax_checkout() {
 	}
 	$ref      = 'BN' . wp_date( 'ymd' ) . strtoupper( wp_generate_password( 4, false, false ) );
 	// The map label is only a fallback; the typed street is more precise.
-	$address  = implode( ', ', array_filter( array( $f['apartment'], $f['building'], $f['street'] ? $f['street'] : $f['address'], $f['area'] ) ) );
+	$bn_line  = $f['street'] ? $f['street'] : $f['address'];
+	$bn_place = ( $f['place'] && false === stripos( $bn_line, $f['place'] ) ) ? $f['place'] : ''; // Area once, even when the street already names it.
+	$address  = implode( ', ', array_filter( array( $f['apartment'], $f['building'], $bn_line, $bn_place, $f['area'] ) ) );
 
 	$post_id = wp_insert_post(
 		array(
@@ -667,9 +829,10 @@ function brightnest_ajax_checkout() {
 		'date'      => $f['date'],
 		'time'      => $f['time'],
 		'area'      => $f['area'],
+		'place'     => $f['place'],
 		'address'   => $address,
+		'directions' => $f['directions'], // Landmark, floor, gate code… (optional).
 		'message'   => $f['message'],
-		'location'  => ( $lat && $lng ) ? $lat . ',' . $lng : '',
 		'lang'      => function_exists( 'brightnest_lang' ) ? brightnest_lang() : 'en', // Site language the customer booked on.
 	);
 	foreach ( $meta as $k => $v ) {
@@ -732,6 +895,9 @@ function brightnest_public_vouchers() {
 	$all  = brightnest_vouchers();
 	$out  = array();
 	$seen = array( strtoupper( (string) brightnest_opt( 'promo_code' ) ) );
+	if ( '1' === (string) brightnest_opt( 'offer_on' ) ) {
+		$seen[] = strtoupper( (string) brightnest_opt( 'offer_code' ) );
+	}
 	if ( isset( $_GET['voucher'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		$seen[] = strtoupper( sanitize_key( $_GET['voucher'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 	}

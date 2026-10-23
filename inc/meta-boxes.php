@@ -50,7 +50,7 @@ function brightnest_service_meta_box( $post ) {
 				<label class="bn-adm-field">
 					<span><?php esc_html_e( 'Starting price', 'brightnest' ); ?> (<?php echo esc_html( $cur ); ?>)</span>
 					<input type="number" step="0.01" min="0" name="bn_price" value="<?php echo esc_attr( $m( 'price' ) ); ?>" placeholder="99">
-					<small><?php esc_html_e( 'Shown on cards as "From AED 99". Filled in automatically from your cheapest option if you leave it empty.', 'brightnest' ); ?></small>
+					<small><?php esc_html_e( 'Only for "single price" services. Hourly services show their hourly rate and option lists their cheapest option as "From …", worked out automatically.', 'brightnest' ); ?></small>
 				</label>
 				<label class="bn-adm-field">
 					<span><?php esc_html_e( 'Price unit (optional)', 'brightnest' ); ?></span>
@@ -212,21 +212,16 @@ function brightnest_service_meta_box( $post ) {
 
 		<!-- Areas & prices -->
 		<section class="bn-adm-panel" data-panel="areas" hidden>
-			<p class="bn-adm-help"><?php esc_html_e( 'Choose where this service is offered and how it is priced in each area: the same price, a % change (e.g. 10 = 10% more, -5 = 5% less), or the area\'s own prices. Areas come from BrightNest → Settings → Business.', 'brightnest' ); ?></p>
-			<?php
-			$bn_ar_hourly = 'hourly' === get_post_meta( $post->ID, '_bn_mode', true );
-			$bn_ar_items  = $bn_ar_hourly ? array() : brightnest_service_items( $post->ID );
-			$bn_ar_cur    = brightnest_opt( 'currency' );
-			$bn_ar_base   = array(
-				'rate'      => (float) get_post_meta( $post->ID, '_bn_hourly_rate', true ),
-				'materials' => (float) get_post_meta( $post->ID, '_bn_materials_rate', true ),
-			);
-			?>
+			<p class="bn-adm-help"><?php esc_html_e( 'Switch off a city where this service is not offered.', 'brightnest' ); ?></p>
+			<p class="bn-adm-help">
+				<?php esc_html_e( 'Prices per city, zone or area (a % change or an extra charge) are set once for all services in BrightNest → Cities & Areas.', 'brightnest' ); ?>
+				<a href="<?php echo esc_url( admin_url( 'edit-tags.php?taxonomy=bn_area&post_type=bn_service' ) ); ?>"><?php esc_html_e( 'Open Cities & Areas', 'brightnest' ); ?></a>
+			</p>
 			<input type="hidden" name="bn_areas_sent" value="1">
 			<table class="bn-adm-areas">
-				<thead><tr><th><?php esc_html_e( 'Area', 'brightnest' ); ?></th><th><?php esc_html_e( 'Offered', 'brightnest' ); ?></th><th><?php esc_html_e( 'Pricing', 'brightnest' ); ?></th></tr></thead>
+				<thead><tr><th><?php esc_html_e( 'City', 'brightnest' ); ?></th><th><?php esc_html_e( 'Offered', 'brightnest' ); ?></th></tr></thead>
 				<tbody>
-					<?php foreach ( brightnest_service_areas( $post->ID ) as $city => $ar ) : ?>
+					<?php foreach ( brightnest_service_areas( $post->ID, true ) as $city => $ar ) : ?>
 						<tr>
 							<th scope="row"><?php echo esc_html( $city ); ?></th>
 							<td>
@@ -235,40 +230,6 @@ function brightnest_service_meta_box( $post ) {
 									<input type="checkbox" name="bn_areas[<?php echo esc_attr( $city ); ?>][on]" value="1" <?php checked( $ar['on'] ); ?>>
 									<span class="bn-adm-switch-ui" aria-hidden="true"></span>
 								</label>
-							</td>
-							<td>
-								<div class="bn-ar-pricing" data-area-pricing>
-									<select name="bn_areas[<?php echo esc_attr( $city ); ?>][mode]" data-area-mode aria-label="<?php echo esc_attr( sprintf( /* translators: %s area */ __( 'Pricing in %s', 'brightnest' ), $city ) ); ?>">
-										<option value="same" <?php selected( $ar['mode'], 'same' ); ?>><?php esc_html_e( 'Same price', 'brightnest' ); ?></option>
-										<option value="pct" <?php selected( $ar['mode'], 'pct' ); ?>><?php esc_html_e( '% change', 'brightnest' ); ?></option>
-										<option value="own" <?php selected( $ar['mode'], 'own' ); ?>><?php esc_html_e( 'Own prices', 'brightnest' ); ?></option>
-									</select>
-									<label class="bn-adm-pct" data-show-for="pct"><input type="number" step="0.5" min="-90" max="500" name="bn_areas[<?php echo esc_attr( $city ); ?>][adj]" value="<?php echo esc_attr( $ar['adj'] ); ?>"> %</label>
-								</div>
-								<div class="bn-ar-own" data-show-for="own">
-									<?php if ( $bn_ar_hourly ) : ?>
-										<label><?php esc_html_e( 'Per professional per hour', 'brightnest' ); ?>
-											<span class="bn-opt-money"><span><?php echo esc_html( $bn_ar_cur ); ?></span><input type="number" min="0" step="0.01" name="bn_areas[<?php echo esc_attr( $city ); ?>][rate]" value="<?php echo esc_attr( $ar['rate'] ? $ar['rate'] : '' ); ?>" placeholder="<?php echo esc_attr( $bn_ar_base['rate'] ); ?>"></span></label>
-										<label><?php esc_html_e( 'Materials per hour', 'brightnest' ); ?>
-											<span class="bn-opt-money"><span><?php echo esc_html( $bn_ar_cur ); ?></span><input type="number" min="0" step="0.01" name="bn_areas[<?php echo esc_attr( $city ); ?>][materials]" value="<?php echo esc_attr( null !== $ar['materials'] ? $ar['materials'] : '' ); ?>" placeholder="<?php echo esc_attr( $bn_ar_base['materials'] ); ?>"></span></label>
-									<?php elseif ( $bn_ar_items ) : ?>
-										<table class="bn-ar-prices">
-											<thead><tr><th><?php esc_html_e( 'Option', 'brightnest' ); ?></th><th><?php esc_html_e( 'Base', 'brightnest' ); ?></th><th><?php echo esc_html( sprintf( /* translators: %s area */ __( 'Price in %s', 'brightnest' ), $city ) ); ?></th></tr></thead>
-											<tbody>
-												<?php $bn_seen = array(); ?>
-												<?php foreach ( $bn_ar_items as $bn_it ) : ?>
-													<?php if ( isset( $bn_seen[ $bn_it['key'] ] ) ) { continue; } $bn_seen[ $bn_it['key'] ] = 1; ?>
-													<tr>
-														<td><?php echo esc_html( $bn_it['name'] ); ?></td>
-														<td class="bn-ar-base"><?php echo esc_html( $bn_ar_cur . ' ' . $bn_it['price'] ); ?></td>
-														<td><span class="bn-opt-money"><span><?php echo esc_html( $bn_ar_cur ); ?></span><input type="number" min="0" step="0.01" name="bn_areas[<?php echo esc_attr( $city ); ?>][prices][<?php echo esc_attr( $bn_it['key'] ); ?>]" value="<?php echo esc_attr( isset( $ar['prices'][ $bn_it['key'] ] ) ? $ar['prices'][ $bn_it['key'] ] : '' ); ?>" placeholder="<?php echo esc_attr( $bn_it['price'] ); ?>"></span></td>
-													</tr>
-												<?php endforeach; ?>
-											</tbody>
-										</table>
-									<?php endif; ?>
-									<small><?php esc_html_e( 'Leave a price empty to use the base price. Added new options? Save the service first, then set their area prices here.', 'brightnest' ); ?></small>
-								</div>
 							</td>
 						</tr>
 					<?php endforeach; ?>
@@ -362,14 +323,15 @@ function brightnest_request_meta_box( $post ) {
 		'_bn_fee'       => __( 'Service fee', 'brightnest' ),
 		'_bn_total'     => __( 'Total', 'brightnest' ),
 		'_bn_payment'   => __( 'Payment method', 'brightnest' ),
-		'_bn_location'  => __( 'Map pin', 'brightnest' ),
 		'_bn_name'    => __( 'Name', 'brightnest' ),
 		'_bn_phone'   => __( 'Phone', 'brightnest' ),
 		'_bn_email'   => __( 'Email', 'brightnest' ),
 		'_bn_date'    => __( 'Preferred date', 'brightnest' ),
 		'_bn_time'    => __( 'Preferred time', 'brightnest' ),
-		'_bn_area'    => __( 'Area / City', 'brightnest' ),
+		'_bn_area'    => __( 'City', 'brightnest' ),
+		'_bn_place'   => __( 'Area', 'brightnest' ),
 		'_bn_address' => __( 'Address', 'brightnest' ),
+		'_bn_directions' => __( 'Additional directions', 'brightnest' ),
 		'_bn_message' => __( 'Notes / Message', 'brightnest' ),
 	);
 	$status = get_post_meta( $post->ID, '_bn_status', true ) ?: 'new';
@@ -381,8 +343,6 @@ function brightnest_request_meta_box( $post ) {
 		}
 		if ( '_bn_email' === $key ) {
 			$val = '<a href="mailto:' . esc_attr( $val ) . '">' . esc_html( $val ) . '</a>';
-		} elseif ( '_bn_location' === $key ) {
-			$val = '<a href="' . esc_url( 'https://www.google.com/maps?q=' . $val ) . '" target="_blank" rel="noopener">' . esc_html( $val ) . ' ↗</a>';
 		} elseif ( in_array( $key, array( '_bn_subtotal', '_bn_freq_discount', '_bn_discount', '_bn_area_fee', '_bn_fee', '_bn_total' ), true ) ) {
 			$val = esc_html( brightnest_opt( 'currency' ) . ' ' . $val );
 		} elseif ( '_bn_phone' === $key ) {
@@ -522,7 +482,7 @@ function brightnest_save_meta( $post_id, $post ) {
 			update_post_meta( $post_id, '_bn_freqs', $freqs );
 		}
 
-		// Areas: offered or not + price change %.
+		// Areas: offered or not (prices per area live in Cities & Areas).
 		if ( isset( $_POST['bn_areas_sent'] ) ) {
 			$areas = array();
 			$in    = isset( $_POST['bn_areas'] ) && is_array( $_POST['bn_areas'] ) ? wp_unslash( $_POST['bn_areas'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -543,6 +503,33 @@ function brightnest_save_meta( $post_id, $post ) {
 					'rate'      => isset( $row['rate'] ) && '' !== trim( (string) $row['rate'] ) ? max( 0, round( (float) $row['rate'], 2 ) ) : '',
 					'materials' => isset( $row['materials'] ) && '' !== trim( (string) $row['materials'] ) ? max( 0, round( (float) $row['materials'], 2 ) ) : '',
 				);
+			}
+			// Areas inside a city ("city|area"): saved only when they differ from the city
+			// (admin.js names their fields only then, so the form stays small).
+			$pin = isset( $_POST['bn_places'] ) && is_array( $_POST['bn_places'] ) ? wp_unslash( $_POST['bn_places'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			foreach ( brightnest_city_areas() as $city => $places ) {
+				foreach ( $places as $place ) {
+					$key = $city . '|' . $place;
+					$row = isset( $pin[ $key ] ) && is_array( $pin[ $key ] ) ? $pin[ $key ] : array();
+					$pm  = isset( $row['mode'] ) ? (string) $row['mode'] : 'inherit';
+					if ( ! in_array( $pm, array( 'pct', 'own', 'off' ), true ) ) {
+						continue;
+					}
+					$prices = array();
+					foreach ( 'own' === $pm && isset( $row['prices'] ) && is_array( $row['prices'] ) ? $row['prices'] : array() as $k => $v ) {
+						if ( '' !== trim( (string) $v ) && (float) $v > 0 ) {
+							$prices[ sanitize_key( $k ) ] = round( (float) $v, 2 );
+						}
+					}
+					$areas[ $key ] = array(
+						'on'        => 'off' === $pm ? '0' : '1',
+						'mode'      => 'off' === $pm ? 'same' : $pm,
+						'adj'       => 'pct' === $pm && isset( $row['adj'] ) ? max( -90, min( 500, (float) $row['adj'] ) ) : 0,
+						'prices'    => $prices,
+						'rate'      => 'own' === $pm && isset( $row['rate'] ) && '' !== trim( (string) $row['rate'] ) ? max( 0, round( (float) $row['rate'], 2 ) ) : '',
+						'materials' => 'own' === $pm && isset( $row['materials'] ) && '' !== trim( (string) $row['materials'] ) ? max( 0, round( (float) $row['materials'], 2 ) ) : '',
+					);
+				}
 			}
 			update_post_meta( $post_id, '_bn_areas', $areas );
 		}

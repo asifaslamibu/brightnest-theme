@@ -320,17 +320,3 @@
 	});
 	freqList.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); } });
 })();
-
-/* Areas & prices: show the % box or the own-price table for the pricing chosen per area. */
-(function () {
-	'use strict';
-	document.querySelectorAll('.bn-adm-areas tbody tr').forEach(function (row) {
-		var sel = row.querySelector('[data-area-mode]');
-		if (!sel) { return; }
-		var apply = function () {
-			row.querySelectorAll('[data-show-for]').forEach(function (el) { el.hidden = el.getAttribute('data-show-for') !== sel.value; });
-		};
-		sel.addEventListener('change', apply);
-		apply();
-	});
-})();

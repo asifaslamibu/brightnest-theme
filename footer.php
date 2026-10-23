@@ -64,14 +64,15 @@ $bn_page = function ( $slug, $fallback ) {
 	</div>
 </footer>
 
-<?php // Location picker (header pill, homepage, services hub, checkout). ?>
-<?php get_template_part( 'template-parts/location-modal' ); ?>
-
 <?php if ( brightnest_whatsapp_url() ) : ?>
 	<a class="bn-wa-float" href="<?php echo esc_url( brightnest_whatsapp_url( __( 'Hi, I would like to book a service.', 'brightnest' ) ) ); ?>" target="_blank" rel="noopener" aria-label="<?php esc_attr_e( 'Chat on WhatsApp', 'brightnest' ); ?>">
 		<?php echo brightnest_icon( 'whatsapp', 28 ); // phpcs:ignore ?>
 	</a>
 <?php endif; ?>
+
+<?php // First visit: pick an area before anything else. ?>
+<?php get_template_part( 'template-parts/area-gate' ); ?>
+<?php get_template_part( 'template-parts/offer-popup' ); ?>
 
 <?php wp_footer(); ?>
 </body>
