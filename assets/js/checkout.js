@@ -408,7 +408,7 @@
 			out.push({
 				start: m,
 				value: hhmm(m) + '-' + hhmm(m + step),
-				label: clock(m) + ' – ' + clock(m + step),
+				label: clock(m) + ' to ' + clock(m + step),
 				part: m < 720 ? t('Morning') : (m < 960 ? t('Afternoon') : t('Evening'))
 			});
 		}
@@ -723,7 +723,7 @@
 		$('[data-sum="disc"]').textContent = '- ' + money(disc);
 		$('[data-sum="code"]').textContent = disc ? '(' + state.voucher.toUpperCase() + ')' : '';
 		$('[data-sum="total"]').textContent = money(total);
-		$('[data-total-mini]').textContent = chosen ? money(total) : '—';
+		$('[data-total-mini]').textContent = chosen ? money(total) : '';
 		$('[data-count-mini]').textContent = hourly || !count ? t('Total') : t(count > 1 ? '%d items · Total' : '%d item · Total', count);
 
 		var hint = $('[data-voucher-hint]');

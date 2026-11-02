@@ -257,7 +257,7 @@ $bn_card_section = function ( $key ) use ( $bn_cards ) {
 				</li>
 			<?php endforeach; ?>
 		</ul>
-		<p class="bn-h2-all"><a class="bn-btn bn-btn-primary" href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php echo esc_html( brightnest_label( 'tiles_btn', __( 'View all services', 'brightnest' ) ) ); ?> <?php echo brightnest_icon( 'arrow-right', 16 ); // phpcs:ignore ?></a></p>
+		<p class="bn-h2-all"><a class="bn-btn bn-btn-primary" href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php echo esc_html( brightnest_label( 'tiles_btn', __( 'Book a service', 'brightnest' ) ) ); ?> <?php echo brightnest_icon( 'arrow-right', 16 ); // phpcs:ignore ?></a></p>
 	</div>
 </section>
 <?php endif; ?>

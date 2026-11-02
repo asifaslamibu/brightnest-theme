@@ -78,7 +78,9 @@ $bn_addr  = brightnest_opt( 'address' );
 					<?php if ( has_nav_menu( 'footer' ) ) : ?>
 						<?php wp_nav_menu( array( 'theme_location' => 'footer', 'container' => false, 'depth' => 1, 'items_wrap' => '%3$s', 'fallback_cb' => false ) ); ?>
 					<?php else : ?>
-						<?php echo $bn_page( 'about-us' ) . $bn_page( 'contact' ) . $bn_page( 'faq' ); // phpcs:ignore ?>
+						<?php echo $bn_page( 'about-us' ); // phpcs:ignore ?>
+						<li><a href="<?php echo esc_url( get_post_type_archive_link( 'bn_info' ) ); ?>"><?php esc_html_e( 'Services', 'brightnest' ); ?></a></li>
+						<?php echo $bn_page( 'contact' ); // phpcs:ignore ?>
 						<?php if ( get_option( 'page_for_posts' ) ) : ?>
 							<li><a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>"><?php esc_html_e( 'Blog', 'brightnest' ); ?></a></li>
 						<?php endif; ?>
@@ -90,9 +92,9 @@ $bn_addr  = brightnest_opt( 'address' );
 			<div class="bn-ft-col bn-ft-contact">
 				<h2><?php esc_html_e( 'Get in touch', 'brightnest' ); ?></h2>
 				<ul>
-					<?php if ( brightnest_opt( 'phone' ) ) : ?>
-						<li><a href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo brightnest_icon( 'phone', 16 ); // phpcs:ignore ?> <?php echo esc_html( brightnest_opt( 'phone' ) ); ?></a></li>
-					<?php endif; ?>
+					<?php foreach ( array_filter( array( brightnest_opt( 'phone' ), brightnest_opt( 'phone2' ) ) ) as $bn_ph ) : ?>
+						<li><a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $bn_ph ) ); ?>" dir="ltr"><?php echo brightnest_icon( 'phone', 16 ); // phpcs:ignore ?> <?php echo esc_html( $bn_ph ); ?></a></li>
+					<?php endforeach; ?>
 					<?php if ( $bn_wa ) : ?>
 						<li><a href="<?php echo esc_url( $bn_wa ); ?>" target="_blank" rel="noopener"><?php echo brightnest_icon( 'whatsapp', 16 ); // phpcs:ignore ?> <?php esc_html_e( 'Chat on WhatsApp', 'brightnest' ); ?></a></li>
 					<?php endif; ?>
@@ -101,6 +103,9 @@ $bn_addr  = brightnest_opt( 'address' );
 					<?php endif; ?>
 					<?php if ( $bn_addr ) : ?>
 						<li><span><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?> <?php echo esc_html( $bn_addr ); ?></span></li>
+					<?php endif; ?>
+					<?php if ( brightnest_opt( 'hours' ) ) : ?>
+						<li><span><?php echo brightnest_icon( 'clock', 16 ); // phpcs:ignore ?> <?php echo esc_html( brightnest_opt( 'hours' ) ); ?></span></li>
 					<?php endif; ?>
 				</ul>
 			</div>
@@ -114,7 +119,8 @@ $bn_addr  = brightnest_opt( 'address' );
 		</div>
 
 		<div class="bn-ft-bottom">
-			<p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'All rights reserved.', 'brightnest' ); ?></p>
+			<p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php esc_html_e( 'Bright Nest Cleaning Co.', 'brightnest' ); ?> <?php esc_html_e( 'All rights reserved.', 'brightnest' ); ?></p>
+			<p class="bn-ft-credit"><?php esc_html_e( 'Designed & developed by', 'brightnest' ); ?> <a href="https://360digitalism.com/" target="_blank" rel="noopener">360 Digitalism</a></p>
 			<p class="bn-ft-pay"><?php echo brightnest_icon( 'shield', 15 ); // phpcs:ignore ?> <?php esc_html_e( 'Secure online payment', 'brightnest' ); ?></p>
 		</div>
 	</div>

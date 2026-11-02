@@ -24,7 +24,7 @@ function brightnest_home_defaults() {
 		'hero_float1_title' => 'Vetted professionals',
 		'hero_float1_text'  => 'Satisfaction guarantee',
 		'hero_float2_title' => 'Secure online payment',
-		'tiles_btn'         => 'View all services',
+		'tiles_btn'         => 'Book a service',
 		'intro_btn'         => 'Book a service',
 		'card_book_label'   => 'Book now',
 		'card_quote_label'  => 'Get a quote',

@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BRIGHTNEST_VERSION', '3.51.0' );
+define( 'BRIGHTNEST_VERSION', '3.52.1' );
 define( 'BRIGHTNEST_DIR', get_template_directory() );
 define( 'BRIGHTNEST_URI', get_template_directory_uri() );
 

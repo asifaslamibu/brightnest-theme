@@ -29,7 +29,7 @@ $bn_of_code   = strtoupper( trim( (string) brightnest_opt( 'offer_code' ) ) );
 $bn_of_code   = $bn_of_code && isset( brightnest_vouchers()[ $bn_of_code ] ) ? $bn_of_code : ''; // Only a code that works.
 $bn_of_title  = brightnest_opt( 'offer_title' );
 $bn_of_later  = brightnest_label( 'offer_later', __( 'No thanks', 'brightnest' ) );
-$bn_of_line   = (string) brightnest_label( 'offer_code_text', __( 'Use code {code} — we fill it in at the checkout.', 'brightnest' ) );
+$bn_of_line   = (string) brightnest_label( 'offer_code_text', __( 'Use code {code} and we fill it in at the checkout.', 'brightnest' ) );
 $bn_of_corner = 'corner' === brightnest_opt( 'offer_position' );
 $bn_of_color  = function ( $key ) {
 	$c = sanitize_hex_color( (string) brightnest_opt( $key ) );

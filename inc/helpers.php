@@ -338,7 +338,8 @@ function brightnest_menu_fallback() {
 		echo '<li><a href="' . esc_url( get_term_link( $term ) ) . '">' . esc_html( $term->name ) . '</a></li>';
 	}
 	echo '</ul></li>';
-	foreach ( array( 'about-us', 'blogs', 'faq', 'contact' ) as $slug ) {
+	echo '<li><a href="' . esc_url( get_post_type_archive_link( 'bn_info' ) ) . '">' . esc_html__( 'Services', 'brightnest' ) . '</a></li>';
+	foreach ( array( 'about-us', 'blogs', 'contact' ) as $slug ) {
 		$page = get_page_by_path( $slug );
 		if ( ! $page ) {
 			continue;

@@ -167,8 +167,8 @@ msgstr "احجز الآن"
 msgid "Book on WhatsApp"
 msgstr "احجز عبر WhatsApp"
 
-msgid "Booking #%1$s — %2$s"
-msgstr "الحجز #%1$s — %2$s"
+msgid "Booking #%1$s: %2$s"
+msgstr "الحجز #%1$s، %2$s"
 
 msgid "Booking Details"
 msgstr "تفاصيل الحجز"
@@ -524,7 +524,7 @@ msgstr "لا توجد خيارات تطابق بحثك."
 msgid "No payment now. We confirm price & timing before your visit."
 msgstr "لا دفع الآن. سنؤكد السعر والموعد قبل زيارتك."
 
-msgid "No services found. Try another word, or message us — we will help."
+msgid "No services found. Try another word, or message us and we will help."
 msgstr "لم يتم العثور على خدمات. جرّب كلمة أخرى، أو راسلنا وسنساعدك."
 
 msgid "No services match your search."
@@ -1230,7 +1230,7 @@ msgid "Articles by %s"
 msgstr "مقالات بقلم %s"
 
 msgid "— we fill it in at the checkout."
-msgstr "— سنضيفه لك تلقائياً عند الدفع."
+msgstr "،  سنضيفه لك تلقائياً عند الدفع."
 
 msgid "No thanks"
 msgstr "لا، شكراً"
@@ -1298,8 +1298,20 @@ msgstr "%d خيارات"
 msgid "Copy"
 msgstr "نسخ"
 
-msgid "Use code {code} — we fill it in at the checkout."
-msgstr "استخدم الرمز {code} — سنضيفه لك عند الدفع."
+msgid "Use code {code} and we fill it in at the checkout."
+msgstr "استخدم الرمز {code}، سنضيفه لك عند الدفع."
 
 msgid "Offer pop-up"
 msgstr "النافذة الترويجية"
+
+msgid "Bright Nest Cleaning Co."
+msgstr "برايت نست للتنظيف"
+
+msgid "Designed & developed by"
+msgstr "تصميم وتطوير"
+
+msgid "Working hours"
+msgstr "ساعات العمل"
+
+msgid "Call, WhatsApp, email or visit our office. We reply quickly."
+msgstr "اتصل بنا أو راسلنا عبر واتساب أو البريد الإلكتروني أو قم بزيارة مكتبنا. نرد بسرعة."

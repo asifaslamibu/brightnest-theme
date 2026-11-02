@@ -173,7 +173,7 @@ if ( 'search' === $bn_mode ) {
 					<div class="bn-bk-grid"><?php foreach ( $bn_ids as $bn_id ) { $bn_card( $bn_id ); } ?></div>
 				<?php else : ?>
 					<div class="bn-bk-none">
-						<p><?php esc_html_e( 'No services found. Try another word, or message us — we will help.', 'brightnest' ); ?></p>
+						<p><?php esc_html_e( 'No services found. Try another word, or message us and we will help.', 'brightnest' ); ?></p>
 						<a class="bn-btn bn-btn-primary" href="<?php echo esc_url( $bn_hub ); ?>"><?php esc_html_e( 'Browse all services', 'brightnest' ); ?></a>
 					</div>
 				<?php endif; ?>

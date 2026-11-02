@@ -410,6 +410,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bn-contact-cards li { display: flex; align-items: center; gap: 16px; padding: 18px; border: 1px solid var(--bn-line); border-radius: var(--bn-radius); }
 .bn-contact-cards small { display: block; color: var(--bn-muted); font-size: 13px; }
 .bn-contact-cards a, .bn-contact-cards strong { font-weight: 700; color: var(--bn-ink); }
+.bn-contact-cards .bn-feature-icon { flex-shrink: 0; }
+.bn-prose blockquote { margin: 16px 0; padding: 18px 20px; border: 1px solid var(--bn-line); border-left: 4px solid var(--bn-accent); border-radius: var(--bn-radius); background: #fff; }
+.bn-prose blockquote p { margin: 0 0 8px; font-style: normal; }
+.bn-prose blockquote cite { font-style: normal; font-weight: 700; font-size: 14px; color: var(--bn-ink); }
+[dir="rtl"] .bn-prose blockquote { border-left-width: 1px; border-right: 4px solid var(--bn-accent); }
 
 /* Prose ------------------------------------------------------------------ */
 .bn-prose { font-size: 17px; }

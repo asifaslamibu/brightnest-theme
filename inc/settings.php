@@ -124,7 +124,7 @@ function brightnest_settings_schema() {
 				__( 'Top home services', 'brightnest' ) => array(
 					'banner_title' => array( 'text', __( 'Heading', 'brightnest' ), '' ),
 					'top_title'    => array( 'text', __( 'Sub-heading', 'brightnest' ), __( 'Popular services (star in the Services list) are shown first.', 'brightnest' ) ),
-					'tiles_btn'    => array( 'text', __( 'Button text', 'brightnest' ), __( 'Opens the services page.', 'brightnest' ) ),
+					'tiles_btn'    => array( 'text', __( 'Button text', 'brightnest' ), __( 'Opens the booking page.', 'brightnest' ) ),
 				),
 				__( 'Trusted partner (intro)', 'brightnest' ) => array(
 					'intro_title'  => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),

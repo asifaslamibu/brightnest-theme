@@ -14,7 +14,7 @@ while ( have_posts() ) :
 		<div class="bn-container">
 			<?php brightnest_breadcrumbs(); ?>
 			<h1><?php the_title(); ?></h1>
-			<p class="bn-lead"><?php esc_html_e( "We're here 7 days a week. Reach out any way you like.", 'brightnest' ); ?></p>
+			<p class="bn-lead"><?php esc_html_e( "Call, WhatsApp, email or visit our office. We reply quickly.", 'brightnest' ); ?></p>
 		</div>
 	</section>
 	<section class="bn-section">
@@ -22,9 +22,9 @@ while ( have_posts() ) :
 			<div>
 				<div class="bn-prose"><?php the_content(); ?></div>
 				<ul class="bn-contact-cards">
-					<?php if ( brightnest_opt( 'phone' ) ) : ?>
-						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'phone', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Call us', 'brightnest' ); ?></small><a href="<?php echo esc_url( brightnest_tel_url() ); ?>"><?php echo esc_html( brightnest_opt( 'phone' ) ); ?></a></span></li>
-					<?php endif; ?>
+					<?php foreach ( array_filter( array( brightnest_opt( 'phone' ), brightnest_opt( 'phone2' ) ) ) as $bn_ph ) : ?>
+						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'phone', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Call us', 'brightnest' ); ?></small><a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $bn_ph ) ); ?>" dir="ltr"><?php echo esc_html( $bn_ph ); ?></a></span></li>
+					<?php endforeach; ?>
 					<?php if ( brightnest_whatsapp_url() ) : ?>
 						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'whatsapp', 22 ); // phpcs:ignore ?></span><span><small>WhatsApp</small><a href="<?php echo esc_url( brightnest_whatsapp_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Chat with us', 'brightnest' ); ?></a></span></li>
 					<?php endif; ?>
@@ -33,6 +33,9 @@ while ( have_posts() ) :
 					<?php endif; ?>
 					<?php if ( brightnest_opt( 'address' ) ) : ?>
 						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'pin', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Address', 'brightnest' ); ?></small><strong><?php echo esc_html( brightnest_opt( 'address' ) ); ?></strong></span></li>
+					<?php endif; ?>
+					<?php if ( brightnest_opt( 'hours' ) ) : ?>
+						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'clock', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Working hours', 'brightnest' ); ?></small><strong><?php echo esc_html( brightnest_opt( 'hours' ) ); ?></strong></span></li>
 					<?php endif; ?>
 				</ul>
 			</div>

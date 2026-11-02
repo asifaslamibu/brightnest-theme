@@ -92,11 +92,11 @@ function brightnest_defaults() {
 		'services_title'     => 'Everything your home needs, |in one place',
 		'why_eyebrow'        => 'Why Bright Nest',
 		'why_title'          => 'Your trusted partner in |home & office| cleanliness',
-		'why_text'           => 'From daily home upkeep to deep cleaning, and hourly maids to full property maintenance — we do it all with care and professionalism across the UAE.',
+		'why_text'           => 'From daily home upkeep to deep cleaning, and hourly maids to full property maintenance, we do it all with care and professionalism across the UAE.',
 		'why_image'          => '',
 		'why_badge_title'    => '100% satisfaction',
 		'why_badge_text'     => 'guaranteed on every job',
-		'why_points'         => "Flexible scheduling|We work around your timing – daily, weekly, or monthly.\nProfessional staff|Trained, verified and uniformed cleaning professionals.\nCompetitive pricing|Transparent rates with no hidden charges.\nSafe & eco-friendly|Products and practices that are safe for kids and pets.",
+		'why_points'         => "Flexible scheduling|We work around your timing: daily, weekly, or monthly.\nProfessional staff|Trained, verified and uniformed cleaning professionals.\nCompetitive pricing|Transparent rates with no hidden charges.\nSafe & eco-friendly|Products and practices that are safe for kids and pets.",
 		'numbers_title'      => 'Premium cleaning & maintenance. |100% spotless results.',
 		'process_eyebrow'    => 'How it works',
 		'process_title'      => 'Booked in |three easy steps',
@@ -113,7 +113,7 @@ function brightnest_defaults() {
 		'days_ahead'      => '14',
 		'pay_online'      => '1',
 		'pay_online_label' => 'Pay online now',
-		'pay_online_text' => 'Card, Apple Pay or Google Pay — secured by Ziina',
+		'pay_online_text' => 'Card, Apple Pay or Google Pay, secured by Ziina',
 		'booking_note'    => 'Secure payment by Ziina. We will confirm the booking with you by phone or WhatsApp.',
 
 		// Homepage sections (BrightNest → Settings → Homepage).
@@ -172,7 +172,7 @@ One team for the whole home|Cleaning, AC, pest control, repairs and more in one 
 		'offer_btn_text_color' => '#ffffff',
 		'offer_radius'    => '22',
 		'offer_later'     => 'No thanks',
-		'offer_code_text' => 'Use code {code} — we fill it in at the checkout.',
+		'offer_code_text' => 'Use code {code} and we fill it in at the checkout.',
 		'offer_copy'      => '1',
 		'offer_disc_type' => 'percent',
 		'offer_disc_value' => '',
@@ -231,8 +231,8 @@ function brightnest_faqs( $service_id = 0 ) {
 		$global = array(
 			array( 'How do I book a service?', 'Pick a service, choose your preferred date and time and confirm the booking. Our team will call or WhatsApp you to confirm the details.' ),
 			array( 'Are your professionals vetted?', 'Yes. Every professional is background-checked, trained and reviewed by customers after each job.' ),
-			array( 'Do I need to pay online?', 'Yes. You pay securely online when you book — by card, Apple Pay or Google Pay through Ziina.' ),
-			array( 'Do cleaners bring their own materials?', 'Yes, cleaning materials and equipment can be included — just choose it when you book or mention it in the notes.' ),
+			array( 'Do I need to pay online?', 'Yes. You pay securely online when you book, by card, Apple Pay or Google Pay through Ziina.' ),
+			array( 'Do cleaners bring their own materials?', 'Yes, cleaning materials and equipment can be included. Just choose it when you book or mention it in the notes.' ),
 			array( 'Can I reschedule or cancel?', 'Of course. Contact us at least 12 hours before your booking to reschedule or cancel free of charge.' ),
 			array( 'What if I am not happy with the service?', 'Let us know within 24 hours and we will send a team back to fix it at no extra cost.' ),
 		);

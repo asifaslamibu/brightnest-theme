@@ -70,7 +70,7 @@ function brightnest_start_online_payment( $request_id, $meta, $service_id ) {
 
 		$fee = new WC_Order_Item_Fee();
 		/* translators: 1: booking ref, 2: service */
-		$fee->set_name( sprintf( __( 'Booking #%1$s — %2$s', 'brightnest' ), $meta['ref'], wp_strip_all_tags( html_entity_decode( get_the_title( $service_id ), ENT_QUOTES, 'UTF-8' ) ) ) );
+		$fee->set_name( sprintf( __( 'Booking #%1$s: %2$s', 'brightnest' ), $meta['ref'], wp_strip_all_tags( html_entity_decode( get_the_title( $service_id ), ENT_QUOTES, 'UTF-8' ) ) ) );
 		$fee->set_tax_status( 'none' );
 		$fee->set_total( (float) $meta['total'] );
 		// Booking details on the order line, so they show in the WooCommerce app and emails.
@@ -144,7 +144,7 @@ function brightnest_order_time_label( $time ) {
 		return (string) $time;
 	}
 	$len = max( 30, (int) brightnest_opt( 'slot_length' ) );
-	return wp_date( 'g:i A', $start, new DateTimeZone( 'UTC' ) ) . ' – ' . wp_date( 'g:i A', $start + $len * 60, new DateTimeZone( 'UTC' ) );
+	return wp_date( 'g:i A', $start, new DateTimeZone( 'UTC' ) ) . ' to ' . wp_date( 'g:i A', $start + $len * 60, new DateTimeZone( 'UTC' ) );
 }
 
 /**
