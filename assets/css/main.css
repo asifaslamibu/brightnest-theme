@@ -350,6 +350,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bn-page-hero { padding: 48px 0; background: linear-gradient(180deg, #f3f7ff, #fff); border-bottom: 1px solid var(--bn-line); }
 .bn-page-hero h1 { font-size: clamp(30px, 4vw, 46px); margin-bottom: 10px; }
 .bn-page-hero .bn-lead { margin: 0; }
+/* Page hero with the page's featured image (About, Contact). */
+.bn-page-hero--img { position: relative; padding: 120px 0 110px; border-bottom: 0; background: #0f1a3a var(--bn-hero-img) center 18% / cover no-repeat; color: #fff; }
+.bn-page-hero--img::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11, 20, 52, .86) 0%, rgba(11, 20, 52, .6) 45%, rgba(11, 20, 52, .15) 100%); }
+.bn-page-hero--img .bn-container { position: relative; }
+.bn-page-hero--img h1 { color: #fff; max-width: 620px; }
+.bn-page-hero--img .bn-lead { color: rgba(255, 255, 255, .88); max-width: 520px; }
+.bn-page-hero--img .bn-breadcrumbs, .bn-page-hero--img .bn-breadcrumbs a, .bn-page-hero--img .bn-breadcrumbs span { color: rgba(255, 255, 255, .85); }
+[dir="rtl"] .bn-page-hero--img::before { background: linear-gradient(270deg, rgba(11, 20, 52, .86) 0%, rgba(11, 20, 52, .6) 45%, rgba(11, 20, 52, .15) 100%); }
+@media (max-width: 700px) {
+	.bn-page-hero--img { padding: 64px 0 56px; }
+	.bn-page-hero--img::before { background: rgba(11, 20, 52, .62); }
+}
 .bn-breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; color: var(--bn-muted); margin-bottom: 14px; }
 .bn-breadcrumbs a { color: var(--bn-muted); }
 .bn-breadcrumbs a:hover { color: var(--bn-primary); }

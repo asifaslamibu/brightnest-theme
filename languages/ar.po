@@ -1315,3 +1315,6 @@ msgstr "ساعات العمل"
 
 msgid "Call, WhatsApp, email or visit our office. We reply quickly."
 msgstr "اتصل بنا أو راسلنا عبر واتساب أو البريد الإلكتروني أو قم بزيارة مكتبنا. نرد بسرعة."
+
+msgid "Your area:"
+msgstr "منطقتك:"

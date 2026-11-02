@@ -1,6 +1,6 @@
 <?php
 /**
- * Service pages hub (/our-services/): the content pages (BrightNest → Service Pages) in sections by
+ * Service pages hub (/services/): the content pages (BrightNest → Service Pages) in sections by
  * category — Cleaning, Maintenance, then any others — each a grid of cards with photo, short text and
  * a link to the page; chips at the top jump to a section; then the booking band.
  * A page's category is its "Homepage slider" choice in its editor (by default from its name).

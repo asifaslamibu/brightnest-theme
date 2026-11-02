@@ -23,7 +23,7 @@ function brightnest_register_service_pages() {
 				'menu_name'     => __( 'Service Pages', 'brightnest' ),
 			),
 			'public'       => true,
-			'has_archive'  => 'our-services', // The page listing them all (archive-bn_info.php).
+			'has_archive'  => 'services', // The page listing them all (archive-bn_info.php).
 			'rewrite'      => array( 'slug' => 'services', 'with_front' => false ),
 			'show_in_menu' => 'brightnest',
 			'show_in_rest' => true,
@@ -206,8 +206,8 @@ add_action( 'manage_bn_info_posts_custom_column', 'brightnest_service_pages_colu
 /* One time: the "Info page only" services become service pages (same ID, text, photo, FAQ, SEO, URL). */
 
 function brightnest_service_pages_flush() {
-	if ( 'our-services' !== get_option( 'bn_info_archive' ) ) {
-		update_option( 'bn_info_archive', 'our-services' );
+	if ( 'services' !== get_option( 'bn_info_archive' ) ) {
+		update_option( 'bn_info_archive', 'services' );
 		flush_rewrite_rules( false );
 	}
 }

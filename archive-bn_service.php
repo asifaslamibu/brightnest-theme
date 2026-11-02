@@ -112,7 +112,7 @@ if ( 'search' === $bn_mode ) {
 				<div>
 					<h1><?php echo esc_html( $bn_h1 ); ?></h1>
 					<p class="bn-bk-sub"><?php echo esc_html( $bn_sub ); ?></p>
-					<p class="bn-bk-area" data-bk-area hidden><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?> <span><?php esc_html_e( 'Prices for', 'brightnest' ); ?> <strong data-bk-area-name></strong></span></p>
+					<p class="bn-bk-area" data-bk-area hidden><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?> <span><?php esc_html_e( 'Your area:', 'brightnest' ); ?> <strong data-bk-area-name></strong></span></p>
 				</div>
 				<ul class="bn-bk-trust">
 					<li><?php echo brightnest_icon( 'shield', 20 ); // phpcs:ignore ?><span><strong><?php esc_html_e( 'Vetted professionals', 'brightnest' ); ?></strong><small><?php esc_html_e( 'Trained, background-checked team', 'brightnest' ); ?></small></span></li>
@@ -208,11 +208,8 @@ if ( 'search' === $bn_mode ) {
 	update();
 })();
 
-/* Booking page: the visitor's area in the hero; the category chips filter the grid. */
+/* Booking page: the visitor's area in the hero (and which services it has); the category chips filter the grid. */
 (function () {
-	var cur = <?php echo wp_json_encode( brightnest_opt( 'currency' ) ); ?>;
-	var fees = <?php echo wp_json_encode( (object) array_merge( array_combine( brightnest_cities(), array_map( 'brightnest_area_fee', brightnest_cities() ) ) ?: array(), brightnest_place_fees() ) ); ?>;
-	var money = function (n) { return cur + ' ' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
 	function area() {
 		var loc = null;
 		try { loc = JSON.parse(localStorage.getItem('bn_location') || 'null'); } catch (e) { /* ignore */ }
@@ -223,17 +220,11 @@ if ( 'search' === $bn_mode ) {
 		}
 		var city = loc && loc.area ? loc.area : '';
 		var key = city && loc.street ? city + '|' + loc.street : '';
-		// The area's charge per booking, as at the checkout (its own, else its city's).
-		var fee = key && fees[key] !== undefined ? +fees[key] : (+fees[city] || 0);
+		// Prices stay as listed; the area only decides whether the service is offered there.
 		document.querySelectorAll('[data-bk-areas]').forEach(function (card) {
 			var A = JSON.parse(card.getAttribute('data-bk-areas'));
 			var row = city && A.c[city] ? A.c[city] : [1, 0];
 			if (row[0] && key && A.p[key]) { row = A.p[key]; }
-			var price = card.querySelector('[data-bk-from]');
-			if (price) {
-				var unit = Math.round(+price.getAttribute('data-bk-from') * (1 + row[1] / 100) * 100) / 100;
-				price.textContent = money(price.hasAttribute('data-bk-unit') ? unit : unit + fee); // Hourly rates stay per hour.
-			}
 			var off = !row[0];
 			card.classList.toggle('is-off', off);
 			card.querySelector('[data-bk-off]').hidden = !off;

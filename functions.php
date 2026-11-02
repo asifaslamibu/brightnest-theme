@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BRIGHTNEST_VERSION', '3.52.1' );
+define( 'BRIGHTNEST_VERSION', '3.54.0' );
 define( 'BRIGHTNEST_DIR', get_template_directory() );
 define( 'BRIGHTNEST_URI', get_template_directory_uri() );
 
@@ -31,6 +31,7 @@ require BRIGHTNEST_DIR . '/inc/cache.php';
 require BRIGHTNEST_DIR . '/inc/settings.php';
 require BRIGHTNEST_DIR . '/inc/home-editor.php';
 require BRIGHTNEST_DIR . '/inc/service-layout.php';
+require BRIGHTNEST_DIR . '/inc/content-update.php';
 if ( is_admin() ) {
 	require BRIGHTNEST_DIR . '/inc/admin.php';
 }
@@ -45,6 +46,7 @@ function brightnest_setup() {
 
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
+	add_post_type_support( 'page', 'excerpt' ); // Short line under the page title in the hero.
 	add_theme_support( 'automatic-feed-links' );
 	add_theme_support( 'responsive-embeds' );
 	add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );

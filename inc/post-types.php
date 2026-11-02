@@ -20,7 +20,7 @@ function brightnest_register_post_types() {
 				'menu_name'     => __( 'Services', 'brightnest' ),
 			),
 			'public'       => true,
-			'has_archive'  => 'booking', // The booking page: /booking/ (old /services/ links redirect, see below).
+			'has_archive'  => 'booking', // The booking page: /booking/ (old category links redirect, see below).
 			'rewrite'      => array( 'slug' => 'services', 'with_front' => false ), // Service pages: /services/name/.
 			'show_in_menu' => 'brightnest',
 			'show_in_rest' => true,
@@ -137,8 +137,8 @@ function brightnest_admin_status_css() {
 add_action( 'admin_head', 'brightnest_admin_status_css' );
 
 /**
- * Old addresses: /services/ (the booking page, now /booking/), /services/<category>/ (now
- * /booking/<category>/) and /service/<name>/ (service pages, now /services/<name>/) all redirect.
+ * Old addresses: /our-services/ (now /services/), /services/<category>/ (now /booking/<category>/)
+ * and /service/<name>/ (service pages, now /services/<name>/) all redirect.
  * The address rules are rebuilt once when they change.
  */
 function brightnest_booking_redirect() {
@@ -150,8 +150,8 @@ function brightnest_booking_redirect() {
 	$to    = '';
 	if ( preg_match( '#^' . $q . 'service/(.+)$#', $path, $m ) ) {
 		$to = '/services/' . $m[1];
-	} elseif ( preg_match( '#^' . $q . 'services/?$#', $path ) ) {
-		$to = '/booking/';
+	} elseif ( preg_match( '#^' . $q . 'our-services/?$#', $path ) ) {
+		$to = '/services/';
 	} elseif ( preg_match( '#^' . $q . 'services/([^/]+)/?$#', $path, $m ) && get_term_by( 'slug', $m[1], 'bn_service_cat' )
 		&& ! get_page_by_path( $m[1], OBJECT, array( 'bn_service', 'bn_info' ) ) ) {
 		$to = '/booking/' . $m[1] . '/';
