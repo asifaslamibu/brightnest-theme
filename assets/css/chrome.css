@@ -167,3 +167,12 @@ main + .bn-ft { margin-top: 36px; }
 html[dir="rtl"] .bn-ft-col ul a:hover { transform: translateX(-3px); }
 .bn-ft.no-cta { padding-top: 48px; }
 main + .bn-ft.no-cta { margin-top: 0; }
+
+/* Arabic logo (header and footer) in place of the English one on Arabic pages. */
+.bn-logo-ar, .bn-ft-logo-ar { display: none !important; }
+html[dir="rtl"] .bn-logo > :not(.bn-logo-ar), html[dir="rtl"] .bn-ft-logo:not(.bn-ft-logo-ar) { display: none !important; }
+html[dir="rtl"] .bn-logo-ar { display: inline-flex !important; }
+html[dir="rtl"] .bn-ft-logo-ar { display: inline-block !important; }
+.bn-logo .bn-logo-ar img { height: 60px; max-height: none; width: auto; }
+@media (max-width: 900px) { .bn-logo .bn-logo-ar img { height: 46px; } }
+.bn-ft-logo-ar img { height: 64px; }

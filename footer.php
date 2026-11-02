@@ -41,6 +41,9 @@ $bn_addr  = brightnest_opt( 'address' );
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="bn-ft-logo">
 					<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo-light.png' ); ?>" width="720" height="200" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" loading="lazy">
 				</a>
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="bn-ft-logo bn-ft-logo-ar notranslate">
+					<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo-ar-light.png' ); ?>" width="720" height="280" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" loading="lazy">
+				</a>
 				<?php if ( brightnest_opt( 'footer_about' ) ) : ?><p><?php echo esc_html( brightnest_opt( 'footer_about' ) ); ?></p><?php endif; ?>
 				<div class="bn-ft-social">
 					<?php if ( brightnest_whatsapp_url() ) : ?>
@@ -120,7 +123,7 @@ $bn_addr  = brightnest_opt( 'address' );
 
 		<div class="bn-ft-bottom">
 			<p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php esc_html_e( 'Bright Nest Cleaning Co.', 'brightnest' ); ?> <?php esc_html_e( 'All rights reserved.', 'brightnest' ); ?></p>
-			<p class="bn-ft-credit"><?php esc_html_e( 'Designed & developed by', 'brightnest' ); ?> <a href="https://360digitalism.com/" target="_blank" rel="noopener">360 Digitalism</a></p>
+			<p class="bn-ft-credit"><?php esc_html_e( 'Designed & developed by', 'brightnest' ); ?> <a href="https://360digitalism.com/" target="_blank" rel="noopener" dir="ltr">360 Digitalism</a></p>
 			<p class="bn-ft-pay"><?php echo brightnest_icon( 'shield', 15 ); // phpcs:ignore ?> <?php esc_html_e( 'Secure online payment', 'brightnest' ); ?></p>
 		</div>
 	</div>
