@@ -31,7 +31,7 @@ function brightnest_purge_on_save( $post_id, $post ) {
 	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
 		return;
 	}
-	if ( in_array( $post->post_type, array( 'bn_service', 'bn_review', 'page', 'post' ), true ) ) {
+	if ( in_array( $post->post_type, array( 'bn_service', 'bn_info', 'bn_review', 'page', 'post' ), true ) ) {
 		brightnest_purge_cache();
 	}
 }

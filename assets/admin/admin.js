@@ -79,6 +79,9 @@
 	var tabImgsEl = $('[data-tab-imgs]');
 	var tabImgs = {};
 	try { tabImgs = JSON.parse((tabImgsEl && tabImgsEl.value) || '{}') || {}; } catch (e) { tabImgs = {}; }
+	var bannersEl = $('[data-banners]');
+	var banners = {};
+	try { banners = JSON.parse((bannersEl && bannersEl.value) || '{}') || {}; } catch (e) { banners = {}; }
 	var arTabsEl = $('[data-ar-tabs]');
 	var arTabs = {};
 	try { arTabs = JSON.parse((arTabsEl && arTabsEl.value) || '{}') || {}; } catch (e) { arTabs = {}; }
@@ -99,6 +102,7 @@
 			// Popup details (shown when a customer clicks the option at the checkout).
 			'<div class="bn-opt-detail" hidden>' +
 			'<label><span>' + esc(t.about) + '</span><textarea rows="3" data-d="about">' + esc(det.about || '') + '</textarea></label>' +
+			'<label class="bn-opt-vars"><span>' + esc(t.vars || 'Choices') + '</span><textarea rows="4" data-d="vars" placeholder="1 Unit | AC Deep Cleaning (15% OFF) | Duct, vent &amp; filter cleaning | 469 | 559&#10;2 Units | AC Deep Cleaning (20% OFF) | For 2 AC units | 899 | 1129">' + esc(det.vars || '') + '</textarea><small>' + esc(t.varsHelp || '') + '</small></label>' +
 			'<label><span>' + esc(t.highlights) + '</span><textarea rows="3" data-d="hl" placeholder="shield | 60-Day Service Warranty&#10;Ideal for split AC units">' + esc(det.hl || '') + '</textarea></label>' +
 			// Arabic site texts for this option.
 			'<label><span>' + esc(t.nameAr) + '</span><input dir="rtl" data-d="name_ar" value="' + esc(det.name_ar || '') + '"></label>' +
@@ -118,6 +122,8 @@
 			'<input class="bn-opt-tab" data-tab-name placeholder="' + esc(t.tabPh) + '" value="' + esc(g.name) + '" aria-label="' + esc(t.tab) + '">' +
 			'<button type="button" class="bn-opt-img" data-pick-tab-img title="' + esc(t.tabImg) + '"' + (tabImgs[g.name] ? ' style="background-image:url(\'' + esc(tabImgs[g.name]) + '\')"' : '') + '>' + (tabImgs[g.name] ? '' : '<span class="dashicons dashicons-format-image"></span>') + '</button>' +
 			'<input type="hidden" data-tab-img value="' + esc(tabImgs[g.name] || '') + '">' +
+			'<button type="button" class="bn-opt-img bn-opt-banner" data-pick-banner title="' + esc(t.banner || 'Cover') + '"' + (banners[g.name] ? ' style="background-image:url(\'' + esc(banners[g.name]) + '\')"' : '') + '>' + (banners[g.name] ? '' : '<span class="dashicons dashicons-cover-image"></span>') + '</button>' +
+			'<input type="hidden" data-banner value="' + esc(banners[g.name] || '') + '">' +
 			'<input class="bn-opt-tab bn-opt-tab-ar" dir="rtl" data-tab-ar placeholder="' + esc(t.tabAr) + '" value="' + esc(arTabs[g.name] || '') + '" aria-label="' + esc(t.tabAr) + '">' +
 			'<span class="bn-opt-count"></span>' +
 			'<button type="button" class="button-link" data-gup title="' + esc(t.up) + '"><span class="dashicons dashicons-arrow-up-alt2"></span></button>' +
@@ -130,12 +136,13 @@
 	}
 
 	// Option photo from the media library; picking again replaces it, cancel keeps it.
-	function pickImg(btn, input) {
+	function pickImg(btn, input, size) {
 		if (!window.wp || !wp.media) { return; }
 		var frame = wp.media({ title: t.choosePhoto, multiple: false, library: { type: 'image' } });
 		frame.on('select', function () {
 			var a = frame.state().get('selection').first().toJSON();
-			var url = a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url;
+			var want = size || 'medium';
+			var url = a.sizes && a.sizes[want] ? a.sizes[want].url : a.url;
 			input.value = url;
 			btn.style.backgroundImage = 'url(\'' + url + '\')';
 			btn.innerHTML = '';
@@ -163,12 +170,12 @@
 				if (v('img')) { line.push(v('img')); }
 				lines.push(line.join(' | '));
 				var row = {};
-				['about', 'hl', 'name_ar', 'desc_ar', 'about_ar', 'hl_ar'].forEach(function (f) {
+				['about', 'hl', 'vars', 'name_ar', 'desc_ar', 'about_ar', 'hl_ar'].forEach(function (f) {
 					var val = $('[data-d="' + f + '"]', r).value.trim();
 					if (val) { row[f] = val; }
 				});
 				if (Object.keys(row).length) { det[v('name') + '|' + v('desc')] = row; }
-				r.classList.toggle('has-detail', !!(row.about || row.hl));
+				r.classList.toggle('has-detail', !!(row.about || row.hl || row.vars));
 			});
 		});
 		raw.value = lines.join('\n');
@@ -176,13 +183,17 @@
 		// Arabic tab names, keyed by the English tab name.
 		var tabs = {};
 		var imgs = {};
+		var covers = {};
 		$$('.bn-opt-group', groupsEl).forEach(function (g) {
 			var en = $('[data-tab-name]', g).value.trim().replace(/\|/g, '/') || (t.newTab || 'Packages');
 			var ar = $('[data-tab-ar]', g).value.trim();
 			var img = $('[data-tab-img]', g).value.trim();
+			var cover = $('[data-banner]', g).value.trim();
 			if (ar) { tabs[en] = ar; }
 			if (img) { imgs[en] = img; }
+			if (cover) { covers[en] = cover; }
 		});
+		if (bannersEl) { bannersEl.value = JSON.stringify(covers); banners = covers; }
 		if (arTabsEl) { arTabsEl.value = JSON.stringify(tabs); arTabs = tabs; }
 		if (tabImgsEl) { tabImgsEl.value = JSON.stringify(imgs); tabImgs = imgs; }
 		rawDirty = false;
@@ -219,6 +230,10 @@
 			panel.hidden = !panel.hidden;
 			b.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
 			if (!panel.hidden) { $('textarea', panel).focus(); }
+			return;
+		}
+		if (b.hasAttribute('data-pick-banner')) {
+			pickImg(b, $('[data-banner]', group), 'large');
 			return;
 		}
 		if (b.hasAttribute('data-pick-tab-img')) {

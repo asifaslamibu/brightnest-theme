@@ -1,0 +1,57 @@
+/* Service pages (single-bn_info.php), Justlife style: one narrow column. */
+.bn-info { padding: 18px 0 8px; }
+.bn-info-col { max-width: 1100px; }
+.bn-info .bn-breadcrumbs { margin-bottom: 14px; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+
+/* Photo card with the title on it */
+.bn-info-hero {
+	position: relative; display: flex; align-items: flex-end; min-height: 440px; padding: 48px 44px 52px; border-radius: 14px; overflow: hidden;
+	background: var(--bn-primary) center / cover no-repeat;
+}
+.bn-info-hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15, 18, 40, .78) 0%, rgba(15, 18, 40, .45) 55%, rgba(15, 18, 40, .15) 100%); }
+.bn-info-hero-copy { position: relative; max-width: 640px; color: #fff; }
+.bn-info-hero h1 { margin: 0 0 12px; color: #fff; font-size: clamp(26px, 3.2vw, 36px); line-height: 1.25; }
+.bn-info-hero p { margin: 0 0 20px; color: rgba(255, 255, 255, .9); font-size: 15px; line-height: 1.55; }
+.bn-info-hero .bn-btn { height: 42px; padding: 0 22px; border-radius: 99px; }
+
+/* Text */
+.bn-info-body { margin-top: 38px; color: #3b4262; font-size: 16.5px; line-height: 1.8; }
+.bn-info-body h2 { margin: 42px 0 14px; font-size: 25px; line-height: 1.3; color: var(--bn-ink); }
+.bn-info-body h3 { margin: 28px 0 10px; font-size: 18px; color: var(--bn-ink); }
+.bn-info-body strong { color: var(--bn-ink); }
+.bn-info-body a { color: #2a7fd4; text-decoration: none; }
+.bn-info-body a:hover { text-decoration: underline; }
+.bn-info-body ul { padding-inline-start: 20px; }
+.bn-info-faq { margin-top: 40px; }
+.bn-info-faq h2 { margin: 0 0 16px; font-size: 22px; color: var(--bn-ink); }
+
+/* Other services */
+.bn-info-more { padding: 44px 0 56px; }
+.bn-info-more-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.bn-info-kicker { display: block; margin-bottom: 4px; color: var(--bn-muted); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
+.bn-info-more h2 { margin: 0; font-size: 22px; color: var(--bn-ink); }
+.bn-info-more-nav { display: flex; gap: 8px; }
+.bn-info-more-nav .bn-arrow { width: 30px; height: 30px; }
+.bn-info-more-track.bn-carousel-track { list-style: none; margin: 0; padding: 2px 2px 8px; grid-auto-columns: calc((100% - 80px) / 6); gap: 16px; }
+.bn-info-more-track a { display: block; color: var(--bn-ink); }
+.bn-info-more-img { display: grid; place-items: center; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 10px; background: #fff1e8; }
+.bn-info-more-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.bn-info-more-track a:hover img { transform: scale(1.04); }
+.bn-info-more-icon { color: var(--bn-brand); }
+.bn-info-more-name { display: block; margin-top: 8px; font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+
+@media (max-width: 760px) {
+	.bn-info-hero { min-height: 300px; padding: 24px 20px 28px; }
+	.bn-info-more-track.bn-carousel-track { grid-auto-columns: 42%; gap: 12px; }
+}
+html[dir="rtl"] .bn-info-hero::before { background: linear-gradient(270deg, rgba(15, 18, 40, .78) 0%, rgba(15, 18, 40, .45) 55%, rgba(15, 18, 40, .15) 100%); }
+html[dir="rtl"] .bn-info-more-nav .bn-icon { transform: scaleX(-1); }
+
+/* The booking service's prices (template-parts/book-list.php) */
+.bn-info-book { margin-top: 30px; padding: 24px 26px; border: 1px solid #eceef4; border-radius: 14px; background: #fff; box-shadow: 0 10px 28px rgba(28, 33, 86, .06); }
+.bn-info-book-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.bn-info-book-head h2 { margin: 0; font-size: 22px; color: var(--bn-ink); }
+.bn-info-book h3 { margin: 18px 0 8px; font-size: 16px; color: var(--bn-ink); }
+.bn-info-book .bn-sv-pkgs { margin: 0; }
+.bn-info-book-note { margin: 12px 0 0; color: var(--bn-muted); font-size: 13px; }
+@media (max-width: 640px) { .bn-info-book { padding: 18px 16px; } }

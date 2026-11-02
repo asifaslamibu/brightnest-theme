@@ -6,7 +6,7 @@
  */
 
 // Global FAQs (BrightNest → Settings → FAQ) plus the service's own questions on service pages.
-$bn_faqs = brightnest_faqs( is_singular( 'bn_service' ) ? get_the_ID() : 0 );
+$bn_faqs = brightnest_faqs( is_singular( array( 'bn_service', 'bn_info' ) ) ? get_the_ID() : 0 );
 $bn_faqs = apply_filters( 'brightnest_faqs', $bn_faqs );
 ?>
 <?php if ( ! $bn_faqs ) { return; } ?>

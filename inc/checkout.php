@@ -29,6 +29,8 @@ function brightnest_service_options( $post_id ) {
 	$ar_tabs = is_array( $ar_tabs ) ? $ar_tabs : array();
 	$tab_img = json_decode( (string) get_post_meta( $post_id, '_bn_tab_imgs', true ), true );
 	$tab_img = is_array( $tab_img ) ? $tab_img : array();
+	$banners = json_decode( (string) get_post_meta( $post_id, '_bn_group_banners', true ), true ); // Cover picture above each group.
+	$banners = is_array( $banners ) ? $banners : array();
 	$pick    = function ( $d, $field ) use ( $ar ) {
 		if ( $ar && isset( $d[ $field . '_ar' ] ) && '' !== trim( (string) $d[ $field . '_ar' ] ) ) {
 			return (string) $d[ $field . '_ar' ];
@@ -48,6 +50,7 @@ function brightnest_service_options( $post_id ) {
 			$groups[ $group ] = array(
 				'name'  => ! empty( $ar_tabs[ $group ] ) ? $ar_tabs[ $group ] : $group,
 				'img'   => ! empty( $tab_img[ $group ] ) ? esc_url_raw( $tab_img[ $group ] ) : '', // Own tab picture, else the first option photo.
+				'banner' => ! empty( $banners[ $group ] ) ? esc_url_raw( $banners[ $group ] ) : '',
 				'items' => array(),
 			);
 		}
@@ -65,6 +68,14 @@ function brightnest_service_options( $post_id ) {
 			'about' => $pick( $d, 'about' ),
 			'hl'    => brightnest_option_highlights( $pick( $d, 'hl' ) ),
 		);
+		// Choices inside this option (e.g. 1 / 2 / 3 units): each is booked on its own; the option shows the lowest price.
+		$vars = brightnest_option_vars( $parts[1], $parts[2], isset( $d['vars'] ) ? (string) $d['vars'] : '' );
+		if ( $vars ) {
+			$last = count( $groups[ $group ]['items'] ) - 1;
+			$groups[ $group ]['items'][ $last ]['vars']  = $vars;
+			$groups[ $group ]['items'][ $last ]['price'] = min( wp_list_pluck( $vars, 'price' ) );
+			$groups[ $group ]['items'][ $last ]['old']   = 0;
+		}
 		// The tab photo is the first option photo in it.
 		if ( empty( $groups[ $group ]['img'] ) && ! empty( $parts[5] ) ) {
 			$groups[ $group ]['img'] = esc_url_raw( $parts[5] );
@@ -225,6 +236,26 @@ function brightnest_service_guide( $post_id ) {
  */
 function brightnest_service_active( $post_id ) {
 	return '0' !== (string) get_post_meta( $post_id, '_bn_active', true );
+}
+
+/**
+ * Info page only (service editor → Basics): no prices and no checkout, a "Get a quote" button instead.
+ */
+function brightnest_info_only( $post_id ) {
+	return '1' === (string) get_post_meta( (int) $post_id, '_bn_info_only', true );
+}
+
+/**
+ * "Get a quote" link for a service: WhatsApp with the service named, else a phone call, else its page.
+ */
+function brightnest_quote_url( $post_id ) {
+	$name = wp_strip_all_tags( html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, 'UTF-8' ) );
+	/* translators: %s service */
+	$wa = brightnest_whatsapp_url( sprintf( __( 'Hi, I would like a quote for %s.', 'brightnest' ), $name ) );
+	if ( $wa ) {
+		return $wa;
+	}
+	return brightnest_opt( 'phone' ) ? brightnest_tel_url() : get_permalink( $post_id );
 }
 
 /**
@@ -523,10 +554,44 @@ function brightnest_service_items( $post_id ) {
 	$map = array();
 	foreach ( brightnest_service_options( $post_id ) as $group ) {
 		foreach ( $group['items'] as $item ) {
-			$map[ $item['id'] ] = $item;
+			// An option with choices is booked through its choices only.
+			foreach ( ! empty( $item['vars'] ) ? $item['vars'] : array( $item ) as $one ) {
+				$map[ $one['id'] ] = $one;
+			}
 		}
 	}
 	return $map;
+}
+
+/**
+ * Choices of one option, from its "Choices" box: one per line, "label | name | description | price | old price".
+ * The label is the short tag shown in a box (e.g. "1 Unit"); name and description fall back to the option's.
+ *
+ * @return array[] [ id, key, label, title, name, desc, price, old ]
+ */
+function brightnest_option_vars( $opt_name, $opt_desc, $raw ) {
+	$out = array();
+	foreach ( preg_split( '/\r\n|\r|\n/', $raw ) as $line ) {
+		$p = array_map( 'trim', explode( '|', $line ) );
+		if ( count( $p ) < 4 || ( '' === $p[0] && '' === $p[1] ) ) {
+			continue;
+		}
+		$price = (float) preg_replace( '/[^0-9.]/', '', $p[3] );
+		$old   = isset( $p[4] ) ? (float) preg_replace( '/[^0-9.]/', '', $p[4] ) : 0;
+		$title = '' !== $p[1] ? $p[1] : $opt_name;
+		$out[] = array(
+			'id'    => substr( md5( $opt_name . '|' . $opt_desc . '|' . $p[0] . '|' . $title . '|' . $price ), 0, 10 ),
+			'key'   => substr( md5( $opt_name . '|' . $p[0] . '|' . $title ), 0, 10 ),
+			'label' => $p[0],
+			'title' => $title,
+			// Name in the booking summary and the order: "Option (label)".
+			'name'  => $opt_name . ( '' !== $p[0] ? ' (' . $p[0] . ')' : '' ),
+			'desc'  => '' !== $p[2] ? $p[2] : $opt_desc,
+			'price' => $price,
+			'old'   => $old > $price ? $old : 0,
+		);
+	}
+	return $out;
 }
 
 /**
@@ -543,6 +608,15 @@ function brightnest_vouchers() {
 		$out[ strtoupper( $m[1] ) ] = array(
 			'type'  => $m[3] ? 'percent' : 'fixed',
 			'value' => (float) $m[2],
+		);
+	}
+	// The offer pop-up's code with its own discount (Settings → Offer pop-up → Voucher code).
+	$code = strtoupper( trim( (string) brightnest_opt( 'offer_code' ) ) );
+	$val  = (float) brightnest_opt( 'offer_disc_value' );
+	if ( '1' === (string) brightnest_opt( 'offer_on' ) && preg_match( '/^[A-Z0-9_-]+$/', $code ) && $val > 0 ) {
+		$out[ $code ] = array(
+			'type'  => 'fixed' === brightnest_opt( 'offer_disc_type' ) ? 'fixed' : 'percent',
+			'value' => 'fixed' === brightnest_opt( 'offer_disc_type' ) ? $val : min( 100, $val ),
 		);
 	}
 	return $out;
@@ -566,6 +640,9 @@ function brightnest_voucher_discount( $code, $subtotal ) {
  * Checkout page URL for a service.
  */
 function brightnest_checkout_url( $service_id, $args = array() ) {
+	if ( brightnest_info_only( $service_id ) ) {
+		return get_permalink( $service_id ); // Info page only: no checkout, the page has the quote buttons.
+	}
 	$page = get_page_by_path( 'checkout' );
 	if ( ! $page ) {
 		return get_permalink( $service_id ) . '#bn-form';
@@ -593,6 +670,18 @@ function brightnest_ensure_checkout_page() {
 	}
 }
 add_action( 'after_switch_theme', 'brightnest_ensure_checkout_page', 20 );
+
+/**
+ * The checkout for an info-only service sends the visitor to that service's page.
+ */
+function brightnest_info_only_checkout_redirect() {
+	$sid = isset( $_GET['service'] ) ? absint( $_GET['service'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( $sid && brightnest_is_checkout() && brightnest_info_only( $sid ) ) {
+		wp_safe_redirect( get_permalink( $sid ) );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'brightnest_info_only_checkout_redirect' );
 
 /**
  * Is the current request the checkout page?
@@ -688,7 +777,7 @@ function brightnest_ajax_checkout() {
 		wp_send_json_error( array( 'message' => __( 'Service not found.', 'brightnest' ) ), 400 );
 	}
 
-	if ( ! brightnest_service_active( $service_id ) ) {
+	if ( ! brightnest_service_active( $service_id ) || brightnest_info_only( $service_id ) ) {
 		wp_send_json_error( array( 'message' => __( 'Sorry, this service is not available right now.', 'brightnest' ) ), 400 );
 	}
 	// Area: must be one of our cities and offered there; its price change applies to every price.

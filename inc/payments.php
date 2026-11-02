@@ -73,6 +73,25 @@ function brightnest_start_online_payment( $request_id, $meta, $service_id ) {
 		$fee->set_name( sprintf( __( 'Booking #%1$s — %2$s', 'brightnest' ), $meta['ref'], wp_strip_all_tags( html_entity_decode( get_the_title( $service_id ), ENT_QUOTES, 'UTF-8' ) ) ) );
 		$fee->set_tax_status( 'none' );
 		$fee->set_total( (float) $meta['total'] );
+		// Booking details on the order line, so they show in the WooCommerce app and emails.
+		$when = trim( $meta['date'] . ' ' . $meta['time'] );
+		if ( $meta['date'] && strtotime( $meta['date'] ) ) {
+			$when = wp_date( 'D, j M Y', strtotime( $meta['date'] ) ) . ( $meta['time'] ? ', ' . brightnest_order_time_label( $meta['time'] ) : '' );
+		}
+		$details = array(
+			__( 'Date & time', 'brightnest' )     => $when,
+			__( 'Service details', 'brightnest' ) => str_replace( "
+", ', ', (string) $meta['items'] ),
+			__( 'Frequency', 'brightnest' )       => $meta['frequency'],
+			__( 'Address', 'brightnest' )         => $meta['address'],
+			__( 'Directions', 'brightnest' )      => isset( $meta['directions'] ) ? $meta['directions'] : '',
+			__( 'Phone', 'brightnest' )           => $meta['phone'],
+		);
+		foreach ( $details as $label => $value ) {
+			if ( '' !== trim( (string) $value ) ) {
+				$fee->add_meta_data( $label, $value, true );
+			}
+		}
 		$order->add_item( $fee );
 
 		$parts = explode( ' ', trim( $meta['name'] ), 2 );
@@ -88,6 +107,11 @@ function brightnest_start_online_payment( $request_id, $meta, $service_id ) {
 		$order->set_payment_method( $gateway->id );
 		$order->set_payment_method_title( $gateway->get_title() );
 		$order->set_customer_note( $meta['message'] );
+		$order->set_shipping_first_name( $parts[0] ); // The service address, shown under "Shipping" in the app.
+		$order->set_shipping_last_name( isset( $parts[1] ) ? $parts[1] : '' );
+		$order->set_shipping_address_1( $meta['address'] );
+		$order->set_shipping_city( $meta['area'] );
+		$order->set_shipping_country( 'AE' );
 		$order->update_meta_data( '_bn_request_id', (int) $request_id );
 		$order->update_meta_data( '_bn_service_id', (int) $service_id );
 		$order->calculate_totals( false );
@@ -109,6 +133,18 @@ function brightnest_start_online_payment( $request_id, $meta, $service_id ) {
 		return new WP_Error( 'bn_ziina', __( 'Could not start the payment. Please try again.', 'brightnest' ) );
 	}
 	return $result['redirect'];
+}
+
+/**
+ * "14:00" → "2:00 PM – 3:00 PM" (the booked arrival window), for the order.
+ */
+function brightnest_order_time_label( $time ) {
+	$start = strtotime( '2000-01-01 ' . $time );
+	if ( ! $start ) {
+		return (string) $time;
+	}
+	$len = max( 30, (int) brightnest_opt( 'slot_length' ) );
+	return wp_date( 'g:i A', $start, new DateTimeZone( 'UTC' ) ) . ' – ' . wp_date( 'g:i A', $start + $len * 60, new DateTimeZone( 'UTC' ) );
 }
 
 /**

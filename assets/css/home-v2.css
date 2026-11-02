@@ -308,3 +308,45 @@ html[dir="rtl"] .bn-h2-guide-btns .bn-icon { transform: scaleX(-1); }
 }
 .bn-h2-faq { padding-top: 72px; }
 @media (max-width: 760px) { .bn-h2-faq { padding-top: 48px; } }
+
+/* Top services: photo cards that open the booking (front-page.php, .bn-h2-svc) */
+.bn-h2-todo .bn-h2-svc { max-width: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px 18px; }
+.bn-h2-todo .bn-h2-svc li:nth-child(n+10) { display: block; }
+.bn-h2-svc li { margin: 0; }
+.bn-h2-todo .bn-h2-svc a { display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: start; color: var(--bn-ink); }
+.bn-h2-svc-img { width: 100%; }
+.bn-h2-svc-img { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 14px; background: #fff1e8; }
+.bn-h2-svc-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+.bn-h2-svc a:hover .bn-h2-svc-img img { transform: scale(1.05); }
+.bn-h2-svc-icon { color: var(--bn-brand); }
+.bn-h2-svc-badge { position: absolute; top: 8px; inset-inline-end: 8px; padding: 3px 8px; border-radius: 6px; background: var(--bn-brand); color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.bn-h2-svc .bn-jx-tile-name { font-size: 15px; font-weight: 700; line-height: 1.35; text-align: start; }
+.bn-h2-svc a:hover .bn-jx-tile-name { color: var(--bn-primary); }
+.bn-h2-svc-from { margin-top: -4px; color: var(--bn-muted); font-size: 13px; }
+@media (max-width: 960px) { .bn-h2-todo .bn-h2-svc { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .bn-h2-todo .bn-h2-svc { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; } }
+
+/* The rest of the cleaning guide, below its intro (front-page.php, assets/css/art.css) */
+.bn-h2-guide { border-bottom: 0; }
+.bn-h2-guide-more { padding: 8px 0 72px; background: #f7f8fc; border-bottom: 1px solid #eef0f5; }
+.bn-h2-guide-more .bn-art h2, .bn-h2-guide-more .bn-art h3 { scroll-margin-top: 110px; }
+.bn-h2-guide-more .bn-art-card, .bn-h2-guide-more .bn-art-steps li > div { background: #fff; }
+.bn-h2-guide-more .bn-art > ul li { background: #fff; border: 1px solid #eceef4; }
+.bn-h2-guide-more .bn-art > :first-child { margin-top: 0; }
+@media (max-width: 640px) { .bn-h2-guide-more { padding: 0 0 48px; } }
+
+/* The rest of the guide is folded behind "Read more" */
+.bn-more-guide { --bn-more-bg: #f7f8fc; }
+.bn-more-guide .bn-more-body { max-height: 380px; }
+.bn-more-guide .bn-more-body::after { height: 160px !important; }
+.bn-more-guide .bn-more-btn-lg { display: flex; margin: 22px auto 0; background: #fff; text-decoration: none; }
+.bn-more-guide .bn-more-btn-lg[hidden] { display: none; }
+.bn-h2-card h3 a { color: inherit; }
+.bn-h2-card h3 a:hover { color: var(--bn-primary); }
+.bn-h2-cards .bn-h2-all { margin-top: 22px; }
+
+/* Book on WhatsApp: text and buttons only (no phone pictures), centred */
+.bn-jx-app { padding: 64px 0; }
+.bn-jx-app .bn-jx-app-grid { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+.bn-jx-app .bn-jx-app-copy { max-width: 640px; }
+.bn-jx-app .bn-jx-badges { justify-content: center; }

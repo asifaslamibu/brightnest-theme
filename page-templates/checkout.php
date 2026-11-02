@@ -158,19 +158,45 @@ $bn_price   = function ( $n ) {
 				<?php foreach ( $bn_groups as $bn_gi => $bn_g ) : ?>
 					<div class="bn-co-group" id="bn-group-<?php echo esc_attr( $bn_gi ); ?>" data-group="<?php echo esc_attr( $bn_gi ); ?>">
 						<h2 class="bn-co-group-title"><?php echo esc_html( $bn_g['name'] ); ?></h2>
+						<?php if ( ! empty( $bn_g['banner'] ) ) : ?>
+							<div class="bn-co-group-banner"><img src="<?php echo esc_url( $bn_g['banner'] ); ?>" alt="<?php echo esc_attr( $bn_g['name'] ); ?>" loading="lazy"></div>
+						<?php else : ?>
+							<?php
+							// No cover picture of its own: a cover made from the group's photo, its name and three ticks
+							// (the first option's highlights, else the service's "What's included").
+							$bn_cv_img   = ! empty( $bn_g['img'] ) ? $bn_g['img'] : ( ! empty( $bn_g['items'][0]['img'] ) ? $bn_g['items'][0]['img'] : get_the_post_thumbnail_url( $bn_sid, 'large' ) );
+							$bn_cv_ticks = ! empty( $bn_g['items'][0]['hl'] ) ? wp_list_pluck( $bn_g['items'][0]['hl'], 'label' ) : array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $bn_sid, '_bn_includes', true ) ) ) );
+							$bn_cv_ticks = array_slice( array_values( $bn_cv_ticks ), 0, 3 );
+							?>
+							<div class="bn-co-cover">
+								<?php if ( $bn_cv_img ) : ?><span class="bn-co-cover-img" style="background-image:url('<?php echo esc_url( $bn_cv_img ); ?>')"></span><?php endif; ?>
+								<div class="bn-co-cover-copy">
+									<span class="bn-co-cover-tag"><?php echo brightnest_icon( 'shield', 13 ); // phpcs:ignore ?> <?php esc_html_e( 'Satisfaction guarantee', 'brightnest' ); ?></span>
+									<strong><?php echo esc_html( $bn_g['name'] ); ?></strong>
+									<?php if ( $bn_cv_ticks ) : ?>
+										<ul>
+											<?php foreach ( $bn_cv_ticks as $bn_tk ) : ?>
+												<li><?php echo brightnest_icon( 'check', 12 ); // phpcs:ignore ?> <?php echo esc_html( wp_trim_words( $bn_tk, 6, '…' ) ); ?></li>
+											<?php endforeach; ?>
+										</ul>
+									<?php endif; ?>
+								</div>
+							</div>
+						<?php endif; ?>
 						<?php foreach ( $bn_g['items'] as $bn_item ) : ?>
-							<div class="bn-co-item" data-item="<?php echo esc_attr( $bn_item['id'] ); ?>">
+							<div class="bn-co-item<?php echo ! empty( $bn_item['vars'] ) ? ' has-vars' : ''; ?>" data-item="<?php echo esc_attr( $bn_item['id'] ); ?>"<?php echo ! empty( $bn_item['vars'] ) ? ' data-vars' : ''; ?>>
 								<?php $bn_iimg = $bn_item['img'] ? $bn_item['img'] : $bn_thumb; ?>
 								<?php if ( $bn_iimg ) : ?>
-									<span class="bn-co-item-thumb"><img src="<?php echo esc_url( $bn_iimg ); ?>" alt="" loading="lazy"></span>
+									<span class="bn-co-item-thumb"><img src="<?php echo esc_url( $bn_iimg ); ?>" alt="" loading="lazy"><?php if ( ! empty( $bn_item['vars'] ) ) : ?><em class="bn-co-vars-badge"><?php echo esc_html( sprintf( /* translators: %d number of choices */ _n( '%d Option', '%d Options', count( $bn_item['vars'] ), 'brightnest' ), count( $bn_item['vars'] ) ) ); ?></em><?php endif; ?></span>
 								<?php else : ?>
-									<span class="bn-co-item-thumb bn-tone-<?php echo esc_attr( brightnest_tone( $bn_item['name'] ) ); ?>"><?php echo brightnest_service_icon_html( $bn_sid, 30 ); // phpcs:ignore ?></span>
+									<span class="bn-co-item-thumb bn-tone-<?php echo esc_attr( brightnest_tone( $bn_item['name'] ) ); ?>"><?php echo brightnest_service_icon_html( $bn_sid, 30 ); // phpcs:ignore ?><?php if ( ! empty( $bn_item['vars'] ) ) : ?><em class="bn-co-vars-badge"><?php echo esc_html( sprintf( /* translators: %d number of choices */ _n( '%d Option', '%d Options', count( $bn_item['vars'] ), 'brightnest' ), count( $bn_item['vars'] ) ) ); ?></em><?php endif; ?></span>
 								<?php endif; ?>
 								<div class="bn-co-item-body">
 									<h3><span class="bn-co-item-x" data-qty-x></span><?php echo esc_html( $bn_item['name'] ); ?></h3>
 									<?php if ( $bn_item['desc'] ) : ?><p><?php echo esc_html( $bn_item['desc'] ); ?></p><?php endif; ?>
 									<div class="bn-co-item-foot">
 										<span class="bn-co-item-price">
+											<small class="bn-co-item-from"><?php esc_html_e( 'Starts at', 'brightnest' ); ?></small>
 											<strong data-money="<?php echo esc_attr( $bn_item['price'] ); ?>" data-key="<?php echo esc_attr( $bn_item['key'] ); ?>"><?php echo esc_html( $bn_cur . ' ' . $bn_price( $bn_item['price'] ) ); ?></strong>
 											<?php if ( $bn_item['old'] ) : ?><del data-money="<?php echo esc_attr( $bn_item['old'] ); ?>" data-old-of="<?php echo esc_attr( $bn_item['key'] ); ?>"><?php echo esc_html( $bn_cur . ' ' . $bn_price( $bn_item['old'] ) ); ?></del><?php endif; ?>
 										</span>
@@ -361,6 +387,17 @@ $bn_price   = function ( $n ) {
 				</div>
 			<?php endif; ?>
 		</aside>
+	</div>
+
+	<!-- Choices popup (Justlife style): opens for an option with choices -->
+	<div class="bn-modal bn-vm" data-vm hidden role="dialog" aria-modal="true" aria-labelledby="bn-vm-title">
+		<div class="bn-modal-box bn-vm-box">
+			<div class="bn-modal-head">
+				<h2 id="bn-vm-title" data-vm-title></h2>
+				<button type="button" class="bn-modal-close" data-vm-close aria-label="<?php esc_attr_e( 'Close', 'brightnest' ); ?>"><?php echo brightnest_icon( 'close', 22 ); // phpcs:ignore ?></button>
+			</div>
+			<div class="bn-vm-list" data-vm-list></div>
+		</div>
 	</div>
 
 	<!-- Option details popup (Justlife style): opens when an option is clicked -->

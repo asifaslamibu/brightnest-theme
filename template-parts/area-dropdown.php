@@ -2,8 +2,8 @@
 /**
  * City/area picker (first-visit pop-up, header, homepage hero, checkout).
  * Search box, city tabs, zone chips, "Popular areas" quick picks, then the areas by zone.
- * Cities, zones and areas come from BrightNest → Cities & Areas (brightnest_area_tree()); only cities
- * where at least one service is offered are listed.
+ * Cities, zones and areas come from BrightNest → Cities & Areas (brightnest_area_tree()); all of them
+ * are listed, whatever is switched off for a service there.
  * The choice is saved in the browser (localStorage "bn_location": { label, street, area }) and a
  * "bn:location" event is fired, so the homepage opens the services page and the checkout picks the city and area.
  *
@@ -19,18 +19,9 @@ $bn_dd_ph    = ! empty( $bn_dd_args['placeholder'] ) ? $bn_dd_args['placeholder'
 $bn_dd_class = ! empty( $bn_dd_args['class'] ) ? ' ' . $bn_dd_args['class'] : '';
 $bn_dd_src   = ! empty( $bn_dd_args['source'] ) ? $bn_dd_args['source'] : '';
 
-// Cities where at least one service is switched on.
-$bn_dd_services = get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => -1, 'fields' => 'ids' ) );
-$bn_dd_tree     = array();
-foreach ( brightnest_area_tree() as $bn_dd_city => $bn_dd_c ) {
-	foreach ( $bn_dd_services as $bn_dd_id ) {
-		$bn_dd_ar = brightnest_service_areas( $bn_dd_id );
-		if ( ! empty( $bn_dd_ar[ $bn_dd_city ]['on'] ) ) {
-			$bn_dd_tree[ $bn_dd_city ] = $bn_dd_c;
-			break;
-		}
-	}
-}
+// Every city and area from Cities & Areas, even where some services are switched off: the visitor can
+// always pick their area; a service that is off there says so on its card, page and checkout.
+$bn_dd_tree = brightnest_area_tree();
 $bn_dd_wa = function_exists( 'brightnest_whatsapp_url' ) ? brightnest_whatsapp_url( __( 'Hi, do you serve my area?', 'brightnest' ) ) : '';
 ?>
 <div class="bn-jx-dd<?php echo esc_attr( $bn_dd_class ); ?>" data-area-dd<?php echo $bn_dd_src ? ' data-source="' . esc_attr( $bn_dd_src ) . '"' : ''; ?>>

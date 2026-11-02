@@ -20,8 +20,8 @@ function brightnest_register_post_types() {
 				'menu_name'     => __( 'Services', 'brightnest' ),
 			),
 			'public'       => true,
-			'has_archive'  => 'services',
-			'rewrite'      => array( 'slug' => 'service', 'with_front' => false ),
+			'has_archive'  => 'booking', // The booking page: /booking/ (old /services/ links redirect, see below).
+			'rewrite'      => array( 'slug' => 'services', 'with_front' => false ), // Service pages: /services/name/.
 			'show_in_menu' => 'brightnest',
 			'show_in_rest' => true,
 			'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ),
@@ -42,7 +42,7 @@ function brightnest_register_post_types() {
 			'public'            => true,
 			'show_admin_column' => true,
 			'show_in_rest'      => true,
-			'rewrite'           => array( 'slug' => 'services', 'with_front' => false ),
+			'rewrite'           => array( 'slug' => 'booking', 'with_front' => false ),
 		)
 	);
 
@@ -135,3 +135,38 @@ function brightnest_admin_status_css() {
 	}
 }
 add_action( 'admin_head', 'brightnest_admin_status_css' );
+
+/**
+ * Old addresses: /services/ (the booking page, now /booking/), /services/<category>/ (now
+ * /booking/<category>/) and /service/<name>/ (service pages, now /services/<name>/) all redirect.
+ * The address rules are rebuilt once when they change.
+ */
+function brightnest_booking_redirect() {
+	$base  = trailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) );
+	$uri   = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+	$path  = strtok( $uri, '?' );
+	$query = false !== strpos( $uri, '?' ) ? substr( $uri, strpos( $uri, '?' ) ) : '';
+	$q     = preg_quote( $base, '#' );
+	$to    = '';
+	if ( preg_match( '#^' . $q . 'service/(.+)$#', $path, $m ) ) {
+		$to = '/services/' . $m[1];
+	} elseif ( preg_match( '#^' . $q . 'services/?$#', $path ) ) {
+		$to = '/booking/';
+	} elseif ( preg_match( '#^' . $q . 'services/([^/]+)/?$#', $path, $m ) && get_term_by( 'slug', $m[1], 'bn_service_cat' )
+		&& ! get_page_by_path( $m[1], OBJECT, array( 'bn_service', 'bn_info' ) ) ) {
+		$to = '/booking/' . $m[1] . '/';
+	}
+	if ( $to ) {
+		wp_safe_redirect( home_url( $to ) . $query, 301 );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'brightnest_booking_redirect', 1 );
+
+function brightnest_booking_flush() {
+	if ( 'booking+services' !== get_option( 'bn_hub_slug' ) ) {
+		update_option( 'bn_hub_slug', 'booking+services' );
+		flush_rewrite_rules( false );
+	}
+}
+add_action( 'init', 'brightnest_booking_flush', 100 );

@@ -1279,3 +1279,27 @@ msgstr "%d موضوع"
 
 msgid "%d topics covered"
 msgstr "%d مواضيع"
+
+msgid "Booking"
+msgstr "الحجز"
+
+msgid "View all services"
+msgstr "عرض كل الخدمات"
+
+msgid "Starts at"
+msgstr "يبدأ من"
+
+msgid "%d Option"
+msgstr "%d خيار"
+
+msgid "%d Options"
+msgstr "%d خيارات"
+
+msgid "Copy"
+msgstr "نسخ"
+
+msgid "Use code {code} — we fill it in at the checkout."
+msgstr "استخدم الرمز {code} — سنضيفه لك عند الدفع."
+
+msgid "Offer pop-up"
+msgstr "النافذة الترويجية"

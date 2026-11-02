@@ -305,12 +305,81 @@ function brightnest_area_columns( $cols ) {
 }
 add_filter( 'manage_edit-bn_area_columns', 'brightnest_area_columns' );
 
+/**
+ * Star in the Cities & Areas list: switch "popular" without opening the area.
+ */
+function brightnest_area_star_ajax() {
+	check_ajax_referer( 'bn_area_star', 'nonce' );
+	$id = isset( $_POST['term'] ) ? absint( $_POST['term'] ) : 0;
+	if ( ! current_user_can( 'manage_categories' ) || ! $id || ! get_term( $id, 'bn_area' ) ) {
+		wp_send_json_error( null, 403 );
+	}
+	$on = ! get_term_meta( $id, 'bn_popular', true );
+	update_term_meta( $id, 'bn_popular', $on ? 1 : '' );
+	do_action( 'litespeed_purge_all' ); // The area picker is on every page.
+	wp_send_json_success( array( 'on' => $on ) );
+}
+add_action( 'wp_ajax_bn_area_star', 'brightnest_area_star_ajax' );
+
+function brightnest_area_star_script() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'edit-bn_area' !== $screen->id ) {
+		return;
+	}
+	?>
+	<style>
+		.bn-area-star { padding: 2px; border: 0; background: none; cursor: pointer; color: #c3c4c7; }
+		.bn-area-star:hover { color: #dba617; }
+		.bn-area-star.is-on { color: #dba617; }
+		.bn-area-star .dashicons { width: 22px; height: 22px; font-size: 22px; }
+		.bn-area-star[disabled] { opacity: .5; }
+		.column-bn_popular { width: 70px; text-align: center; }
+	</style>
+	<script>
+	(function () {
+		var nonce = <?php echo wp_json_encode( wp_create_nonce( 'bn_area_star' ) ); ?>;
+		document.addEventListener('click', function (e) {
+			var b = e.target.closest('[data-bn-star]');
+			if (!b) { return; }
+			e.preventDefault();
+			b.disabled = true;
+			var body = new FormData();
+			body.append('action', 'bn_area_star');
+			body.append('nonce', nonce);
+			body.append('term', b.getAttribute('data-bn-star'));
+			fetch(ajaxurl, { method: 'POST', body: body, credentials: 'same-origin' })
+				.then(function (r) { return r.json(); })
+				.then(function (res) {
+					if (res && res.success) {
+						var on = res.data.on;
+						b.classList.toggle('is-on', on);
+						b.setAttribute('aria-pressed', on ? 'true' : 'false');
+						b.querySelector('.dashicons').className = 'dashicons dashicons-star-' + (on ? 'filled' : 'empty');
+					}
+				})
+				.finally(function () { b.disabled = false; });
+		});
+	})();
+	</script>
+	<?php
+}
+add_action( 'admin_footer', 'brightnest_area_star_script' );
+
 function brightnest_area_column( $out, $col, $term_id ) {
 	if ( 'bn_order' === $col ) {
 		return (string) (int) get_term_meta( $term_id, 'bn_order', true );
 	}
 	if ( 'bn_popular' === $col ) {
-		return get_term_meta( $term_id, 'bn_popular', true ) ? '★' : '';
+		// A star that switches "popular" on and off right in the list (brightnest_area_star_ajax()).
+		$on = (bool) get_term_meta( $term_id, 'bn_popular', true );
+		return sprintf(
+			'<button type="button" class="bn-area-star%1$s" data-bn-star="%2$d" aria-pressed="%3$s" title="%4$s"><span class="dashicons dashicons-star-%5$s"></span></button>',
+			$on ? ' is-on' : '',
+			(int) $term_id,
+			$on ? 'true' : 'false',
+			esc_attr__( 'Popular: quick pick at the top of the area picker. Click to switch.', 'brightnest' ),
+			$on ? 'filled' : 'empty'
+		);
 	}
 	if ( 'bn_ar' === $col ) {
 		return esc_html( get_term_meta( $term_id, 'bn_name_ar', true ) );

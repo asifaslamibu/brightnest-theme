@@ -29,7 +29,18 @@
 	var hourly = cfg.service.hourly;
 
 	var items = {};
-	cfg.service.groups.forEach(function (g) { g.items.forEach(function (it) { items[it.id] = it; }); });
+	var parents = {}; // Options with choices: id → option (its choices are the items).
+	cfg.service.groups.forEach(function (g) {
+		g.items.forEach(function (it) {
+			if (it.vars && it.vars.length) {
+				parents[it.id] = it;
+				it.vars.forEach(function (v) { items[v.id] = v; });
+			} else {
+				items[it.id] = it;
+			}
+		});
+	});
+	function parentQty(id) { return (parents[id].vars || []).reduce(function (s, v) { return s + (state.cart[v.id] || 0); }, 0); }
 
 	/* State -------------------------------------------------------------- */
 	var state = {
@@ -102,7 +113,9 @@
 			var key = el.getAttribute('data-key');
 			var own = key ? ownPrice(key) : 0;
 			if (el.hasAttribute('data-hourly-mat')) { el.textContent = money(matRate()); return; }
-			el.textContent = money(own || unit(+el.getAttribute('data-money')));
+			// Option prices (and their "was" prices) include the area's charge, like the total once added.
+			var fee = el.closest('.bn-co-item-price') ? areaFee() : 0;
+			el.textContent = money((own || unit(+el.getAttribute('data-money'))) + fee);
 		});
 		// A crossed-out "was" price only makes sense when it is still higher than today's price.
 		$$('[data-old-of]').forEach(function (el) {
@@ -126,14 +139,17 @@
 		return Object.keys(state.cart).map(function (id) { return [state.cart[id] + ' × ' + items[id].name, itemPrice(id) * state.cart[id]]; });
 	}
 	function subtotal() { return lineItems().reduce(function (s, l) { return s + l[1]; }, 0); }
+	// The area's charge per booking: its own (Cities & Areas), otherwise its city's.
+	function areaFee() {
+		var own = state.place && cfg.placeFees ? cfg.placeFees[state.area + '|' + state.place] : undefined;
+		return own !== undefined ? +own : (+(cfg.areaFees && cfg.areaFees[state.area]) || 0);
+	}
 	/* Same order as the server: frequency discount → voucher → service fee. */
 	function totals() {
 		var sub = subtotal();
 		var fdisc = Math.round(sub * freqPct()) / 100;
 		var disc = discount(sub - fdisc);
-		// An area's own charge (Settings → Booking → Area charges), otherwise its city's.
-		var own = state.place && cfg.placeFees ? cfg.placeFees[state.area + '|' + state.place] : undefined;
-		var afee = own !== undefined ? +own : (+(cfg.areaFees && cfg.areaFees[state.area]) || 0);
+		var afee = areaFee();
 		return { sub: sub, fdisc: fdisc, disc: disc, afee: afee, total: Math.round((Math.max(0, sub - fdisc - disc) + (+cfg.fee || 0) + afee) * 100) / 100 };
 	}
 	function cartCount() {
@@ -173,7 +189,8 @@
 	/* Step 1: option list ------------------------------------------------ */
 	function renderItems() {
 		$$('[data-item]').forEach(function (el) {
-			var q = state.cart[el.getAttribute('data-item')] || 0;
+			var pid = el.getAttribute('data-item');
+			var q = parents[pid] ? parentQty(pid) : (state.cart[pid] || 0);
 			el.classList.toggle('is-selected', q > 0);
 			$('[data-qty]', el).textContent = q;
 			$('[data-qty-x]', el).textContent = q ? q + 'x ' : '';
@@ -188,10 +205,62 @@
 	}
 	$$('[data-item]').forEach(function (el) {
 		var id = el.getAttribute('data-item');
+		if (parents[id]) {
+			// Options with choices: Add, + and − open the choices.
+			['[data-add]', '[data-inc]', '[data-dec]'].forEach(function (s) { $(s, el).addEventListener('click', function (e) { e.stopPropagation(); openVm(id); }); });
+			return;
+		}
 		$('[data-add]', el).addEventListener('click', function () { setQty(id, 1); });
 		$('[data-inc]', el).addEventListener('click', function () { setQty(id, (state.cart[id] || 0) + 1); });
 		$('[data-dec]', el).addEventListener('click', function () { setQty(id, (state.cart[id] || 0) - 1); });
 	});
+
+	/* Choices popup: each choice with its own Add and − / + */
+	var vm = $('[data-vm]');
+	var vmId = null;
+	function vmBadge(label) {
+		var m = String(label || '').match(/^(\S+)\s+(.*)$/);
+		return m ? '<b>' + esc(m[1]) + '</b><small>' + esc(m[2]) + '</small>' : '<b>' + esc(label || '') + '</b>';
+	}
+	function vmRender() {
+		if (!vm || !vmId) { return; }
+		$('[data-vm-list]', vm).innerHTML = parents[vmId].vars.map(function (v) {
+			var q = state.cart[v.id] || 0;
+			var old = v.old ? (ownPrice(v.key) ? 0 : unit(v.old)) : 0;
+			return '<div class="bn-vm-row' + (q ? ' is-selected' : '') + '" data-vid="' + esc(v.id) + '">' +
+				(v.label ? '<span class="bn-vm-tag">' + vmBadge(v.label) + '</span>' : '') +
+				'<div class="bn-vm-body"><h3>' + (q ? '<span class="bn-co-item-x">' + q + 'x </span>' : '') + esc(v.title) + '</h3>' +
+				(v.desc ? '<p>' + esc(v.desc) + '</p>' : '') +
+				'<div class="bn-vm-foot"><span class="bn-co-item-price"><strong>' + money(itemPrice(v.id) + areaFee()) + '</strong>' + (old > itemPrice(v.id) ? '<del>' + money(old + areaFee()) + '</del>' : '') + '</span>' +
+				(q ? '<span class="bn-co-stepper bn-vm-step"><button type="button" data-vm-dec aria-label="−">&minus;</button><output>' + q + '</output><button type="button" data-vm-inc aria-label="+">+</button></span>'
+					: '<button type="button" class="bn-co-add" data-vm-add>' + esc(t('Add')) + ' <span aria-hidden="true">+</span></button>') +
+				'</div></div></div>';
+		}).join('');
+	}
+	function openVm(id) {
+		if (!vm) { return; }
+		vmId = id;
+		$('[data-vm-title]', vm).textContent = parents[id].name;
+		vmRender();
+		vm.hidden = false;
+		document.body.classList.add('bn-modal-open');
+	}
+	function closeVm() { vm.hidden = true; document.body.classList.remove('bn-modal-open'); }
+	if (vm) {
+		$('[data-vm-close]', vm).addEventListener('click', closeVm);
+		vm.addEventListener('click', function (e) {
+			if (e.target === vm) { closeVm(); return; }
+			var row = e.target.closest('[data-vid]');
+			if (!row) { return; }
+			var vid = row.getAttribute('data-vid');
+			if (e.target.closest('[data-vm-add]')) { setQty(vid, 1); }
+			else if (e.target.closest('[data-vm-inc]')) { setQty(vid, (state.cart[vid] || 0) + 1); }
+			else if (e.target.closest('[data-vm-dec]')) { setQty(vid, (state.cart[vid] || 0) - 1); }
+			else { return; }
+			vmRender();
+		});
+		document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !vm.hidden) { closeVm(); } });
+	}
 
 	/* Option details popup (Justlife style): clicking an option shows its photo, details and highlights. */
 	var od = $('[data-od]');
@@ -235,6 +304,7 @@
 		$$('[data-item]').forEach(function (el) {
 			el.addEventListener('click', function (e) {
 				if (e.target.closest('.bn-co-qty')) { return; } // Add / +/- work right in the row.
+				if (parents[el.getAttribute('data-item')]) { openVm(el.getAttribute('data-item')); return; }
 				openOd(el);
 			});
 		});
@@ -247,11 +317,17 @@
 	}
 
 	var tabs = $$('[data-tab]');
+	// Space taken at the top by the header and the tabs that stay on screen, so a group's title shows below them.
+	function stuckHeight() {
+		var nav = $('[data-tabs]') || (tabs[0] && tabs[0].parentNode);
+		if (!nav) { return 150; }
+		return (parseFloat(getComputedStyle(nav).top) || 0) + nav.offsetHeight + 8;
+	}
 	tabs.forEach(function (t) {
 		t.addEventListener('click', function (e) {
 			e.preventDefault();
 			var g = $('[data-group="' + t.getAttribute('data-tab') + '"]');
-			if (g) { window.scrollTo({ top: g.getBoundingClientRect().top + window.scrollY - 150, behavior: 'smooth' }); }
+			if (g) { window.scrollTo({ top: g.getBoundingClientRect().top + window.scrollY - stuckHeight(), behavior: 'smooth' }); }
 		});
 	});
 	if (tabs.length && 'IntersectionObserver' in window) {
@@ -265,7 +341,7 @@
 					if (on) { t.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' }); }
 				});
 			});
-		}, { rootMargin: '-160px 0px -60% 0px' });
+		}, { rootMargin: '-' + Math.round(stuckHeight() + 10) + 'px 0px -55% 0px' });
 		$$('[data-group]').forEach(function (g) { spy.observe(g); });
 	}
 
@@ -654,6 +730,12 @@
 		var hasVoucher = !!cfg.vouchers[(state.voucher || '').toUpperCase()];
 		hint.hidden = !(hasVoucher && !sub && state.step === 1);
 		$('[data-voucher-code]').textContent = (state.voucher || '').toUpperCase();
+
+		// Step 1: the Continue bar shows once something is added (the voucher hint can still show alone).
+		var empty = state.step === 1 && !chosen;
+		var bar = $('[data-bar]');
+		bar.classList.toggle('is-empty', empty);
+		bar.hidden = empty && hint.hidden;
 
 		var ready = !problems(state.step).length;
 		nextBtn.classList.toggle('is-waiting', !ready);

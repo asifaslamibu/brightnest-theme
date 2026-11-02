@@ -79,6 +79,9 @@ function brightnest_admin_assets() {
 					'aboutAr'     => __( 'Arabic popup text', 'brightnest' ),
 					'hlAr'        => __( 'Arabic highlights (same format)', 'brightnest' ),
 					'tabImg'      => __( 'Tab picture (checkout strip)', 'brightnest' ),
+					'vars'        => __( 'Choices (opens a list at the checkout)', 'brightnest' ),
+					'varsHelp'    => __( 'Optional. One per line: label | name | description | price | old price. E.g. "1 Unit | AC Deep Cleaning (15% OFF) | For 1 AC unit | 469 | 559". The option then shows "Starts at" the lowest price and "N Options"; each choice is booked on its own.', 'brightnest' ),
+					'banner'      => __( 'Cover picture above this group at the checkout (wide, e.g. 1200 × 400)', 'brightnest' ),
 					'tabAr'       => __( 'Arabic tab name', 'brightnest' ),
 					'highlights'  => __( 'Highlights, one per line. Optional icon first: shield | 60-Day Warranty (icons: shield, clock, star, check-circle, users, home, calendar, tag, ac, cleaning, sofa, water, pest, spa)', 'brightnest' ),
 				),
@@ -180,6 +183,8 @@ function brightnest_admin_menu_order() {
 		'post-new.php?post_type=bn_service'                       => array( 3, __( 'Add Service', 'brightnest' ) ),
 		'edit-tags.php?taxonomy=bn_service_cat&post_type=bn_service' => array( 4, __( 'Categories', 'brightnest' ) ),
 		'edit-tags.php?taxonomy=bn_area&post_type=bn_service'     => array( 4.5, __( 'Cities & Areas', 'brightnest' ) ),
+		'edit.php?post_type=bn_info'                              => array( 2.5, __( 'Service Pages', 'brightnest' ) ),
+		'edit.php?post_type=bn_review'                            => array( 5, __( 'Reviews', 'brightnest' ) ),
 		'brightnest-settings'                                     => array( 6, __( 'Settings', 'brightnest' ) ),
 	);
 	$items = $submenu['brightnest'];
@@ -312,7 +317,7 @@ function brightnest_setup_checklist() {
 		array( $name && $name !== strtolower( $name ), __( 'Set a proper site title (e.g. "BrightNest Clean")', 'brightnest' ), admin_url( 'options-general.php' ) ),
 		array( has_custom_logo(), __( 'Upload your logo', 'brightnest' ), admin_url( 'customize.php?autofocus[section]=title_tagline' ) ),
 		array( ! empty( $with_img ), __( 'Add photos to your services', 'brightnest' ), admin_url( 'edit.php?post_type=bn_service' ) ),
-		array( '' !== brightnest_greviews_embed(), __( 'Connect your Google reviews', 'brightnest' ), admin_url( 'admin.php?page=brightnest-settings&tab=homepage' ) ),
+		array( (bool) get_posts( array( 'post_type' => 'bn_review', 'posts_per_page' => 1, 'fields' => 'ids' ) ), __( 'Add customer reviews', 'brightnest' ), admin_url( 'edit.php?post_type=bn_review' ) ),
 	);
 }
 
@@ -579,7 +584,7 @@ function brightnest_dashboard_page() {
 					<a href="<?php echo esc_url( $req_url ); ?>"><span class="dashicons dashicons-calendar-alt"></span><?php esc_html_e( 'Bookings', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=bn_service' ) ); ?>"><span class="dashicons dashicons-list-view"></span><?php esc_html_e( 'Services', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'edit-tags.php?taxonomy=bn_service_cat&post_type=bn_service' ) ); ?>"><span class="dashicons dashicons-category"></span><?php esc_html_e( 'Categories', 'brightnest' ); ?></a>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=brightnest-settings&tab=homepage' ) ); ?>"><span class="dashicons dashicons-star-filled"></span><?php esc_html_e( 'Google reviews', 'brightnest' ); ?></a>
+					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=bn_review' ) ); ?>"><span class="dashicons dashicons-star-filled"></span><?php esc_html_e( 'Reviews', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=brightnest-settings&tab=booking' ) ); ?>"><span class="dashicons dashicons-tickets-alt"></span><?php esc_html_e( 'Vouchers', 'brightnest' ); ?></a>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=brightnest-settings' ) ); ?>"><span class="dashicons dashicons-admin-generic"></span><?php esc_html_e( 'Settings', 'brightnest' ); ?></a>
 				</div>

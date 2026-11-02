@@ -76,91 +76,121 @@ function brightnest_settings_schema() {
 			__( 'Homepage', 'brightnest' ),
 			'admin-home',
 			array(
+				__( 'Sections: order and on/off', 'brightnest' ) => array(
+					'home_order' => array(
+						'sections',
+						__( 'Homepage sections', 'brightnest' ),
+						__( 'Drag a section (or use the arrows) to change where it shows. Switch a section off to hide it. The hero always comes first.', 'brightnest' ),
+						array(
+							'services' => __( 'Top home services', 'brightnest' ),
+							'intro'    => __( 'Trusted partner (intro)', 'brightnest' ),
+							'clean'    => __( 'Cleaning services slider', 'brightnest' ),
+							'maint'    => __( 'Maintenance services slider', 'brightnest' ),
+							'process'  => __( 'Easy steps', 'brightnest' ),
+							'numbers'  => __( 'Numbers band', 'brightnest' ),
+							'why'      => __( 'Reasons to love us', 'brightnest' ),
+							'reviews'  => __( 'Reviews', 'brightnest' ),
+							'blog'     => __( 'Latest blog posts', 'brightnest' ),
+							'article'  => __( 'Cleaning guide', 'brightnest' ),
+							'home_faq' => __( 'FAQ', 'brightnest' ),
+							'promise'  => __( 'Closing card', 'brightnest' ),
+							'app'      => __( 'Book on WhatsApp', 'brightnest' ),
+						),
+					),
+				),
 				__( 'Google (SEO)', 'brightnest' ) => array(
 					'home_seo_title' => array( 'text', __( 'Page title', 'brightnest' ), __( 'The title shown in Google and on the browser tab. Leave empty to use the site name.', 'brightnest' ) ),
 					'home_seo_desc'  => array( 'textarea', __( 'Meta description', 'brightnest' ), __( 'About 150 characters, shown under the title in Google.', 'brightnest' ) ),
 				),
 				__( 'Hero', 'brightnest' ) => array(
-					'hero_title'    => array( 'text', __( 'Headline', 'brightnest' ), __( 'Put | before and after the words to highlight in orange, e.g. "Cleaning in |Dubai|".', 'brightnest' ) ),
-					'hero_subtitle' => array( 'textarea', __( 'Text under the headline', 'brightnest' ), '' ),
-					'hero_more'     => array( 'textarea', __( 'More text (behind "Read more")', 'brightnest' ), __( 'Optional. A blank line starts a new paragraph.', 'brightnest' ) ),
-					'loc_question'  => array( 'text', __( 'Location question', 'brightnest' ), __( 'Shown above the "Set my location" field.', 'brightnest' ) ),
-					'hero_img_1'    => array( 'image', __( 'Hero photo', 'brightnest' ), '' ),
+					'hero_badge'        => array( 'text', __( 'Small badge above the headline', 'brightnest' ), __( 'e.g. "Trusted by 3,600+ customers". Empty = no badge.', 'brightnest' ) ),
+					'hero_title'        => array( 'text', __( 'Headline', 'brightnest' ), __( 'Put | before and after the words to highlight in orange, e.g. "Cleaning in |Dubai|".', 'brightnest' ) ),
+					'hero_subtitle'     => array( 'textarea', __( 'Text under the headline', 'brightnest' ), '' ),
+					'hero_more'         => array( 'textarea', __( 'More text (behind "Read more")', 'brightnest' ), __( 'Optional. A blank line starts a new paragraph.', 'brightnest' ) ),
+					'loc_question'      => array( 'text', __( 'Location question', 'brightnest' ), __( 'Shown above the area picker.', 'brightnest' ) ),
+					'hero_img_1'        => array( 'image', __( 'Hero photo', 'brightnest' ), '' ),
+					'hero_float1_title' => array( 'text', __( 'Photo card 1 — title', 'brightnest' ), __( 'The small white cards on the photo. Empty = hide the card.', 'brightnest' ) ),
+					'hero_float1_text'  => array( 'text', __( 'Photo card 1 — small text', 'brightnest' ), '' ),
+					'hero_float2_title' => array( 'text', __( 'Photo card 2 — title', 'brightnest' ), '' ),
 				),
-				__( 'Sections on/off', 'brightnest' ) => array(
-					'show_services'  => array( 'toggle', __( 'Top home services', 'brightnest' ), '' ),
-					'show_intro'     => array( 'toggle', __( 'Trusted partner (intro)', 'brightnest' ), '' ),
-					'show_clean'     => array( 'toggle', __( 'Cleaning services list', 'brightnest' ), '' ),
-					'show_maint'     => array( 'toggle', __( 'Maintenance services list', 'brightnest' ), '' ),
-					'show_process'   => array( 'toggle', __( 'Easy steps', 'brightnest' ), '' ),
-					'show_numbers'   => array( 'toggle', __( 'Numbers band', 'brightnest' ), '' ),
-					'show_why'       => array( 'toggle', __( 'Reasons to love us', 'brightnest' ), '' ),
-					'show_reviews'   => array( 'toggle', __( 'Reviews', 'brightnest' ), '' ),
-					'show_blog'      => array( 'toggle', __( 'Latest blog posts', 'brightnest' ), '' ),
-					'show_article'   => array( 'toggle', __( 'Cleaning guide (short intro + button)', 'brightnest' ), '' ),
-					'show_home_faq'  => array( 'toggle', __( 'Homepage FAQ', 'brightnest' ), '' ),
-					'show_promise'   => array( 'toggle', __( 'Closing card', 'brightnest' ), '' ),
-					'show_app'       => array( 'toggle', __( 'Book on WhatsApp', 'brightnest' ), '' ),
+				__( 'Hero numbers', 'brightnest' ) => array(
+					'stat_1_num'   => array( 'text', __( 'Number 1', 'brightnest' ), __( 'Use real figures only. Empty = hide.', 'brightnest' ) ),
+					'stat_1_label' => array( 'text', __( 'Label 1', 'brightnest' ), '' ),
+					'stat_2_num'   => array( 'text', __( 'Number 2', 'brightnest' ), '' ),
+					'stat_2_label' => array( 'text', __( 'Label 2', 'brightnest' ), '' ),
+					'stat_3_num'   => array( 'text', __( 'Number 3', 'brightnest' ), '' ),
+					'stat_3_label' => array( 'text', __( 'Label 3', 'brightnest' ), '' ),
 				),
 				__( 'Top home services', 'brightnest' ) => array(
 					'banner_title' => array( 'text', __( 'Heading', 'brightnest' ), '' ),
 					'top_title'    => array( 'text', __( 'Sub-heading', 'brightnest' ), __( 'Popular services (star in the Services list) are shown first.', 'brightnest' ) ),
+					'tiles_btn'    => array( 'text', __( 'Button text', 'brightnest' ), __( 'Opens the services page.', 'brightnest' ) ),
 				),
 				__( 'Trusted partner (intro)', 'brightnest' ) => array(
-					'intro_title'  => array( 'text', __( 'Heading', 'brightnest' ), '' ),
+					'intro_title'  => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),
 					'intro_text'   => array( 'textarea', __( 'Text', 'brightnest' ), __( 'A blank line starts a new paragraph. Long text gets a "Read more" button.', 'brightnest' ) ),
-					'intro_points' => array( 'textarea', __( 'Ticks', 'brightnest' ), __( 'One per line.', 'brightnest' ) ),
+					'intro_points' => array( 'rows', __( 'Ticks', 'brightnest' ), '', array( 'text' => array( 'text', __( 'Tick', 'brightnest' ) ) ) ),
 					'why_image'    => array( 'image', __( 'Photo', 'brightnest' ), '' ),
+					'intro_btn'    => array( 'text', __( 'Button text', 'brightnest' ), __( 'Opens the services page. Empty = no button.', 'brightnest' ) ),
 				),
-				__( 'Cleaning services list', 'brightnest' ) => array(
-					'clean_title' => array( 'text', __( 'Heading', 'brightnest' ), '' ),
+				__( 'Cleaning services slider', 'brightnest' ) => array(
+					'clean_title' => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),
 					'clean_sub'   => array( 'textarea', __( 'Text under the heading', 'brightnest' ), '' ),
-					'clean_list'  => array( 'textarea', __( 'Services', 'brightnest' ), __( 'One per line: Title|Description|link (link optional, e.g. /service/deep-cleaning/). The first 4 show, the rest behind "Load more".', 'brightnest' ) ),
+					'clean_list'  => array( 'rows', __( 'Cards', 'brightnest' ), __( 'Used only when no Service Page is in this slider. The slider shows BrightNest → Service Pages set to "Cleaning services" (each page\'s editor → Homepage slider).', 'brightnest' ), 'cards' ),
 				),
-				__( 'Maintenance services list', 'brightnest' ) => array(
-					'maint_title' => array( 'text', __( 'Heading', 'brightnest' ), '' ),
+				__( 'Maintenance services slider', 'brightnest' ) => array(
+					'maint_title' => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),
 					'maint_sub'   => array( 'textarea', __( 'Text under the heading', 'brightnest' ), '' ),
-					'maint_list'  => array( 'textarea', __( 'Services', 'brightnest' ), __( 'One per line: Title|Description|link (link optional).', 'brightnest' ) ),
+					'maint_list'  => array( 'rows', __( 'Cards', 'brightnest' ), '', 'cards' ),
+				),
+				__( 'Card buttons (both sliders)', 'brightnest' ) => array(
+					'card_book_label'  => array( 'text', __( 'Button on a card with a link', 'brightnest' ), '' ),
+					'card_quote_label' => array( 'text', __( 'Button on a card without a link', 'brightnest' ), __( 'Opens WhatsApp with "Hi, I would like a quote for …".', 'brightnest' ) ),
 				),
 				__( 'Easy steps', 'brightnest' ) => array(
 					'process_title' => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),
-					'process_steps' => array( 'textarea', __( 'Steps', 'brightnest' ), __( 'Three lines: Title|Description', 'brightnest' ) ),
+					'process_steps' => array( 'rows', __( 'Steps', 'brightnest' ), __( 'Up to three steps.', 'brightnest' ), array( 'title' => array( 'text', __( 'Title', 'brightnest' ) ), 'text' => array( 'textarea', __( 'Text', 'brightnest' ) ) ) ),
 				),
 				__( 'Numbers band', 'brightnest' ) => array(
-					'numbers_title' => array( 'text', __( 'Heading', 'brightnest' ), __( 'The numbers are under Social & numbers → Numbers band.', 'brightnest' ) ),
+					'numbers_title' => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),
 					'numbers_sub'   => array( 'textarea', __( 'Text', 'brightnest' ), '' ),
+					'achievements'  => array( 'rows', __( 'Numbers', 'brightnest' ), __( 'Use real figures only.', 'brightnest' ), array( 'num' => array( 'text', __( 'Number (e.g. 8K+)', 'brightnest' ) ), 'label' => array( 'text', __( 'Label', 'brightnest' ) ) ) ),
 				),
 				__( 'Reasons to love us', 'brightnest' ) => array(
-					'love_title'  => array( 'text', __( 'Heading', 'brightnest' ), '' ),
+					'love_title'  => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),
 					'love_sub'    => array( 'text', __( 'Sub-heading', 'brightnest' ), '' ),
-					'love_points' => array( 'textarea', __( 'Reasons', 'brightnest' ), __( 'Four lines: Title|Description', 'brightnest' ) ),
+					'love_points' => array( 'rows', __( 'Reasons', 'brightnest' ), __( 'Up to four (each has its own drawing).', 'brightnest' ), array( 'title' => array( 'text', __( 'Title', 'brightnest' ) ), 'text' => array( 'textarea', __( 'Text', 'brightnest' ) ) ) ),
+					'love_btn'    => array( 'text', __( 'Button text', 'brightnest' ), __( 'Opens the services page. Empty = no button.', 'brightnest' ) ),
 				),
-				__( 'Reviews and blog', 'brightnest' ) => array(
-					'reviews_eyebrow' => array( 'text', __( 'Reviews — small label', 'brightnest' ), '' ),
-					'reviews_title'   => array( 'text', __( 'Reviews — heading', 'brightnest' ), '' ),
-					'blog_eyebrow'    => array( 'text', __( 'Blog — small label', 'brightnest' ), '' ),
-					'blog_title'      => array( 'text', __( 'Blog — heading', 'brightnest' ), __( 'Shows the 3 newest posts.', 'brightnest' ) ),
+				__( 'Reviews', 'brightnest' ) => array(
+					'reviews_eyebrow' => array( 'text', __( 'Small label', 'brightnest' ), '' ),
+					'reviews_title'   => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange. The reviews themselves are in BrightNest → Reviews.', 'brightnest' ) ),
 				),
-				__( 'Google reviews', 'brightnest' ) => array(
-					'greviews_name'      => array( 'text', __( 'Business name on Google', 'brightnest' ), __( 'Shown next to the stars, e.g. "Bright Nest Clean Dubai".', 'brightnest' ) ),
-					'greviews_embed'     => array( 'textarea', __( 'Google Maps embed', 'brightnest' ), __( 'Google Maps → your business → Share → Embed a map → copy the HTML and paste it here.', 'brightnest' ) ),
-					'greviews_write_url' => array( 'url', __( '"Write a review" link', 'brightnest' ), __( 'Optional. Google Business Profile → "Ask for reviews" → copy the link. Empty: made from the map.', 'brightnest' ) ),
-					'greviews_key'       => array( 'text', __( 'Google Places API key (for the review cards)', 'brightnest' ), __( 'Optional. With a key, the rating and the latest reviews come from Google (updated every 12 hours). Google Cloud → enable "Places API (New)" → create an API key, restricted to that API. Without a key the map and the buttons show.', 'brightnest' ) ),
-					'greviews_place_id'  => array( 'text', __( 'Google Place ID', 'brightnest' ), __( 'Optional. Found by itself from the business name when a key is set.', 'brightnest' ) ),
+				__( 'Latest blog posts', 'brightnest' ) => array(
+					'blog_eyebrow' => array( 'text', __( 'Small label', 'brightnest' ), '' ),
+					'blog_title'   => array( 'text', __( 'Heading', 'brightnest' ), __( 'Shows the 3 newest posts.', 'brightnest' ) ),
+					'blog_btn'     => array( 'text', __( 'Button text', 'brightnest' ), __( 'Opens the blog.', 'brightnest' ) ),
 				),
-				__( 'Long text and FAQ', 'brightnest' ) => array(
-					'article_note'  => array( 'pagenote', __( 'Cleaning guide', 'brightnest' ), __( 'The full text is its own page (Pages → Professional Cleaning Services in Dubai). The homepage shows its first paragraphs (or its excerpt), its headings as links and a "Read the full guide" button.', 'brightnest' ), 'bn_guide_page' ),
-					'home_faq_title' => array( 'text', __( 'FAQ heading', 'brightnest' ), '' ),
-					'home_faqs'      => array( 'textarea', __( 'Questions', 'brightnest' ), __( 'One per line: Question|Answer. The first 5 show, the rest behind "Load more".', 'brightnest' ) ),
+				__( 'Cleaning guide', 'brightnest' ) => array(
+					'article_note'  => array( 'pagenote', __( 'Guide page', 'brightnest' ), __( 'The full text is its own page (Pages → Professional Cleaning Services in Dubai). The homepage shows its heading, first paragraphs and topics; change those on that page.', 'brightnest' ), 'bn_guide_page' ),
+					'guide_eyebrow' => array( 'text', __( 'Small label', 'brightnest' ), '' ),
+					'guide_btn'     => array( 'text', __( 'Main button text', 'brightnest' ), __( 'Opens the guide page.', 'brightnest' ) ),
+					'guide_btn2'    => array( 'text', __( 'Second button text', 'brightnest' ), __( 'Opens the services page. Empty = no button.', 'brightnest' ) ),
+				),
+				__( 'FAQ', 'brightnest' ) => array(
+					'home_faq_title' => array( 'text', __( 'Heading', 'brightnest' ), __( 'Put | around the words to highlight in orange.', 'brightnest' ) ),
+					'home_faqs'      => array( 'rows', __( 'Questions', 'brightnest' ), __( 'The first 5 show, the rest behind "Load more". Also shown on the cleaning guide page.', 'brightnest' ), array( 'q' => array( 'text', __( 'Question', 'brightnest' ) ), 'a' => array( 'textarea', __( 'Answer', 'brightnest' ) ) ) ),
 				),
 				__( 'Closing card', 'brightnest' ) => array(
 					'promise_title' => array( 'text', __( 'Heading', 'brightnest' ), '' ),
 					'promise_text'  => array( 'textarea', __( 'Text', 'brightnest' ), __( 'A blank line starts a new paragraph.', 'brightnest' ) ),
 					'promise_close' => array( 'text', __( 'Closing line (bold)', 'brightnest' ), '' ),
+					'promise_btn'   => array( 'text', __( 'Button text', 'brightnest' ), __( 'Opens the services page. The WhatsApp and call buttons use Business → WhatsApp / Phone.', 'brightnest' ) ),
 				),
 				__( 'Book on WhatsApp', 'brightnest' ) => array(
-					'app_title' => array( 'text', __( 'Heading', 'brightnest' ), '' ),
-					'app_text'  => array( 'textarea', __( 'Text', 'brightnest' ), '' ),
+					'app_kicker' => array( 'text', __( 'Small label', 'brightnest' ), '' ),
+					'app_title'  => array( 'text', __( 'Heading', 'brightnest' ), '' ),
+					'app_text'   => array( 'textarea', __( 'Text', 'brightnest' ), '' ),
 				),
 				__( 'Service areas & locations', 'brightnest' ) => array(
 					'country' => array( 'text', __( 'Country', 'brightnest' ), __( 'The cities come from Business → Cities / areas you serve.', 'brightnest' ) ),
@@ -171,10 +201,8 @@ function brightnest_settings_schema() {
 			__( 'Service page', 'brightnest' ),
 			'media-document',
 			array(
-				__( 'Sections (same on every service page)', 'brightnest' ) => array(
-					'show_sv_included' => array( 'toggle', __( "What's included", 'brightnest' ), '' ),
-					'show_sv_prices'   => array( 'toggle', __( 'Prices', 'brightnest' ), '' ),
-					'show_sv_faq'      => array( 'toggle', __( 'FAQ', 'brightnest' ), '' ),
+				__( 'Sections: order and on/off (every service page)', 'brightnest' ) => array(
+					'sv_order'         => array( 'sections', __( 'Main column', 'brightnest' ), __( 'Drag (or use the arrows) to change the order; switch a section off to hide it. Each service can change this in its own editor → Page layout.', 'brightnest' ), brightnest_sv_sections() ),
 					'show_sv_related'  => array( 'toggle', __( 'Related services', 'brightnest' ), '' ),
 					'show_sv_whatsapp' => array( 'toggle', __( 'WhatsApp buttons', 'brightnest' ), '' ),
 				),
@@ -186,6 +214,54 @@ function brightnest_settings_schema() {
 					'sv_related_title'  => array( 'text', __( 'Related services heading', 'brightnest' ), '' ),
 					'sv_from_label'     => array( 'text', __( 'Price label', 'brightnest' ), __( 'Shown before the price, e.g. "Starting from".', 'brightnest' ) ),
 					'sv_book_label'     => array( 'text', __( 'Book button', 'brightnest' ), '' ),
+					'sv_wa_label'       => array( 'text', __( 'WhatsApp button (top)', 'brightnest' ), '' ),
+					'sv_wa_side_label'  => array( 'text', __( 'WhatsApp button (side card)', 'brightnest' ), '' ),
+					'sv_call_label'     => array( 'text', __( 'Call line (side card)', 'brightnest' ), __( '{phone} is replaced by your phone number.', 'brightnest' ) ),
+					'sv_price_book'     => array( 'text', __( 'Book button in the price list', 'brightnest' ), '' ),
+					'sv_quote_label'    => array( 'text', __( 'Text when there is no price', 'brightnest' ), '' ),
+					'sv_all_label'      => array( 'text', __( '"All services" button', 'brightnest' ), '' ),
+					'sv_mbar_from'      => array( 'text', __( 'Price label (phone bar)', 'brightnest' ), '' ),
+				),
+			),
+		),
+		'offer'    => array(
+			__( 'Offer pop-up', 'brightnest' ),
+			'megaphone',
+			array(
+				__( 'On / off and when it opens', 'brightnest' ) => array(
+					'offer_on'      => array( 'toggle', __( 'Show the offer pop-up', 'brightnest' ), __( 'Never on the checkout or on top of the area pop-up.', 'brightnest' ) ),
+					'offer_trigger' => array( 'choice', __( 'When it opens', 'brightnest' ), '', array( 'area' => __( 'After the visitor chooses their area', 'brightnest' ), 'load' => __( 'When a page opens (after the delay below)', 'brightnest' ), 'scroll' => __( 'After scrolling part of the page', 'brightnest' ), 'exit' => __( 'When the visitor is about to leave (mouse to the top; on phones after the delay)', 'brightnest' ) ) ),
+					'offer_delay'   => array( 'number', __( 'Delay (seconds)', 'brightnest' ), __( 'Wait this long before it opens. 0 = straight away.', 'brightnest' ) ),
+					'offer_scroll'  => array( 'number', __( 'Scroll (% of the page)', 'brightnest' ), __( 'For "After scrolling": e.g. 40 = when 40% of the page is passed.', 'brightnest' ) ),
+					'offer_pages'   => array( 'choice', __( 'On which pages', 'brightnest' ), '', array( 'all' => __( 'Every page', 'brightnest' ), 'home' => __( 'Homepage only', 'brightnest' ), 'booking' => __( 'Booking and service pages', 'brightnest' ), 'content' => __( 'Homepage, blog and content pages (not booking)', 'brightnest' ) ) ),
+					'offer_mobile'  => array( 'toggle', __( 'Also on phones', 'brightnest' ), '' ),
+					'offer_days'    => array( 'number', __( 'Show again after (days)', 'brightnest' ), __( '0 = once per visit. E.g. 7 = a visitor who closed it sees it again after a week.', 'brightnest' ) ),
+				),
+				__( 'Look', 'brightnest' ) => array(
+					'offer_style'    => array( 'choice', __( 'Pop-up style', 'brightnest' ), __( 'Your own picture: upload a finished design (e.g. 800 × 800); the whole picture is the button.', 'brightnest' ), array( 'design' => __( 'Text, badge and button', 'brightnest' ), 'image' => __( 'Your own picture', 'brightnest' ) ) ),
+					'offer_position' => array( 'choice', __( 'Position', 'brightnest' ), '', array( 'center' => __( 'Middle of the screen (darkens the page)', 'brightnest' ), 'corner' => __( 'Bottom corner (page stays usable)', 'brightnest' ) ) ),
+					'offer_image'    => array( 'image', __( 'Picture', 'brightnest' ), __( 'Used for "Your own picture". With "Text, badge and button" it shows on top of the text (optional).', 'brightnest' ) ),
+					'offer_bg'       => array( 'color', __( 'Background colour', 'brightnest' ), '' ),
+					'offer_color'    => array( 'color', __( 'Text colour', 'brightnest' ), '' ),
+					'offer_accent'   => array( 'color', __( 'Badge and button colour', 'brightnest' ), '' ),
+					'offer_btn_text_color' => array( 'color', __( 'Button text colour', 'brightnest' ), '' ),
+					'offer_radius'   => array( 'number', __( 'Corner rounding (px)', 'brightnest' ), __( '0 = square corners.', 'brightnest' ) ),
+				),
+				__( 'Texts', 'brightnest' ) => array(
+					'offer_badge'     => array( 'text', __( 'Badge — big text', 'brightnest' ), __( 'e.g. 20%. Empty = made from the discount (e.g. "20%" or "AED 50"); no discount set = no badge.', 'brightnest' ) ),
+					'offer_badge_sub' => array( 'text', __( 'Badge — small text', 'brightnest' ), __( 'e.g. OFF', 'brightnest' ) ),
+					'offer_title'     => array( 'text', __( 'Heading', 'brightnest' ), '' ),
+					'offer_text'      => array( 'textarea', __( 'Text', 'brightnest' ), '' ),
+					'offer_btn'       => array( 'text', __( 'Button text', 'brightnest' ), '' ),
+					'offer_link'      => array( 'url', __( 'Button link', 'brightnest' ), __( 'Leave empty for the booking page.', 'brightnest' ) ),
+					'offer_later'     => array( 'text', __( '"No thanks" text', 'brightnest' ), __( 'Empty = no such button (the ✕ still closes it).', 'brightnest' ) ),
+				),
+				__( 'Voucher code', 'brightnest' ) => array(
+					'offer_code'      => array( 'text', __( 'Voucher code', 'brightnest' ), __( 'The code customers use, e.g. WELCOME20. Shown in the pop-up and filled in at the checkout.', 'brightnest' ) ),
+					'offer_disc_type' => array( 'choice', __( 'Discount type', 'brightnest' ), __( 'Percent: e.g. 20 = 20% off the services. Amount: e.g. 50 = AED 50 off the booking.', 'brightnest' ), array( 'percent' => __( 'Percent (%) off', 'brightnest' ), 'fixed' => __( 'Fixed amount off (AED)', 'brightnest' ) ) ),
+					'offer_disc_value' => array( 'money', __( 'Discount value', 'brightnest' ), __( 'Empty or 0 = use the code as set in Booking → Voucher codes.', 'brightnest' ) ),
+					'offer_code_text' => array( 'text', __( 'Line with the code', 'brightnest' ), __( '{code} is replaced by the code, e.g. "Use code {code} — we fill it in at the checkout."', 'brightnest' ) ),
+					'offer_copy'      => array( 'toggle', __( 'Show a "Copy" button next to the code', 'brightnest' ), '' ),
 				),
 			),
 		),
@@ -202,34 +278,10 @@ function brightnest_settings_schema() {
 					'tiktok'    => array( 'url', 'TikTok', '' ),
 					'twitter'   => array( 'url', 'X / Twitter', '' ),
 				),
-				__( 'Hero numbers', 'brightnest' ) => array(
-					'stat_1_num'   => array( 'text', __( 'Number 1', 'brightnest' ), __( 'Use real figures only.', 'brightnest' ) ),
-					'stat_1_label' => array( 'text', __( 'Label 1', 'brightnest' ), '' ),
-					'stat_2_num'   => array( 'text', __( 'Number 2', 'brightnest' ), '' ),
-					'stat_2_label' => array( 'text', __( 'Label 2', 'brightnest' ), '' ),
-					'stat_3_num'   => array( 'text', __( 'Number 3', 'brightnest' ), '' ),
-					'stat_3_label' => array( 'text', __( 'Label 3', 'brightnest' ), '' ),
-				),
-				__( 'Numbers band', 'brightnest' ) => array(
-					'achievements' => array( 'textarea', __( 'Numbers', 'brightnest' ), __( 'One per line: number|label, e.g. 8k|Services provided', 'brightnest' ) ),
-				),
 				__( 'Promotion', 'brightnest' ) => array(
 					'promo_title' => array( 'text', __( 'Offer title', 'brightnest' ), '' ),
 					'promo_text'  => array( 'textarea', __( 'Offer text', 'brightnest' ), '' ),
 					'promo_code'  => array( 'text', __( 'Code to show', 'brightnest' ), __( 'Must also exist in Booking → Voucher codes.', 'brightnest' ) ),
-				),
-				__( 'Offer pop-up (after the area is chosen)', 'brightnest' ) => array(
-					'offer_on'    => array( 'toggle', __( 'Show the offer pop-up', 'brightnest' ), __( 'Opens once the visitor has chosen their area (on the homepage: on the services page that opens next). Never on the checkout.', 'brightnest' ) ),
-					'offer_style' => array( 'choice', __( 'Pop-up style', 'brightnest' ), __( 'Your own picture: upload a finished design (e.g. 800 × 800); the whole picture is the button.', 'brightnest' ), array( 'design' => __( 'Text, badge and button', 'brightnest' ), 'image' => __( 'Your own picture', 'brightnest' ) ) ),
-					'offer_image' => array( 'image', __( 'Picture', 'brightnest' ), __( 'Used for "Your own picture". With "Text, badge and button" it shows on top of the text (optional).', 'brightnest' ) ),
-					'offer_badge' => array( 'text', __( 'Badge — big text', 'brightnest' ), __( 'e.g. 20%. Leave empty to hide the badge.', 'brightnest' ) ),
-					'offer_badge_sub' => array( 'text', __( 'Badge — small text', 'brightnest' ), __( 'e.g. OFF', 'brightnest' ) ),
-					'offer_title' => array( 'text', __( 'Heading', 'brightnest' ), '' ),
-					'offer_text'  => array( 'textarea', __( 'Text', 'brightnest' ), '' ),
-					'offer_btn'   => array( 'text', __( 'Button text', 'brightnest' ), '' ),
-					'offer_link'  => array( 'url', __( 'Button link', 'brightnest' ), __( 'Leave empty for the services page.', 'brightnest' ) ),
-					'offer_code'  => array( 'text', __( 'Voucher code', 'brightnest' ), __( 'Optional. Shown in the pop-up and filled in at the checkout. Must also exist in Booking → Voucher codes.', 'brightnest' ) ),
-					'offer_days'  => array( 'number', __( 'Show again after (days)', 'brightnest' ), __( '0 = once per visit. E.g. 7 = a visitor who closed it sees it again after a week.', 'brightnest' ) ),
 				),
 			),
 		),
@@ -276,6 +328,11 @@ function brightnest_settings_field( $key, $f ) {
 		echo '<small>' . esc_html( $help ) . '</small></div>';
 		return;
 	}
+	if ( 'sections' === $type ) {
+		brightnest_sections_widget( $key, $label, $help, $f[3] );
+		echo '</div>';
+		return;
+	}
 	if ( 'toggle' === $type ) {
 		printf(
 			'<label class="bn-adm-switch"><input type="hidden" name="%1$s" value="0"><input type="checkbox" name="%1$s" value="1" %2$s><span class="bn-adm-switch-ui" aria-hidden="true"></span><span>%3$s</span></label>',
@@ -288,6 +345,9 @@ function brightnest_settings_field( $key, $f ) {
 		switch ( $type ) {
 			case 'textarea':
 				echo '<textarea id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" rows="4">' . esc_textarea( $val ) . '</textarea>';
+				break;
+			case 'rows':
+				brightnest_rows_widget( $name, (string) $val, $f[3] );
 				break;
 			case 'hour':
 				echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
@@ -302,6 +362,9 @@ function brightnest_settings_field( $key, $f ) {
 					printf( '<option value="%1$s" %2$s>%3$s</option>', esc_attr( $opt_val ), selected( (string) $val, (string) $opt_val, false ), esc_html( $opt_label ) );
 				}
 				echo '</select>';
+				break;
+			case 'color':
+				echo '<input type="color" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $val ? $val : '#ffffff' ) . '" style="width:64px;height:36px;padding:2px">';
 				break;
 			case 'money':
 				echo '<input type="number" min="0" step="0.01" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $val ) . '">';
@@ -378,7 +441,9 @@ function brightnest_settings_field( $key, $f ) {
 	if ( brightnest_settings_has_ar( $key, $type ) ) {
 		$ar_val = (string) get_theme_mod( 'bn_' . $key . '_ar', '' );
 		echo '<div class="bn-set-ar"><label for="' . esc_attr( $id ) . '-ar">' . esc_html__( 'Arabic (العربية)', 'brightnest' ) . '</label>';
-		if ( 'textarea' === $type ) {
+		if ( 'rows' === $type ) {
+			brightnest_rows_widget( 'bn[' . $key . '_ar]', $ar_val, $f[3], true );
+		} elseif ( 'textarea' === $type ) {
 			echo '<textarea dir="rtl" id="' . esc_attr( $id ) . '-ar" name="bn[' . esc_attr( $key ) . '_ar]" rows="4">' . esc_textarea( $ar_val ) . '</textarea>';
 		} else {
 			echo '<input type="text" dir="rtl" id="' . esc_attr( $id ) . '-ar" name="bn[' . esc_attr( $key ) . '_ar]" value="' . esc_attr( $ar_val ) . '">';
@@ -392,10 +457,84 @@ function brightnest_settings_field( $key, $f ) {
 }
 
 /**
+ * Columns of a "rows" field: an array, or "cards" (title, text, link, photo).
+ */
+function brightnest_rows_cols( $spec ) {
+	if ( 'cards' === $spec ) {
+		return array(
+			'title' => array( 'text', __( 'Title', 'brightnest' ) ),
+			'text'  => array( 'textarea', __( 'Description', 'brightnest' ) ),
+			'link'  => array( 'url', __( 'Link (optional)', 'brightnest' ) ),
+			'image' => array( 'image', __( 'Photo (optional)', 'brightnest' ) ),
+		);
+	}
+	return is_array( $spec ) ? $spec : array( 'text' => array( 'text', __( 'Text', 'brightnest' ) ) );
+}
+
+/**
+ * List editor: one row per item, columns side by side. It writes the usual one-line-per-item
+ * text ("Title|Text|…") into a hidden box, so the site reads the setting as before.
+ */
+function brightnest_rows_widget( $name, $val, $spec, $rtl = false ) {
+	$cols = array();
+	foreach ( brightnest_rows_cols( $spec ) as $ck => $c ) {
+		$cols[] = array( 'key' => $ck, 'type' => $c[0], 'label' => $c[1] );
+	}
+	$txt = array(
+		'add'   => __( 'Add item', 'brightnest' ),
+		'up'    => __( 'Move up', 'brightnest' ),
+		'down'  => __( 'Move down', 'brightnest' ),
+		'del'   => __( 'Remove', 'brightnest' ),
+		'pick'  => __( 'Choose photo', 'brightnest' ),
+		'clear' => __( 'Remove photo', 'brightnest' ),
+		'none'  => __( 'Automatic photo', 'brightnest' ),
+	);
+	printf(
+		'<div class="bn-rows%1$s" data-rows%2$s data-cols="%3$s" data-txt="%4$s"><textarea hidden name="%5$s" data-rows-value>%6$s</textarea><ol class="bn-rows-list" data-rows-list></ol><button type="button" class="button" data-rows-add><span class="dashicons dashicons-plus-alt2"></span> %7$s</button></div>',
+		$rtl ? ' is-rtl' : '',
+		$rtl ? ' dir="rtl"' : '',
+		esc_attr( wp_json_encode( $cols ) ),
+		esc_attr( wp_json_encode( $txt ) ),
+		esc_attr( $name ),
+		esc_textarea( $val ),
+		esc_html( $txt['add'] )
+	);
+}
+
+/**
+ * Homepage sections in their order, each with its on/off switch (show_{key}).
+ */
+function brightnest_sections_widget( $key, $label, $help, $all ) {
+	echo '<label>' . esc_html( $label ) . '</label>';
+	echo '<ol class="bn-secs" data-secs>';
+	$order = 'sv_order' === $key ? brightnest_sv_order() : brightnest_home_order();
+	foreach ( $order as $sk ) {
+		if ( ! isset( $all[ $sk ] ) ) {
+			continue;
+		}
+		$on = '0' !== (string) brightnest_opt( 'show_' . $sk );
+		printf(
+			'<li class="bn-sec%5$s" draggable="true"><span class="bn-sec-grip dashicons dashicons-menu" aria-hidden="true"></span><input type="hidden" name="bn[%1$s][]" value="%2$s"><span class="bn-sec-name">%3$s</span><label class="bn-adm-switch"><input type="hidden" name="bn[show_%2$s]" value="0"><input type="checkbox" name="bn[show_%2$s]" value="1" %4$s data-sec-on><span class="bn-adm-switch-ui" aria-hidden="true"></span></label><button type="button" class="button-link" data-sec-up aria-label="%6$s"><span class="dashicons dashicons-arrow-up-alt2"></span></button><button type="button" class="button-link" data-sec-down aria-label="%7$s"><span class="dashicons dashicons-arrow-down-alt2"></span></button></li>',
+			esc_attr( $key ),
+			esc_attr( $sk ),
+			esc_html( $all[ $sk ] ),
+			checked( $on, true, false ),
+			$on ? '' : ' is-off',
+			esc_attr__( 'Move up', 'brightnest' ),
+			esc_attr__( 'Move down', 'brightnest' )
+		);
+	}
+	echo '</ol>';
+	if ( $help ) {
+		echo '<small>' . esc_html( $help ) . '</small>';
+	}
+}
+
+/**
  * Does this setting get an Arabic field?
  */
 function brightnest_settings_has_ar( $key, $type ) {
-	return in_array( $type, array( 'text', 'textarea' ), true ) && ( 'cities' === $key || in_array( $key, brightnest_i18n_keys(), true ) );
+	return in_array( $type, array( 'text', 'textarea', 'rows' ), true ) && ( 'cities' === $key || in_array( $key, brightnest_i18n_keys(), true ) );
 }
 
 function brightnest_settings_page() {
@@ -440,13 +579,28 @@ function brightnest_settings_page() {
 					<button type="button" class="button" data-faq-add data-name="bn_faqs"><span class="dashicons dashicons-plus"></span> <?php esc_html_e( 'Add question', 'brightnest' ); ?></button>
 				</section>
 			<?php else : ?>
+				<?php if ( 'homepage' === $tab && get_option( 'page_on_front' ) ) : ?>
+					<p class="notice notice-info inline"><?php esc_html_e( 'Tip: the same settings are on the Home page itself.', 'brightnest' ); ?> <a href="<?php echo esc_url( get_edit_post_link( (int) get_option( 'page_on_front' ) ) ); ?>"><?php esc_html_e( 'Edit the Home page', 'brightnest' ); ?></a></p>
+				<?php endif; ?>
+				<?php if ( 'homepage' === $tab ) : ?>
+					<p class="bn-set-fold-tools"><button type="button" class="button-link" data-fold-all="1"><?php esc_html_e( 'Open all', 'brightnest' ); ?></button> · <button type="button" class="button-link" data-fold-all="0"><?php esc_html_e( 'Close all', 'brightnest' ); ?></button> · <a href="<?php echo esc_url( home_url( '/' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'View homepage', 'brightnest' ); ?> ↗</a></p>
+				<?php endif; ?>
 				<?php foreach ( $schema[ $tab ][2] as $title => $fields ) : ?>
-					<section class="bn-set-card">
-						<h2><?php echo esc_html( $title ); ?></h2>
-						<div class="bn-set-grid">
-							<?php foreach ( $fields as $key => $f ) { brightnest_settings_field( $key, $f ); } ?>
-						</div>
-					</section>
+					<?php if ( 'homepage' === $tab ) : // Long tab: every card folds; the section list stays open. ?>
+						<details class="bn-set-card bn-set-fold" <?php echo isset( $fields['home_order'] ) ? 'open' : ''; ?>>
+							<summary><h2><?php echo esc_html( $title ); ?></h2></summary>
+							<div class="bn-set-grid">
+								<?php foreach ( $fields as $key => $f ) { brightnest_settings_field( $key, $f ); } ?>
+							</div>
+						</details>
+					<?php else : ?>
+						<section class="bn-set-card">
+							<h2><?php echo esc_html( $title ); ?></h2>
+							<div class="bn-set-grid">
+								<?php foreach ( $fields as $key => $f ) { brightnest_settings_field( $key, $f ); } ?>
+							</div>
+						</section>
+					<?php endif; ?>
 				<?php endforeach; ?>
 			<?php endif; ?>
 
@@ -456,6 +610,87 @@ function brightnest_settings_page() {
 		</form>
 	</div>
 	<?php
+}
+
+/**
+ * Save the posted fields of one settings tab (its groups). Used by the Settings page and by the
+ * homepage box on Pages → Home (inc/home-editor.php).
+ *
+ * @param array $groups Field groups of a tab.
+ * @param array $in     Posted values (unslashed), keyed by field.
+ */
+function brightnest_settings_save_groups( $groups, $in ) {
+	foreach ( $groups as $fields ) {
+		foreach ( $fields as $key => $f ) {
+			if ( ! array_key_exists( $key, $in ) ) {
+				continue;
+			}
+			$v = $in[ $key ];
+			if ( 'sections' === $f[0] ) {
+				// Order of the sections, and their on/off switches.
+				$order = array_values( array_intersect( array_map( 'sanitize_key', (array) $v ), array_keys( $f[3] ) ) );
+				set_theme_mod( 'bn_' . $key, implode( ',', $order ) );
+				foreach ( array_keys( $f[3] ) as $sk ) {
+					if ( isset( $in[ 'show_' . $sk ] ) ) {
+						set_theme_mod( 'bn_show_' . $sk, '1' === (string) $in[ 'show_' . $sk ] ? '1' : '0' );
+					}
+				}
+				continue;
+			}
+			switch ( $f[0] ) {
+				case 'textarea':
+				case 'rows':
+					$v = sanitize_textarea_field( $v );
+					break;
+				case 'url':
+				case 'image':
+					$v = esc_url_raw( $v );
+					break;
+				case 'email':
+					$v = sanitize_email( $v );
+					break;
+				case 'number':
+				case 'hour':
+					$v = (string) max( 0, min( 'hour' === $f[0] ? 24 : 60, (int) $v ) );
+					break;
+				case 'toggle':
+					$v = '1' === (string) $v ? '1' : '0';
+					break;
+				case 'choice':
+					$v = array_key_exists( (string) $v, $f[3] ) ? (string) $v : (string) key( $f[3] );
+					break;
+				case 'color':
+					$v = sanitize_hex_color( $v ) ? sanitize_hex_color( $v ) : '';
+					break;
+				case 'money':
+					$v = (string) max( 0, round( (float) $v, 2 ) );
+					break;
+				case 'areafees':
+					$fees = array();
+					foreach ( brightnest_city_areas() as $city => $places ) {
+						$fees[ $city ] = is_array( $v ) && isset( $v[ $city ] ) ? max( 0, round( (float) $v[ $city ], 2 ) ) : 0;
+						// An area keeps its own charge only when one is typed in.
+						foreach ( $places as $place ) {
+							$pkey = $city . '|' . $place;
+							if ( is_array( $v ) && isset( $v[ $pkey ] ) && '' !== trim( (string) $v[ $pkey ] ) ) {
+								$fees[ $pkey ] = max( 0, round( (float) $v[ $pkey ], 2 ) );
+							}
+						}
+					}
+					$v = $fees;
+					break;
+				default:
+					$v = sanitize_text_field( $v );
+			}
+			if ( 'whatsapp' === $key ) {
+				$v = preg_replace( '/\D/', '', $v );
+			}
+			set_theme_mod( 'bn_' . $key, $v );
+			if ( brightnest_settings_has_ar( $key, $f[0] ) && array_key_exists( $key . '_ar', $in ) ) {
+				set_theme_mod( 'bn_' . $key . '_ar', in_array( $f[0], array( 'textarea', 'rows' ), true ) ? sanitize_textarea_field( $in[ $key . '_ar' ] ) : sanitize_text_field( $in[ $key . '_ar' ] ) );
+			}
+		}
+	}
 }
 
 /**
@@ -486,62 +721,7 @@ function brightnest_save_settings() {
 		set_theme_mod( 'bn_faqs_ar', $ar );
 	} else {
 		$in = isset( $_POST['bn'] ) && is_array( $_POST['bn'] ) ? wp_unslash( $_POST['bn'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		foreach ( $schema[ $tab ][2] as $fields ) {
-			foreach ( $fields as $key => $f ) {
-				if ( ! array_key_exists( $key, $in ) ) {
-					continue;
-				}
-				$v = $in[ $key ];
-				switch ( $f[0] ) {
-					case 'textarea':
-						$v = sanitize_textarea_field( $v );
-						break;
-					case 'url':
-					case 'image':
-						$v = esc_url_raw( $v );
-						break;
-					case 'email':
-						$v = sanitize_email( $v );
-						break;
-					case 'number':
-					case 'hour':
-						$v = (string) max( 0, min( 'hour' === $f[0] ? 24 : 60, (int) $v ) );
-						break;
-					case 'toggle':
-						$v = '1' === (string) $v ? '1' : '0';
-						break;
-					case 'choice':
-						$v = array_key_exists( (string) $v, $f[3] ) ? (string) $v : (string) key( $f[3] );
-						break;
-					case 'money':
-						$v = (string) max( 0, round( (float) $v, 2 ) );
-						break;
-					case 'areafees':
-						$fees = array();
-						foreach ( brightnest_city_areas() as $city => $places ) {
-							$fees[ $city ] = is_array( $v ) && isset( $v[ $city ] ) ? max( 0, round( (float) $v[ $city ], 2 ) ) : 0;
-							// An area keeps its own charge only when one is typed in.
-							foreach ( $places as $place ) {
-								$pkey = $city . '|' . $place;
-								if ( is_array( $v ) && isset( $v[ $pkey ] ) && '' !== trim( (string) $v[ $pkey ] ) ) {
-									$fees[ $pkey ] = max( 0, round( (float) $v[ $pkey ], 2 ) );
-								}
-							}
-						}
-						$v = $fees;
-						break;
-					default:
-						$v = sanitize_text_field( $v );
-				}
-				if ( 'whatsapp' === $key ) {
-					$v = preg_replace( '/\D/', '', $v );
-				}
-				set_theme_mod( 'bn_' . $key, $v );
-				if ( brightnest_settings_has_ar( $key, $f[0] ) && array_key_exists( $key . '_ar', $in ) ) {
-					set_theme_mod( 'bn_' . $key . '_ar', 'textarea' === $f[0] ? sanitize_textarea_field( $in[ $key . '_ar' ] ) : sanitize_text_field( $in[ $key . '_ar' ] ) );
-				}
-			}
-		}
+		brightnest_settings_save_groups( $schema[ $tab ][2], $in );
 		// Keep the time window sensible.
 		if ( (int) brightnest_opt( 'slot_end' ) <= (int) brightnest_opt( 'slot_start' ) ) {
 			set_theme_mod( 'bn_slot_end', (string) min( 24, (int) brightnest_opt( 'slot_start' ) + 1 ) );

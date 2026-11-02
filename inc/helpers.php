@@ -63,12 +63,20 @@ function brightnest_city_areas() {
  *
  * @param string $key Setting key, e.g. sv_prices_title.
  */
-function brightnest_sv_text( $key ) {
+function brightnest_sv_text( $key, $post_id = 0 ) {
+	// The service's own text (its "Page layout" tab), when typed in.
+	$own = $post_id ? brightnest_sv_layout( $post_id ) : array();
+	if ( ! empty( $own['text'][ $key ] ) && ! brightnest_show_ar() ) {
+		return $own['text'][ $key ];
+	}
 	$value    = (string) brightnest_opt( $key );
 	$defaults = brightnest_defaults();
 	if ( isset( $defaults[ $key ] ) && $value === $defaults[ $key ] ) {
 		if ( 'sv_about_title' === $key ) {
 			return str_replace( '%s', '{service}', __( 'About our %s service', 'brightnest' ) ); // Existing translation.
+		}
+		if ( 'sv_call_label' === $key ) {
+			return str_replace( '%s', '{phone}', __( 'Or call %s', 'brightnest' ) ); // Existing translation.
 		}
 		return translate( $value, 'brightnest' ); // phpcs:ignore WordPress.WP.I18n
 	}
@@ -325,7 +333,7 @@ function brightnest_categories( $args = array() ) {
 function brightnest_menu_fallback() {
 	echo '<ul class="bn-menu">';
 	echo '<li><a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'brightnest' ) . '</a></li>';
-	echo '<li class="menu-item-has-children"><a href="' . esc_url( get_post_type_archive_link( 'bn_service' ) ) . '">' . esc_html__( 'Services', 'brightnest' ) . '</a><ul class="sub-menu">';
+	echo '<li class="menu-item-has-children"><a href="' . esc_url( get_post_type_archive_link( 'bn_service' ) ) . '">' . esc_html__( 'Booking', 'brightnest' ) . '</a><ul class="sub-menu">';
 	foreach ( brightnest_categories() as $term ) {
 		echo '<li><a href="' . esc_url( get_term_link( $term ) ) . '">' . esc_html( $term->name ) . '</a></li>';
 	}
@@ -353,17 +361,21 @@ function brightnest_menu_fallback() {
  */
 function brightnest_breadcrumbs() {
 	echo '<nav class="bn-breadcrumbs" aria-label="' . esc_attr__( 'Breadcrumb', 'brightnest' ) . '"><a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'brightnest' ) . '</a>';
-	if ( is_singular( 'bn_service' ) ) {
-		echo '<span>/</span><a href="' . esc_url( get_post_type_archive_link( 'bn_service' ) ) . '">' . esc_html__( 'Services', 'brightnest' ) . '</a>';
+	if ( is_post_type_archive( 'bn_info' ) ) {
+		echo '<span>/</span><span aria-current="page">' . esc_html__( 'Services', 'brightnest' ) . '</span>';
+	} elseif ( is_singular( 'bn_info' ) ) {
+		echo '<span>/</span><a href="' . esc_url( get_post_type_archive_link( 'bn_info' ) ) . '">' . esc_html__( 'Services', 'brightnest' ) . '</a><span>/</span><span aria-current="page">' . esc_html( get_the_title() ) . '</span>';
+	} elseif ( is_singular( 'bn_service' ) ) {
+		echo '<span>/</span><a href="' . esc_url( get_post_type_archive_link( 'bn_service' ) ) . '">' . esc_html__( 'Booking', 'brightnest' ) . '</a>';
 		$terms = get_the_terms( get_the_ID(), 'bn_service_cat' );
 		if ( $terms && ! is_wp_error( $terms ) ) {
 			echo '<span>/</span><a href="' . esc_url( get_term_link( $terms[0] ) ) . '">' . esc_html( $terms[0]->name ) . '</a>';
 		}
 		echo '<span>/</span><span aria-current="page">' . esc_html( get_the_title() ) . '</span>';
 	} elseif ( is_tax( 'bn_service_cat' ) ) {
-		echo '<span>/</span><a href="' . esc_url( get_post_type_archive_link( 'bn_service' ) ) . '">' . esc_html__( 'Services', 'brightnest' ) . '</a><span>/</span><span aria-current="page">' . esc_html( single_term_title( '', false ) ) . '</span>';
+		echo '<span>/</span><a href="' . esc_url( get_post_type_archive_link( 'bn_service' ) ) . '">' . esc_html__( 'Booking', 'brightnest' ) . '</a><span>/</span><span aria-current="page">' . esc_html( single_term_title( '', false ) ) . '</span>';
 	} elseif ( is_post_type_archive( 'bn_service' ) ) {
-		echo '<span>/</span><span aria-current="page">' . esc_html__( 'Services', 'brightnest' ) . '</span>';
+		echo '<span>/</span><span aria-current="page">' . esc_html__( 'Booking', 'brightnest' ) . '</span>';
 	} elseif ( get_option( 'page_for_posts' ) && ( is_singular( 'post' ) || ( is_page() && (int) wp_get_post_parent_id( get_queried_object_id() ) === (int) get_option( 'page_for_posts' ) ) ) ) {
 		// Blog post, or a page under the blog (the archive): Home / Blogs / title.
 		$blog = (int) get_option( 'page_for_posts' );

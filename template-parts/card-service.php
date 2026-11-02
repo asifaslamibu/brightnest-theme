@@ -35,7 +35,7 @@ $bn_cat   = ( $bn_terms && ! is_wp_error( $bn_terms ) ) ? $bn_terms[0] : null;
 		</div>
 		<div class="bn-card-foot">
 			<?php echo brightnest_price( $bn_id ); // phpcs:ignore ?>
-			<a class="bn-card-link" href="<?php echo esc_url( brightnest_checkout_url( $bn_id ) ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s service */ __( 'Book %s', 'brightnest' ), get_the_title( $bn_id ) ) ); ?>"><?php esc_html_e( 'Book', 'brightnest' ); ?> <?php echo brightnest_icon( 'arrow-right', 16 ); // phpcs:ignore ?></a>
+			<a class="bn-card-link" href="<?php echo esc_url( brightnest_checkout_url( $bn_id ) ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s service */ __( 'Book %s', 'brightnest' ), get_the_title( $bn_id ) ) ); ?>"><?php echo brightnest_info_only( $bn_id ) ? esc_html__( 'Details', 'brightnest' ) : esc_html__( 'Book', 'brightnest' ); ?> <?php echo brightnest_icon( 'arrow-right', 16 ); // phpcs:ignore ?></a>
 		</div>
 	</div>
 </article>

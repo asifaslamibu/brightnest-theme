@@ -26,7 +26,7 @@ $bn_cat   = ( $bn_terms && ! is_wp_error( $bn_terms ) ) ? $bn_terms[0] : null;
 		<p><?php echo esc_html( wp_trim_words( get_the_excerpt( $bn_id ), 18 ) ); ?></p>
 		<div class="bn-sc-foot">
 			<span><?php if ( '' !== $bn_price ) : ?><small><?php esc_html_e( 'From', 'brightnest' ); ?></small> <?php echo esc_html( brightnest_opt( 'currency' ) . ' ' . number_format_i18n( (float) $bn_price ) ); ?><?php endif; ?></span>
-			<a class="bn-btn bn-btn-primary bn-btn-sm" href="<?php echo esc_url( brightnest_checkout_url( $bn_id ) ); ?>"><?php esc_html_e( 'Book now', 'brightnest' ); ?></a>
+			<a class="bn-btn bn-btn-primary bn-btn-sm" href="<?php echo esc_url( brightnest_checkout_url( $bn_id ) ); ?>"><?php echo brightnest_info_only( $bn_id ) ? esc_html__( 'Get a quote', 'brightnest' ) : esc_html__( 'Book now', 'brightnest' ); ?></a>
 		</div>
 	</div>
 </article>
