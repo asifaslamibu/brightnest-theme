@@ -6,7 +6,19 @@
  * @package BrightNest
  */
 
-$bn_info  = get_posts( array( 'post_type' => 'bn_info', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => 'title', 'order' => 'ASC' ) ); // Content pages (BrightNest → Service Pages), A to Z.
+// Service pages: the four main ones (house cleaning, deep cleaning, maid, AC), then "View all services".
+$bn_info  = get_posts( array( 'post_type' => 'bn_info', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => 'title', 'order' => 'ASC' ) );
+$bn_rank  = function ( $id ) {
+	foreach ( array( '/\b(house|home) clean/i', '/\bdeep clean/i', '/\bmaid/i', '/\bac\b|air ?con/i' ) as $i => $re ) {
+		if ( preg_match( $re, get_the_title( $id ) ) ) {
+			return $i;
+		}
+	}
+	return 9;
+};
+usort( $bn_info, function ( $a, $b ) use ( $bn_rank ) { return $bn_rank( $a ) - $bn_rank( $b ); } ); // Stable: A to Z within a rank.
+$bn_more  = count( $bn_info ) > 4;
+$bn_info  = array_slice( $bn_info, 0, 4 );
 $bn_book  = array_slice( array_values( array_filter( get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => 12, 'fields' => 'ids', 'orderby' => array( 'menu_order' => 'ASC', 'title' => 'ASC' ) ) ), function ( $id ) { return ! brightnest_info_only( $id ); } ) ), 0, 8 );
 $bn_page  = function ( $slug ) {
 	$p = brightnest_core_page( $slug );
@@ -60,6 +72,9 @@ $bn_addr  = brightnest_opt( 'address' );
 						<?php foreach ( $bn_info as $bn_id ) : ?>
 							<li><a href="<?php echo esc_url( get_permalink( $bn_id ) ); ?>"><?php echo esc_html( get_the_title( $bn_id ) ); ?></a></li>
 						<?php endforeach; ?>
+						<?php if ( $bn_more ) : ?>
+							<li><a class="bn-ft-more" href="<?php echo esc_url( get_post_type_archive_link( 'bn_info' ) ); ?>"><?php esc_html_e( 'View all services', 'brightnest' ); ?> <?php echo brightnest_icon( 'arrow-right', 14 ); // phpcs:ignore ?></a></li>
+						<?php endif; ?>
 					</ul>
 				</nav>
 			<?php endif; ?>
