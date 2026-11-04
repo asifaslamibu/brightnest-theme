@@ -125,9 +125,6 @@ $bn_addr  = brightnest_opt( 'address' );
 					<?php if ( $bn_addr ) : ?>
 						<li><span><?php echo brightnest_icon( 'pin', 16 ); // phpcs:ignore ?> <?php echo esc_html( $bn_addr ); ?></span></li>
 					<?php endif; ?>
-					<?php if ( brightnest_opt( 'hours' ) ) : ?>
-						<li><span><?php echo brightnest_icon( 'clock', 16 ); // phpcs:ignore ?> <?php echo esc_html( brightnest_opt( 'hours' ) ); ?></span></li>
-					<?php endif; ?>
 				</ul>
 			</div>
 		</div>
