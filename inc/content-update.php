@@ -110,7 +110,7 @@ function brightnest_content_page_photo( $page_id, $file, $alt ) {
 }
 
 function brightnest_content_about( $about ) {
-	$contact = get_page_by_path( 'contact' );
+	$contact = brightnest_core_page( 'contact' );
 	$link    = $contact ? esc_url( get_permalink( $contact ) ) : esc_url( home_url( '/contact/' ) );
 	$en      = brightnest_content_blocks(
 		array(
@@ -289,18 +289,18 @@ function brightnest_content_update() {
 add_action( 'admin_init', 'brightnest_content_update', 20 );
 
 function brightnest_content_step_about() {
-	$about = get_page_by_path( 'about-us' );
+	$about = brightnest_core_page( 'about-us' );
 	if ( $about ) {
 		brightnest_content_about( $about );
 	}
 }
 
 function brightnest_content_step_photos() {
-	$about = get_page_by_path( 'about-us' );
+	$about = brightnest_core_page( 'about-us' );
 	if ( $about ) {
 		brightnest_content_page_photo( $about->ID, 'about-hero-cleaner.jpg', 'Bright Nest cleaner mopping a living room floor' );
 	}
-	$contact = get_page_by_path( 'contact' );
+	$contact = brightnest_core_page( 'contact' );
 	if ( $contact ) {
 		brightnest_content_page_photo( $contact->ID, 'contact-hero-team.jpg', 'Bright Nest cleaning team at work in a home' );
 	}

@@ -328,6 +328,34 @@ function brightnest_categories( $args = array() ) {
 }
 
 /**
+ * A core page (about-us, blogs, contact, terms…) even when its address name differs between sites:
+ * the Contact page by its template, then the usual alternative names. Published pages only.
+ */
+function brightnest_core_page( $slug ) {
+	$alias = array(
+		'contact'  => array( 'contact-us', 'contact-bn' ),
+		'about-us' => array( 'about', 'about-bn' ),
+		'blogs'    => array( 'blog' ),
+		'terms'    => array( 'terms-conditions', 'terms-and-conditions' ),
+		// The theme's own privacy page, else WordPress's (only when published).
+		'privacy-policy-bn' => array( 'privacy-policy' ),
+	);
+	if ( 'contact' === $slug ) {
+		$by_tpl = get_pages( array( 'meta_key' => '_wp_page_template', 'meta_value' => 'page-templates/contact.php', 'number' => 1 ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		if ( $by_tpl ) {
+			return $by_tpl[0];
+		}
+	}
+	foreach ( array_merge( array( $slug ), isset( $alias[ $slug ] ) ? $alias[ $slug ] : array() ) as $name ) {
+		$p = get_page_by_path( $name );
+		if ( $p && 'publish' === $p->post_status ) {
+			return $p;
+		}
+	}
+	return null;
+}
+
+/**
  * Primary menu fallback: categories + core pages.
  */
 function brightnest_menu_fallback() {
@@ -340,7 +368,7 @@ function brightnest_menu_fallback() {
 	echo '</ul></li>';
 	echo '<li><a href="' . esc_url( get_post_type_archive_link( 'bn_info' ) ) . '">' . esc_html__( 'Services', 'brightnest' ) . '</a></li>';
 	foreach ( array( 'about-us', 'blogs', 'contact' ) as $slug ) {
-		$page = get_page_by_path( $slug );
+		$page = brightnest_core_page( $slug );
 		if ( ! $page ) {
 			continue;
 		}

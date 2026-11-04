@@ -9,7 +9,7 @@
 $bn_info  = get_posts( array( 'post_type' => 'bn_info', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => 'title', 'order' => 'ASC' ) ); // Content pages (BrightNest → Service Pages), A to Z.
 $bn_book  = array_slice( array_values( array_filter( get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => 12, 'fields' => 'ids', 'orderby' => array( 'menu_order' => 'ASC', 'title' => 'ASC' ) ) ), function ( $id ) { return ! brightnest_info_only( $id ); } ) ), 0, 8 );
 $bn_page  = function ( $slug ) {
-	$p = get_page_by_path( $slug );
+	$p = brightnest_core_page( $slug );
 	return $p ? '<li><a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( get_the_title( $p ) ) . '</a></li>' : '';
 };
 $bn_wa    = brightnest_whatsapp_url( __( 'Hi, I would like to book a service.', 'brightnest' ) );
