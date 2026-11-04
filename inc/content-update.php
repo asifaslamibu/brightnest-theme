@@ -267,6 +267,7 @@ function brightnest_content_update() {
 		'faq'           => 'brightnest_content_step_faq',
 		'undash'        => 'brightnest_content_undash_all',
 		'service-pages' => 'brightnest_content_service_pages',
+		'home-hero'     => 'brightnest_content_step_home_hero',
 	);
 	$done = (array) get_option( 'bn_content_steps', array() );
 	if ( '2026-11-a' === get_option( 'bn_content_version' ) ) {
@@ -311,4 +312,9 @@ function brightnest_content_step_faq() {
 	if ( $faq && 'publish' === $faq->post_status ) {
 		wp_update_post( array( 'ID' => $faq->ID, 'post_status' => 'draft' ) );
 	}
+}
+
+/* Homepage hero: the theme's new photo (assets/img/site/home-hero.jpg) instead of one picked earlier. */
+function brightnest_content_step_home_hero() {
+	set_theme_mod( 'bn_hero_img_1', '' );
 }

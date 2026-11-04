@@ -213,7 +213,7 @@ $bn_card_section = function ( $key ) use ( $bn_cards ) {
 			<?php endif; ?>
 		</div>
 		<div class="bn-h2-hero-art">
-			<img src="<?php echo esc_url( brightnest_img_opt( 'hero_img_1', 'bg-stats.jpg' ) ); ?>" alt="" width="640" height="560" fetchpriority="high">
+			<img src="<?php echo esc_url( brightnest_img_opt( 'hero_img_1', 'home-hero.jpg' ) ); ?>" alt="" width="640" height="560" fetchpriority="high">
 			<?php if ( brightnest_opt( 'hero_float1_title' ) ) : ?>
 				<div class="bn-h2-float bn-h2-float-a"><?php echo brightnest_icon( 'shield', 20 ); // phpcs:ignore ?><span><strong><?php echo esc_html( brightnest_label( 'hero_float1_title', __( 'Vetted professionals', 'brightnest' ) ) ); ?></strong><?php if ( brightnest_opt( 'hero_float1_text' ) ) : ?><small><?php echo esc_html( brightnest_label( 'hero_float1_text', __( 'Satisfaction guarantee', 'brightnest' ) ) ); ?></small><?php endif; ?></span></div>
 			<?php endif; ?>
