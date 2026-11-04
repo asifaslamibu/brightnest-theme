@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BRIGHTNEST_VERSION', '3.56.2' );
+define( 'BRIGHTNEST_VERSION', '3.57.2' );
 define( 'BRIGHTNEST_DIR', get_template_directory() );
 define( 'BRIGHTNEST_URI', get_template_directory_uri() );
 
@@ -32,6 +32,7 @@ require BRIGHTNEST_DIR . '/inc/settings.php';
 require BRIGHTNEST_DIR . '/inc/home-editor.php';
 require BRIGHTNEST_DIR . '/inc/service-layout.php';
 require BRIGHTNEST_DIR . '/inc/content-update.php';
+require BRIGHTNEST_DIR . '/inc/page-layouts.php';
 if ( is_admin() ) {
 	require BRIGHTNEST_DIR . '/inc/admin.php';
 }
