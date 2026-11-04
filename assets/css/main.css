@@ -417,9 +417,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bn-notice-error { background: #fee2e2; color: #991b1b; }
 
 /* Contact ---------------------------------------------------------------- */
-.bn-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
-.bn-contact-cards { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 14px; }
-.bn-contact-cards li { display: flex; align-items: center; gap: 16px; padding: 18px; border: 1px solid var(--bn-line); border-radius: var(--bn-radius); }
+.bn-contact-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.bn-contact-grid .bn-prose p { margin-top: 0; }
+.bn-contact-cards { list-style: none; padding: 0; margin: 20px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.bn-contact-cards li { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 16px; border: 1px solid var(--bn-line); border-radius: var(--bn-radius); background: #fff; }
+.bn-contact-cards li.is-wide { grid-column: 1 / -1; }
+.bn-contact-cards li > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.bn-contact-grid > .bn-booking-card { position: sticky; top: 96px; }
+@media (max-width: 560px) { .bn-contact-cards { grid-template-columns: 1fr; } }
 .bn-contact-cards small { display: block; color: var(--bn-muted); font-size: 13px; }
 .bn-contact-cards a, .bn-contact-cards strong { font-weight: 700; color: var(--bn-ink); }
 .bn-contact-cards .bn-feature-icon { flex-shrink: 0; }

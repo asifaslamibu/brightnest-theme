@@ -33,10 +33,10 @@ while ( have_posts() ) :
 						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'mail', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Email', 'brightnest' ); ?></small><a href="mailto:<?php echo esc_attr( brightnest_opt( 'email' ) ); ?>"><?php echo esc_html( brightnest_opt( 'email' ) ); ?></a></span></li>
 					<?php endif; ?>
 					<?php if ( brightnest_opt( 'address' ) ) : ?>
-						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'pin', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Address', 'brightnest' ); ?></small><strong><?php echo esc_html( brightnest_opt( 'address' ) ); ?></strong></span></li>
+						<li class="is-wide"><span class="bn-feature-icon"><?php echo brightnest_icon( 'pin', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Address', 'brightnest' ); ?></small><strong><?php echo esc_html( brightnest_opt( 'address' ) ); ?></strong></span></li>
 					<?php endif; ?>
 					<?php if ( brightnest_opt( 'hours' ) ) : ?>
-						<li><span class="bn-feature-icon"><?php echo brightnest_icon( 'clock', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Working hours', 'brightnest' ); ?></small><strong><?php echo esc_html( brightnest_opt( 'hours' ) ); ?></strong></span></li>
+						<li class="is-wide"><span class="bn-feature-icon"><?php echo brightnest_icon( 'clock', 22 ); // phpcs:ignore ?></span><span><small><?php esc_html_e( 'Working hours', 'brightnest' ); ?></small><strong><?php echo esc_html( brightnest_opt( 'hours' ) ); ?></strong></span></li>
 					<?php endif; ?>
 				</ul>
 			</div>

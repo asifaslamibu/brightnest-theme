@@ -268,6 +268,7 @@ function brightnest_content_update() {
 		'undash'        => 'brightnest_content_undash_all',
 		'service-pages' => 'brightnest_content_service_pages',
 		'home-hero'     => 'brightnest_content_step_home_hero',
+		'photos-2'      => 'brightnest_content_step_photos', // Again: Contact was not found by its address before. Pages with a photo keep theirs.
 	);
 	$done = (array) get_option( 'bn_content_steps', array() );
 	if ( '2026-11-a' === get_option( 'bn_content_version' ) ) {
