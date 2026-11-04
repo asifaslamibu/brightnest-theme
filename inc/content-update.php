@@ -1,6 +1,8 @@
 <?php
 /**
- * One-time content update, run once on the first admin page load after the theme is updated:
+ * One-time content updates, each run once on the first admin page load after the theme is updated:
+ * - Bookable services with their own text get a service page (same address, text, photo, FAQ,
+ *   Google title, Arabic) that books them; the service itself then only opens the checkout.
  * - About Us: text from brightnestclean.ae (English and Arabic), a short line under the title,
  *   and a hero photo; Contact: a hero photo (photos only when the page has none).
  * - The FAQ page is unpublished (the menu and footer no longer link to it).
@@ -12,8 +14,6 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-
-define( 'BRIGHTNEST_CONTENT_VERSION', '2026-11-a' );
 
 /**
  * A dash in text as a person would write it: a colon after a label, a comma elsewhere,
@@ -206,30 +206,109 @@ function brightnest_content_undash_all() {
 	}
 }
 
+/**
+ * Bookable services that have their own text: that text moves to a service page with the same
+ * address (the service is renamed "<name>-booking"), and the page books the service.
+ * If a service page with the same name already exists, it only gets the booking link (if it has none).
+ */
+function brightnest_content_service_pages() {
+	global $wpdb;
+	$keys = array( '_bn_icon', '_bn_faqs', '_bn_seo_title', '_bn_seo_desc', '_bn_h1', '_bn_source_url', '_bn_ar_title', '_bn_ar_excerpt', '_bn_ar_content', '_bn_ar_faqs', '_bn_home_group', '_thumbnail_id' );
+	foreach ( get_posts( array( 'post_type' => 'bn_service', 'post_status' => 'publish', 'posts_per_page' => -1 ) ) as $sv ) {
+		if ( strlen( trim( wp_strip_all_tags( $sv->post_content ) ) ) < 400 ) {
+			continue; // No text of its own.
+		}
+		$same = get_posts( array( 'post_type' => 'bn_info', 'post_status' => array( 'publish', 'draft', 'private' ), 'title' => $sv->post_title, 'posts_per_page' => 1 ) );
+		if ( $same ) {
+			if ( ! get_post_meta( $same[0]->ID, '_bn_book_service', true ) ) {
+				update_post_meta( $same[0]->ID, '_bn_book_service', $sv->ID );
+			}
+			continue;
+		}
+		$slug = $sv->post_name;
+		$wpdb->update( $wpdb->posts, array( 'post_name' => $slug . '-booking' ), array( 'ID' => $sv->ID ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		clean_post_cache( $sv->ID );
+		$page = wp_insert_post(
+			wp_slash(
+				array(
+					'post_type'    => 'bn_info',
+					'post_status'  => 'publish',
+					'post_title'   => $sv->post_title,
+					'post_name'    => $slug,
+					'post_content' => $sv->post_content,
+					'post_excerpt' => $sv->post_excerpt,
+					'menu_order'   => $sv->menu_order,
+					'post_author'  => $sv->post_author,
+				)
+			),
+			true
+		);
+		if ( is_wp_error( $page ) ) {
+			continue;
+		}
+		foreach ( $keys as $k ) {
+			$v = get_post_meta( $sv->ID, $k, true );
+			if ( '' !== $v && array() !== $v ) {
+				update_post_meta( $page, $k, wp_slash( $v ) );
+			}
+		}
+		update_post_meta( $page, '_bn_book_service', $sv->ID );
+		update_post_meta( $page, '_bn_from_service', $sv->ID );
+	}
+}
+
+/**
+ * Runs the updates not done yet (each once), on an admin page load by an administrator.
+ */
 function brightnest_content_update() {
-	if ( BRIGHTNEST_CONTENT_VERSION === get_option( 'bn_content_version' ) || ! current_user_can( 'manage_options' ) || get_transient( 'bn_content_lock' ) ) {
+	$steps = array(
+		'about'         => 'brightnest_content_step_about',
+		'photos'        => 'brightnest_content_step_photos',
+		'faq'           => 'brightnest_content_step_faq',
+		'undash'        => 'brightnest_content_undash_all',
+		'service-pages' => 'brightnest_content_service_pages',
+	);
+	$done = (array) get_option( 'bn_content_steps', array() );
+	if ( '2026-11-a' === get_option( 'bn_content_version' ) ) {
+		$done = array_unique( array_merge( $done, array( 'about', 'photos', 'faq', 'undash' ) ) ); // Done by the first version.
+	}
+	$todo = array_diff( array_keys( $steps ), $done );
+	if ( ! $todo || ! current_user_can( 'manage_options' ) || get_transient( 'bn_content_lock' ) ) {
 		return;
 	}
 	set_transient( 'bn_content_lock', 1, 5 * MINUTE_IN_SECONDS );
-	update_option( 'bn_content_version', BRIGHTNEST_CONTENT_VERSION ); // Saved first: a failure halfway never repeats the edits.
+	foreach ( $todo as $step ) {
+		$done[] = $step;
+		update_option( 'bn_content_steps', array_values( array_unique( $done ) ) ); // Saved first: a failure halfway never repeats a step.
+		call_user_func( $steps[ $step ] );
+	}
+	delete_transient( 'bn_content_lock' );
+	wp_cache_flush();
+	do_action( 'litespeed_purge_all' );
+}
+add_action( 'admin_init', 'brightnest_content_update', 20 );
 
+function brightnest_content_step_about() {
 	$about = get_page_by_path( 'about-us' );
 	if ( $about ) {
 		brightnest_content_about( $about );
+	}
+}
+
+function brightnest_content_step_photos() {
+	$about = get_page_by_path( 'about-us' );
+	if ( $about ) {
 		brightnest_content_page_photo( $about->ID, 'about-hero-cleaner.jpg', 'Bright Nest cleaner mopping a living room floor' );
 	}
 	$contact = get_page_by_path( 'contact' );
 	if ( $contact ) {
 		brightnest_content_page_photo( $contact->ID, 'contact-hero-team.jpg', 'Bright Nest cleaning team at work in a home' );
 	}
+}
+
+function brightnest_content_step_faq() {
 	$faq = get_page_by_path( 'faq' );
 	if ( $faq && 'publish' === $faq->post_status ) {
 		wp_update_post( array( 'ID' => $faq->ID, 'post_status' => 'draft' ) );
 	}
-	brightnest_content_undash_all();
-
-	delete_transient( 'bn_content_lock' );
-	wp_cache_flush();
-	do_action( 'litespeed_purge_all' );
 }
-add_action( 'admin_init', 'brightnest_content_update', 20 );

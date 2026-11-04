@@ -69,7 +69,7 @@ $bn_addr  = brightnest_opt( 'address' );
 					<h2><a href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php esc_html_e( 'Book online', 'brightnest' ); ?></a></h2>
 					<ul>
 						<?php foreach ( $bn_book as $bn_id ) : ?>
-							<li><a href="<?php echo esc_url( get_permalink( $bn_id ) ); ?>"><?php echo esc_html( get_the_title( $bn_id ) ); ?></a></li>
+							<li><a href="<?php echo esc_url( brightnest_checkout_url( $bn_id ) ); ?>"><?php echo esc_html( get_the_title( $bn_id ) ); ?></a></li>
 						<?php endforeach; ?>
 					</ul>
 				</nav>

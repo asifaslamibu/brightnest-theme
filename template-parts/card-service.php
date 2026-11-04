@@ -11,7 +11,7 @@ $bn_terms = get_the_terms( $bn_id, 'bn_service_cat' );
 $bn_cat   = ( $bn_terms && ! is_wp_error( $bn_terms ) ) ? $bn_terms[0] : null;
 ?>
 <article class="bn-card">
-	<a class="bn-card-media bn-tone-<?php echo esc_attr( brightnest_tone( $bn_cat ? $bn_cat->slug : $bn_id ) ); ?>" href="<?php echo esc_url( get_permalink( $bn_id ) ); ?>" tabindex="-1" aria-hidden="true">
+	<a class="bn-card-media bn-tone-<?php echo esc_attr( brightnest_tone( $bn_cat ? $bn_cat->slug : $bn_id ) ); ?>" href="<?php echo esc_url( brightnest_checkout_url( $bn_id ) ); ?>" tabindex="-1" aria-hidden="true">
 		<?php if ( has_post_thumbnail( $bn_id ) ) : ?>
 			<?php echo get_the_post_thumbnail( $bn_id, 'brightnest-card', array( 'loading' => 'lazy' ) ); ?>
 		<?php else : ?>
@@ -25,7 +25,7 @@ $bn_cat   = ( $bn_terms && ! is_wp_error( $bn_terms ) ) ? $bn_terms[0] : null;
 		<?php if ( $bn_cat ) : ?>
 			<span class="bn-card-cat"><?php echo esc_html( $bn_cat->name ); ?></span>
 		<?php endif; ?>
-		<h3 class="bn-card-title"><a href="<?php echo esc_url( get_permalink( $bn_id ) ); ?>"><?php echo esc_html( get_the_title( $bn_id ) ); ?></a></h3>
+		<h3 class="bn-card-title"><a href="<?php echo esc_url( brightnest_checkout_url( $bn_id ) ); ?>"><?php echo esc_html( get_the_title( $bn_id ) ); ?></a></h3>
 		<div class="bn-card-meta">
 			<?php echo brightnest_stars( get_post_meta( $bn_id, '_bn_rating', true ), get_post_meta( $bn_id, '_bn_review_count', true ) ); // phpcs:ignore ?>
 			<?php $bn_dur = get_post_meta( $bn_id, '_bn_duration', true ); ?>

@@ -163,6 +163,30 @@ function brightnest_booking_redirect() {
 }
 add_action( 'template_redirect', 'brightnest_booking_redirect', 1 );
 
+/**
+ * Bookable services have no page of their own: their address opens the checkout (the service's
+ * text lives on its service page). Info-only ones go to the Services page. Previews still work.
+ */
+function brightnest_service_single_redirect() {
+	if ( ! is_singular( 'bn_service' ) || is_preview() ) {
+		return;
+	}
+	$id = get_queried_object_id();
+	$to = brightnest_info_only( $id ) ? get_post_type_archive_link( 'bn_info' ) : brightnest_checkout_url( $id );
+	wp_safe_redirect( $to, 301 );
+	exit;
+}
+add_action( 'template_redirect', 'brightnest_service_single_redirect', 2 );
+
+/* Not in the Google sitemap either. */
+add_filter(
+	'wp_sitemaps_post_types',
+	function ( $types ) {
+		unset( $types['bn_service'] );
+		return $types;
+	}
+);
+
 function brightnest_booking_flush() {
 	if ( 'booking+services' !== get_option( 'bn_hub_slug' ) ) {
 		update_option( 'bn_hub_slug', 'booking+services' );
