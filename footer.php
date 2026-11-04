@@ -1,12 +1,12 @@
 <?php
 /**
- * Footer: a booking band, then columns (brand and social, service pages, book online, company,
- * contact), the cities served, and the copyright line.
+ * Footer: a booking band, then columns (brand and social, service pages in two columns, book online
+ * with company under it, contact), the cities served, and the copyright line.
  *
  * @package BrightNest
  */
 
-$bn_info  = get_posts( array( 'post_type' => 'bn_info', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => array( 'menu_order' => 'ASC', 'title' => 'ASC' ) ) ); // Content pages (BrightNest → Service Pages).
+$bn_info  = get_posts( array( 'post_type' => 'bn_info', 'posts_per_page' => -1, 'fields' => 'ids', 'orderby' => 'title', 'order' => 'ASC' ) ); // Content pages (BrightNest → Service Pages), A to Z.
 $bn_book  = array_slice( array_values( array_filter( get_posts( array( 'post_type' => 'bn_service', 'posts_per_page' => 12, 'fields' => 'ids', 'orderby' => array( 'menu_order' => 'ASC', 'title' => 'ASC' ) ) ), function ( $id ) { return ! brightnest_info_only( $id ); } ) ), 0, 8 );
 $bn_page  = function ( $slug ) {
 	$p = get_page_by_path( $slug );
@@ -54,7 +54,7 @@ $bn_addr  = brightnest_opt( 'address' );
 			</div>
 
 			<?php if ( $bn_info ) : ?>
-				<nav class="bn-ft-col" aria-label="<?php esc_attr_e( 'Our Services', 'brightnest' ); ?>">
+				<nav class="bn-ft-col bn-ft-services" aria-label="<?php esc_attr_e( 'Our Services', 'brightnest' ); ?>">
 					<h2><a href="<?php echo esc_url( get_post_type_archive_link( 'bn_info' ) ); ?>"><?php esc_html_e( 'Our Services', 'brightnest' ); ?></a></h2>
 					<ul>
 						<?php foreach ( $bn_info as $bn_id ) : ?>
@@ -64,6 +64,7 @@ $bn_addr  = brightnest_opt( 'address' );
 				</nav>
 			<?php endif; ?>
 
+			<div class="bn-ft-stack">
 			<?php if ( $bn_book ) : ?>
 				<nav class="bn-ft-col" aria-label="<?php esc_attr_e( 'Book online', 'brightnest' ); ?>">
 					<h2><a href="<?php echo esc_url( get_post_type_archive_link( 'bn_service' ) ); ?>"><?php esc_html_e( 'Book online', 'brightnest' ); ?></a></h2>
@@ -91,6 +92,8 @@ $bn_addr  = brightnest_opt( 'address' );
 					<?php endif; ?>
 				</ul>
 			</nav>
+
+			</div>
 
 			<div class="bn-ft-col bn-ft-contact">
 				<h2><?php esc_html_e( 'Get in touch', 'brightnest' ); ?></h2>
