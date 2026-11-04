@@ -159,7 +159,15 @@ $bn_price   = function ( $n ) {
 					<div class="bn-co-group" id="bn-group-<?php echo esc_attr( $bn_gi ); ?>" data-group="<?php echo esc_attr( $bn_gi ); ?>">
 						<h2 class="bn-co-group-title"><?php echo esc_html( $bn_g['name'] ); ?></h2>
 						<?php if ( ! empty( $bn_g['banner'] ) ) : ?>
-							<div class="bn-co-group-banner"><img src="<?php echo esc_url( $bn_g['banner'] ); ?>" alt="<?php echo esc_attr( $bn_g['name'] ); ?>" loading="lazy"></div>
+							<div class="bn-co-group-banner<?php echo ( $bn_g['cover_t'] || $bn_g['cover_s'] ) ? ' has-text' : ''; ?>">
+								<img src="<?php echo esc_url( $bn_g['banner'] ); ?>" alt="<?php echo esc_attr( $bn_g['name'] ); ?>" loading="lazy">
+								<?php if ( $bn_g['cover_t'] || $bn_g['cover_s'] ) : ?>
+									<div class="bn-co-banner-text">
+										<?php if ( $bn_g['cover_t'] ) : ?><strong><?php echo esc_html( $bn_g['cover_t'] ); ?></strong><?php endif; ?>
+										<?php if ( $bn_g['cover_s'] ) : ?><span><?php echo esc_html( $bn_g['cover_s'] ); ?></span><?php endif; ?>
+									</div>
+								<?php endif; ?>
+							</div>
 						<?php else : ?>
 							<?php
 							// No cover picture of its own: a cover made from the group's photo, its name and three ticks
@@ -172,7 +180,8 @@ $bn_price   = function ( $n ) {
 								<?php if ( $bn_cv_img ) : ?><span class="bn-co-cover-img" style="background-image:url('<?php echo esc_url( $bn_cv_img ); ?>')"></span><?php endif; ?>
 								<div class="bn-co-cover-copy">
 									<span class="bn-co-cover-tag"><?php echo brightnest_icon( 'shield', 13 ); // phpcs:ignore ?> <?php esc_html_e( 'Satisfaction guarantee', 'brightnest' ); ?></span>
-									<strong><?php echo esc_html( $bn_g['name'] ); ?></strong>
+									<strong><?php echo esc_html( $bn_g['cover_t'] ? $bn_g['cover_t'] : $bn_g['name'] ); ?></strong>
+									<?php if ( $bn_g['cover_s'] ) : ?><p class="bn-co-cover-sub"><?php echo esc_html( $bn_g['cover_s'] ); ?></p><?php endif; ?>
 									<?php if ( $bn_cv_ticks ) : ?>
 										<ul>
 											<?php foreach ( $bn_cv_ticks as $bn_tk ) : ?>

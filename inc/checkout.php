@@ -31,6 +31,8 @@ function brightnest_service_options( $post_id ) {
 	$tab_img = is_array( $tab_img ) ? $tab_img : array();
 	$banners = json_decode( (string) get_post_meta( $post_id, '_bn_group_banners', true ), true ); // Cover picture above each group.
 	$banners = is_array( $banners ) ? $banners : array();
+	$cv_txt  = json_decode( (string) get_post_meta( $post_id, '_bn_cover_txt', true ), true ); // Text on the cover.
+	$cv_txt  = is_array( $cv_txt ) ? $cv_txt : array();
 	$pick    = function ( $d, $field ) use ( $ar ) {
 		if ( $ar && isset( $d[ $field . '_ar' ] ) && '' !== trim( (string) $d[ $field . '_ar' ] ) ) {
 			return (string) $d[ $field . '_ar' ];
@@ -51,6 +53,8 @@ function brightnest_service_options( $post_id ) {
 				'name'  => ! empty( $ar_tabs[ $group ] ) ? $ar_tabs[ $group ] : $group,
 				'img'   => ! empty( $tab_img[ $group ] ) ? esc_url_raw( $tab_img[ $group ] ) : '', // Own tab picture, else the first option photo.
 				'banner' => ! empty( $banners[ $group ] ) ? esc_url_raw( $banners[ $group ] ) : '',
+				'cover_t' => isset( $cv_txt[ $group ]['t'] ) ? (string) $cv_txt[ $group ]['t'] : '',
+				'cover_s' => isset( $cv_txt[ $group ]['s'] ) ? (string) $cv_txt[ $group ]['s'] : '',
 				'items' => array(),
 			);
 		}

@@ -521,3 +521,9 @@ a.bn-kpi:hover { color: var(--bna-ink); border-color: #c9d7e3; box-shadow: 0 8px
 
 /* Group cover picture button (service editor → Booking & prices) */
 .bn-opt-img.bn-opt-banner { width: 64px; background-size: cover; background-position: center; }
+
+/* Cover heading / text under each tab's head (checkout cover picture). */
+.bn-opt-cover-txt { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--bna-line); background: #fff; }
+.bn-opt-cover-txt > .dashicons { color: var(--bna-brand); }
+.bn-opt-cover-txt input { flex: 1 1 0; min-width: 0; }
+.bn-opt-cover-txt input[data-cover-s] { flex-grow: 1.6; }

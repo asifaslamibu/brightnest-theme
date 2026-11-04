@@ -82,6 +82,9 @@
 	var bannersEl = $('[data-banners]');
 	var banners = {};
 	try { banners = JSON.parse((bannersEl && bannersEl.value) || '{}') || {}; } catch (e) { banners = {}; }
+	var coverTxtEl = $('[data-cover-txt]');
+	var coverTxt = {};
+	try { coverTxt = JSON.parse((coverTxtEl && coverTxtEl.value) || '{}') || {}; } catch (e) { coverTxt = {}; }
 	var arTabsEl = $('[data-ar-tabs]');
 	var arTabs = {};
 	try { arTabs = JSON.parse((arTabsEl && arTabsEl.value) || '{}') || {}; } catch (e) { arTabs = {}; }
@@ -129,6 +132,11 @@
 			'<button type="button" class="button-link" data-gup title="' + esc(t.up) + '"><span class="dashicons dashicons-arrow-up-alt2"></span></button>' +
 			'<button type="button" class="button-link" data-gdown title="' + esc(t.down) + '"><span class="dashicons dashicons-arrow-down-alt2"></span></button>' +
 			'<button type="button" class="button-link bn-opt-del" data-gdel title="' + esc(t.removeTab) + '"><span class="dashicons dashicons-trash"></span></button>' +
+			'</div>' +
+			// Text shown on this group's cover picture at the checkout.
+			'<div class="bn-opt-cover-txt"><span class="dashicons dashicons-cover-image"></span>' +
+			'<input data-cover-t placeholder="' + esc(t.coverT || 'Cover heading') + '" value="' + esc((coverTxt[g.name] || {}).t || '') + '">' +
+			'<input data-cover-s placeholder="' + esc(t.coverS || 'Cover text') + '" value="' + esc((coverTxt[g.name] || {}).s || '') + '">' +
 			'</div>' +
 			'<div class="bn-opt-rows">' + g.items.map(itemRow).join('') + '</div>' +
 			'<button type="button" class="button bn-opt-add" data-add-item><span class="dashicons dashicons-plus"></span> ' + esc(t.addOption) + '</button>';
@@ -184,6 +192,7 @@
 		var tabs = {};
 		var imgs = {};
 		var covers = {};
+		var ctxt = {};
 		$$('.bn-opt-group', groupsEl).forEach(function (g) {
 			var en = $('[data-tab-name]', g).value.trim().replace(/\|/g, '/') || (t.newTab || 'Packages');
 			var ar = $('[data-tab-ar]', g).value.trim();
@@ -192,7 +201,11 @@
 			if (ar) { tabs[en] = ar; }
 			if (img) { imgs[en] = img; }
 			if (cover) { covers[en] = cover; }
+			var ct = $('[data-cover-t]', g).value.trim();
+			var cs = $('[data-cover-s]', g).value.trim();
+			if (ct || cs) { ctxt[en] = { t: ct, s: cs }; }
 		});
+		if (coverTxtEl) { coverTxtEl.value = JSON.stringify(ctxt); coverTxt = ctxt; }
 		if (bannersEl) { bannersEl.value = JSON.stringify(covers); banners = covers; }
 		if (arTabsEl) { arTabsEl.value = JSON.stringify(tabs); arTabs = tabs; }
 		if (tabImgsEl) { tabImgsEl.value = JSON.stringify(imgs); tabImgs = imgs; }

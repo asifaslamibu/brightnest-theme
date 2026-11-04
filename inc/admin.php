@@ -83,6 +83,8 @@ function brightnest_admin_assets() {
 					'varsHelp'    => __( 'Optional. One per line: label | name | description | price | old price. E.g. "1 Unit | AC Deep Cleaning (15% OFF) | For 1 AC unit | 469 | 559". The option then shows "Starts at" the lowest price and "N Options"; each choice is booked on its own.', 'brightnest' ),
 					'banner'      => __( 'Cover picture above this group at the checkout (wide, e.g. 1200 × 400)', 'brightnest' ),
 					'tabAr'       => __( 'Arabic tab name', 'brightnest' ),
+					'coverT'      => __( 'Cover heading (text on the cover picture)', 'brightnest' ),
+					'coverS'      => __( 'Cover text (a short line under the heading)', 'brightnest' ),
 					'highlights'  => __( 'Highlights, one per line. Optional icon first: shield | 60-Day Warranty (icons: shield, clock, star, check-circle, users, home, calendar, tag, ac, cleaning, sofa, water, pest, spa)', 'brightnest' ),
 				),
 			)

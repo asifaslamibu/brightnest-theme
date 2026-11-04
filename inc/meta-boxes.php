@@ -194,6 +194,7 @@ function brightnest_service_meta_box( $post ) {
 					<input type="hidden" name="bn_opt_details" data-opt-details value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_opt_details', true ) ); ?>">
 					<input type="hidden" name="bn_tab_imgs" data-tab-imgs value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_tab_imgs', true ) ); ?>">
 					<input type="hidden" name="bn_group_banners" data-banners value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_group_banners', true ) ); ?>">
+					<input type="hidden" name="bn_cover_txt" data-cover-txt value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_cover_txt', true ) ); ?>">
 					<input type="hidden" name="bn_ar_tabs" data-ar-tabs value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_ar_tabs', true ) ); ?>">
 					<button type="button" class="button" data-opt-reload><?php esc_html_e( 'Apply text to the editor above', 'brightnest' ); ?></button>
 				</details>
@@ -451,6 +452,19 @@ function brightnest_save_meta( $post_id, $post ) {
 				}
 			}
 			update_post_meta( $post_id, '_bn_group_banners', $bn_out ? wp_slash( wp_json_encode( $bn_out ) ) : '' );
+		}
+		// Text on each group's cover at the checkout: { "English tab": { "t": heading, "s": line } }.
+		if ( isset( $_POST['bn_cover_txt'] ) ) {
+			$bn_txt = json_decode( wp_unslash( $_POST['bn_cover_txt'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$bn_out = array();
+			foreach ( is_array( $bn_txt ) ? $bn_txt : array() as $bn_k => $bn_v ) {
+				$bn_t = isset( $bn_v['t'] ) ? sanitize_text_field( $bn_v['t'] ) : '';
+				$bn_s = isset( $bn_v['s'] ) ? sanitize_text_field( $bn_v['s'] ) : '';
+				if ( '' !== $bn_t || '' !== $bn_s ) {
+					$bn_out[ sanitize_text_field( $bn_k ) ] = array( 't' => $bn_t, 's' => $bn_s );
+				}
+			}
+			update_post_meta( $post_id, '_bn_cover_txt', $bn_out ? wp_slash( wp_json_encode( $bn_out, JSON_UNESCAPED_UNICODE ) ) : '' );
 		}
 		// Arabic tab names: { "English tab": "Arabic" }.
 		if ( isset( $_POST['bn_ar_tabs'] ) ) {
