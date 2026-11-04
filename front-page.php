@@ -266,7 +266,7 @@ $bn_card_section = function ( $key ) use ( $bn_cards ) {
 <?php if ( $bn_on( 'intro' ) && brightnest_opt( 'intro_title' ) ) : ?>
 <section class="bn-h2-intro">
 	<div class="bn-container bn-h2-intro-grid">
-		<div class="bn-h2-intro-art"><img src="<?php echo esc_url( brightnest_img_opt( 'why_image', 'about-1.jpg' ) ); ?>" alt="" loading="lazy" width="600" height="520"></div>
+		<div class="bn-h2-intro-art"><img src="<?php echo esc_url( brightnest_img_opt( 'why_image', 'home-why-team.jpg' ) ); ?>" alt="" loading="lazy" width="600" height="520"></div>
 		<div class="bn-h2-intro-copy">
 			<h2><?php echo brightnest_accent( brightnest_opt( 'intro_title' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?></h2>
 			<div class="bn-more" data-more>
@@ -410,7 +410,7 @@ $bn_guide = $bn_on( 'article' ) ? brightnest_guide_id() : 0;
 			-1
 		);
 	}
-	$bn_g_img   = has_post_thumbnail( $bn_guide ) ? get_the_post_thumbnail_url( $bn_guide, 'large' ) : BRIGHTNEST_URI . '/assets/img/site/about-2.jpg';
+	$bn_g_img   = brightnest_img_opt( 'guide_image', 'home-guide-cleaner.jpg' ); // Settings → Homepage → Cleaning guide → Photo.
 	?>
 <section class="bn-h2-guide" id="guide">
 	<div class="bn-container bn-h2-guide-grid">

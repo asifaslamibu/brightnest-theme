@@ -269,6 +269,7 @@ function brightnest_content_update() {
 		'service-pages' => 'brightnest_content_service_pages',
 		'home-hero'     => 'brightnest_content_step_home_hero',
 		'photos-2'      => 'brightnest_content_step_photos', // Again: Contact was not found by its address before. Pages with a photo keep theirs.
+		'home-photos'   => 'brightnest_content_step_home_photos',
 	);
 	$done = (array) get_option( 'bn_content_steps', array() );
 	if ( '2026-11-a' === get_option( 'bn_content_version' ) ) {
@@ -318,4 +319,10 @@ function brightnest_content_step_faq() {
 /* Homepage hero: the theme's new photo (assets/img/site/home-hero.jpg) instead of one picked earlier. */
 function brightnest_content_step_home_hero() {
 	set_theme_mod( 'bn_hero_img_1', '' );
+}
+
+/* Homepage intro and guide: the theme's new photos (assets/img/site/home-why-team.jpg, home-guide-cleaner.jpg). */
+function brightnest_content_step_home_photos() {
+	set_theme_mod( 'bn_why_image', '' );
+	set_theme_mod( 'bn_guide_image', '' );
 }

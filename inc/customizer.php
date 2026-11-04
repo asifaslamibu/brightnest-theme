@@ -94,6 +94,7 @@ function brightnest_defaults() {
 		'why_title'          => 'Your trusted partner in |home & office| cleanliness',
 		'why_text'           => 'From daily home upkeep to deep cleaning, and hourly maids to full property maintenance, we do it all with care and professionalism across the UAE.',
 		'why_image'          => '',
+		'guide_image'        => '',
 		'why_badge_title'    => '100% satisfaction',
 		'why_badge_text'     => 'guaranteed on every job',
 		'why_points'         => "Flexible scheduling|We work around your timing: daily, weekly, or monthly.\nProfessional staff|Trained, verified and uniformed cleaning professionals.\nCompetitive pricing|Transparent rates with no hidden charges.\nSafe & eco-friendly|Products and practices that are safe for kids and pets.",

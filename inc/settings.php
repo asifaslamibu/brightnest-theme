@@ -174,6 +174,7 @@ function brightnest_settings_schema() {
 				__( 'Cleaning guide', 'brightnest' ) => array(
 					'article_note'  => array( 'pagenote', __( 'Guide page', 'brightnest' ), __( 'The full text is its own page (Pages → Professional Cleaning Services in Dubai). The homepage shows its heading, first paragraphs and topics; change those on that page.', 'brightnest' ), 'bn_guide_page' ),
 					'guide_eyebrow' => array( 'text', __( 'Small label', 'brightnest' ), '' ),
+					'guide_image'   => array( 'image', __( 'Photo', 'brightnest' ), __( 'Empty = the theme photo of a Bright Nest cleaner.', 'brightnest' ) ),
 					'guide_btn'     => array( 'text', __( 'Main button text', 'brightnest' ), __( 'Opens the guide page.', 'brightnest' ) ),
 					'guide_btn2'    => array( 'text', __( 'Second button text', 'brightnest' ), __( 'Opens the services page. Empty = no button.', 'brightnest' ) ),
 				),
