@@ -35,6 +35,7 @@ function brightnest_service_meta_box( $post ) {
 			<button type="button" data-tab="areas"><span class="dashicons dashicons-location"></span> <?php esc_html_e( 'Areas & prices', 'brightnest' ); ?></button>
 			<button type="button" data-tab="included"><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( "What's included", 'brightnest' ); ?></button>
 			<button type="button" data-tab="faq"><span class="dashicons dashicons-editor-help"></span> <?php esc_html_e( 'FAQ', 'brightnest' ); ?></button>
+			<button type="button" data-tab="layout"><span class="dashicons dashicons-layout"></span> <?php esc_html_e( 'Page layout', 'brightnest' ); ?></button>
 			<button type="button" data-tab="arabic"><span class="dashicons dashicons-translation"></span> <?php esc_html_e( 'Arabic (العربية)', 'brightnest' ); ?></button>
 		</nav>
 
@@ -45,6 +46,12 @@ function brightnest_service_meta_box( $post ) {
 				<input type="checkbox" name="bn_active" value="1" <?php checked( brightnest_service_active( $post->ID ) ); ?>>
 				<span class="bn-adm-switch-ui" aria-hidden="true"></span>
 				<span><strong><?php esc_html_e( 'Service is ON', 'brightnest' ); ?></strong> — <?php esc_html_e( 'customers can see and book it. Switch off to hide it everywhere on the website.', 'brightnest' ); ?></span>
+			</label>
+			<label class="bn-adm-switch">
+				<input type="hidden" name="bn_info_only" value="0">
+				<input type="checkbox" name="bn_info_only" value="1" <?php checked( brightnest_info_only( $post->ID ) ); ?>>
+				<span class="bn-adm-switch-ui" aria-hidden="true"></span>
+				<span><strong><?php esc_html_e( 'Info page only (no online booking)', 'brightnest' ); ?></strong> — <?php esc_html_e( 'the page shows its text and FAQ with a "Get a quote" button (WhatsApp / call). No prices, no checkout.', 'brightnest' ); ?></span>
 			</label>
 			<div class="bn-adm-grid">
 				<label class="bn-adm-field">
@@ -186,6 +193,8 @@ function brightnest_service_meta_box( $post ) {
 					<textarea name="bn_options" rows="8" class="large-text code" data-opt-raw><?php echo esc_textarea( $m( 'options' ) ); ?></textarea>
 					<input type="hidden" name="bn_opt_details" data-opt-details value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_opt_details', true ) ); ?>">
 					<input type="hidden" name="bn_tab_imgs" data-tab-imgs value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_tab_imgs', true ) ); ?>">
+					<input type="hidden" name="bn_group_banners" data-banners value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_group_banners', true ) ); ?>">
+					<input type="hidden" name="bn_cover_txt" data-cover-txt value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_cover_txt', true ) ); ?>">
 					<input type="hidden" name="bn_ar_tabs" data-ar-tabs value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_bn_ar_tabs', true ) ); ?>">
 					<button type="button" class="button" data-opt-reload><?php esc_html_e( 'Apply text to the editor above', 'brightnest' ); ?></button>
 				</details>
@@ -260,6 +269,11 @@ function brightnest_service_meta_box( $post ) {
 				<?php endforeach; ?>
 			</ol>
 			<button type="button" class="button" data-faq-add data-name="bn_faqs"><span class="dashicons dashicons-plus"></span> <?php esc_html_e( 'Add question', 'brightnest' ); ?></button>
+		</section>
+
+		<!-- Page layout: this service's sections, order, headings and buttons -->
+		<section class="bn-adm-panel" data-panel="layout" hidden>
+			<?php brightnest_sv_layout_panel( $post->ID ); ?>
 		</section>
 
 		<!-- Arabic -->
@@ -391,7 +405,13 @@ function brightnest_save_meta( $post_id, $post ) {
 		update_post_meta( $post_id, '_bn_rating', isset( $_POST['bn_rating'] ) && '' !== $_POST['bn_rating'] ? min( 5, max( 0, (float) $_POST['bn_rating'] ) ) : '' );
 		update_post_meta( $post_id, '_bn_review_count', isset( $_POST['bn_review_count'] ) && '' !== $_POST['bn_review_count'] ? absint( $_POST['bn_review_count'] ) : '' );
 		update_post_meta( $post_id, '_bn_featured', empty( $_POST['bn_featured'] ) ? '' : '1' );
+		if ( isset( $_POST['bn_info_only'] ) ) {
+			update_post_meta( $post_id, '_bn_info_only', '1' === $_POST['bn_info_only'] ? '1' : '' );
+		}
 		update_post_meta( $post_id, '_bn_includes', isset( $_POST['bn_includes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['bn_includes'] ) ) : '' );
+		if ( isset( $_POST['bn_layout'] ) && is_array( $_POST['bn_layout'] ) ) {
+			brightnest_sv_layout_save( $post_id, wp_unslash( $_POST['bn_layout'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized there
+		}
 		update_post_meta( $post_id, '_bn_options', isset( $_POST['bn_options'] ) ? sanitize_textarea_field( wp_unslash( $_POST['bn_options'] ) ) : '' );
 		// Option popup details: { "name|desc": { about, hl } } from the price list editor.
 		if ( isset( $_POST['bn_opt_details'] ) ) {
@@ -399,7 +419,7 @@ function brightnest_save_meta( $post_id, $post ) {
 			$bn_out = array();
 			foreach ( is_array( $bn_det ) ? $bn_det : array() as $bn_k => $bn_v ) {
 				$bn_row = array();
-				foreach ( array( 'about', 'hl', 'name_ar', 'desc_ar', 'about_ar', 'hl_ar' ) as $bn_f ) {
+				foreach ( array( 'about', 'hl', 'vars', 'name_ar', 'desc_ar', 'about_ar', 'hl_ar' ) as $bn_f ) {
 					$bn_val = isset( $bn_v[ $bn_f ] ) ? sanitize_textarea_field( $bn_v[ $bn_f ] ) : '';
 					if ( '' !== $bn_val ) {
 						$bn_row[ $bn_f ] = $bn_val;
@@ -421,6 +441,30 @@ function brightnest_save_meta( $post_id, $post ) {
 				}
 			}
 			update_post_meta( $post_id, '_bn_tab_imgs', $bn_out ? wp_slash( wp_json_encode( $bn_out ) ) : '' );
+		}
+		// Cover picture above each group at the checkout: { "English tab": "image url" }.
+		if ( isset( $_POST['bn_group_banners'] ) ) {
+			$bn_imgs = json_decode( wp_unslash( $_POST['bn_group_banners'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$bn_out  = array();
+			foreach ( is_array( $bn_imgs ) ? $bn_imgs : array() as $bn_k => $bn_v ) {
+				if ( esc_url_raw( $bn_v ) ) {
+					$bn_out[ sanitize_text_field( $bn_k ) ] = esc_url_raw( $bn_v );
+				}
+			}
+			update_post_meta( $post_id, '_bn_group_banners', $bn_out ? wp_slash( wp_json_encode( $bn_out ) ) : '' );
+		}
+		// Text on each group's cover at the checkout: { "English tab": { "t": heading, "s": line } }.
+		if ( isset( $_POST['bn_cover_txt'] ) ) {
+			$bn_txt = json_decode( wp_unslash( $_POST['bn_cover_txt'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$bn_out = array();
+			foreach ( is_array( $bn_txt ) ? $bn_txt : array() as $bn_k => $bn_v ) {
+				$bn_t = isset( $bn_v['t'] ) ? sanitize_text_field( $bn_v['t'] ) : '';
+				$bn_s = isset( $bn_v['s'] ) ? sanitize_text_field( $bn_v['s'] ) : '';
+				if ( '' !== $bn_t || '' !== $bn_s ) {
+					$bn_out[ sanitize_text_field( $bn_k ) ] = array( 't' => $bn_t, 's' => $bn_s );
+				}
+			}
+			update_post_meta( $post_id, '_bn_cover_txt', $bn_out ? wp_slash( wp_json_encode( $bn_out, JSON_UNESCAPED_UNICODE ) ) : '' );
 		}
 		// Arabic tab names: { "English tab": "Arabic" }.
 		if ( isset( $_POST['bn_ar_tabs'] ) ) {

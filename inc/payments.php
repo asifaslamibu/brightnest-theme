@@ -68,12 +68,18 @@ function brightnest_start_online_payment( $request_id, $meta, $service_id ) {
 		// Ziina charges in the booking currency (AED), whatever the shop currency is.
 		$order->set_currency( strtoupper( (string) brightnest_opt( 'currency' ) ) );
 
-		$fee = new WC_Order_Item_Fee();
+		// A line item, not a fee: WooCommerce shows a line item's details on the order screen and in the app.
+		$line  = new WC_Order_Item_Product();
+		$total = (float) $meta['total'];
 		/* translators: 1: booking ref, 2: service */
-		$fee->set_name( sprintf( __( 'Booking #%1$s — %2$s', 'brightnest' ), $meta['ref'], wp_strip_all_tags( html_entity_decode( get_the_title( $service_id ), ENT_QUOTES, 'UTF-8' ) ) ) );
-		$fee->set_tax_status( 'none' );
-		$fee->set_total( (float) $meta['total'] );
-		$order->add_item( $fee );
+		$line->set_name( sprintf( __( 'Booking #%1$s: %2$s', 'brightnest' ), $meta['ref'], wp_strip_all_tags( html_entity_decode( get_the_title( $service_id ), ENT_QUOTES, 'UTF-8' ) ) ) );
+		$line->set_quantity( 1 );
+		$line->set_subtotal( $total );
+		$line->set_total( $total );
+		foreach ( brightnest_order_details( $meta ) as $label => $value ) {
+			$line->add_meta_data( $label, $value, true );
+		}
+		$order->add_item( $line );
 
 		$parts = explode( ' ', trim( $meta['name'] ), 2 );
 		$order->set_billing_first_name( $parts[0] );
@@ -87,7 +93,12 @@ function brightnest_start_online_payment( $request_id, $meta, $service_id ) {
 		$order->set_billing_country( 'AE' );
 		$order->set_payment_method( $gateway->id );
 		$order->set_payment_method_title( $gateway->get_title() );
-		$order->set_customer_note( $meta['message'] );
+		$order->set_customer_note( brightnest_order_note( $meta ) );
+		$order->set_shipping_first_name( $parts[0] ); // The service address, shown under "Shipping" in the app.
+		$order->set_shipping_last_name( isset( $parts[1] ) ? $parts[1] : '' );
+		$order->set_shipping_address_1( $meta['address'] );
+		$order->set_shipping_city( $meta['area'] );
+		$order->set_shipping_country( 'AE' );
 		$order->update_meta_data( '_bn_request_id', (int) $request_id );
 		$order->update_meta_data( '_bn_service_id', (int) $service_id );
 		$order->calculate_totals( false );
@@ -109,6 +120,128 @@ function brightnest_start_online_payment( $request_id, $meta, $service_id ) {
 		return new WP_Error( 'bn_ziina', __( 'Could not start the payment. Please try again.', 'brightnest' ) );
 	}
 	return $result['redirect'];
+}
+
+/**
+ * Booked arrival window for the order: "18:00-19:00" or "14:00" → "6:00 PM to 7:00 PM".
+ */
+function brightnest_order_time_label( $time ) {
+	if ( ! preg_match_all( '/\d{1,2}:\d{2}/', (string) $time, $m ) ) {
+		return (string) $time;
+	}
+	$utc   = new DateTimeZone( 'UTC' );
+	$start = strtotime( '2000-01-01 ' . $m[0][0] . ' UTC' );
+	$end   = isset( $m[0][1] ) ? strtotime( '2000-01-01 ' . $m[0][1] . ' UTC' ) : $start + max( 30, (int) brightnest_opt( 'slot_length' ) ) * 60;
+	return wp_date( 'g:i A', $start, $utc ) . ' to ' . wp_date( 'g:i A', $end, $utc );
+}
+
+/**
+ * Booking date and time as one line: "Sat, 31 Oct 2026, 6:00 PM to 7:00 PM".
+ */
+function brightnest_order_when( $meta ) {
+	$date = (string) $meta['date'];
+	$time = (string) $meta['time'];
+	$day  = $date && strtotime( $date ) ? wp_date( 'D, j M Y', strtotime( $date . ' UTC' ), new DateTimeZone( 'UTC' ) ) : $date;
+	return trim( $day . ( $day && $time ? ', ' : '' ) . ( $time ? brightnest_order_time_label( $time ) : '' ) );
+}
+
+/**
+ * What the team needs to carry out a booking, label => value, empty ones left out.
+ *
+ * @param array $meta Booking meta (brightnest_ajax_checkout(), or brightnest_request_meta()).
+ */
+function brightnest_order_details( $meta ) {
+	$get     = function ( $k ) use ( $meta ) {
+		return isset( $meta[ $k ] ) ? trim( (string) $meta[ $k ] ) : '';
+	};
+	$details = array(
+		__( 'Date & time', 'brightnest' )     => brightnest_order_when( array( 'date' => $get( 'date' ), 'time' => $get( 'time' ) ) ),
+		__( 'Service details', 'brightnest' ) => str_replace( "\n", ', ', $get( 'items' ) ),
+		__( 'Frequency', 'brightnest' )       => $get( 'frequency' ),
+		__( 'Customer', 'brightnest' )        => $get( 'name' ),
+		__( 'Phone', 'brightnest' )           => $get( 'phone' ),
+		__( 'Email', 'brightnest' )           => $get( 'email' ),
+		__( 'Address', 'brightnest' )         => $get( 'address' ),
+		__( 'Directions', 'brightnest' )      => $get( 'directions' ),
+		__( 'Voucher', 'brightnest' )         => $get( 'voucher' ),
+		__( 'Customer notes', 'brightnest' )  => $get( 'message' ),
+	);
+	return array_filter(
+		$details,
+		function ( $v ) {
+			return '' !== $v;
+		}
+	);
+}
+
+/**
+ * The booking as plain text for the order's customer note, which the WooCommerce app shows in full.
+ */
+function brightnest_order_note( $meta ) {
+	$lines = array();
+	if ( ! empty( $meta['ref'] ) ) {
+		$lines[] = sprintf( /* translators: %s booking ref */ __( 'Booking #%s', 'brightnest' ), $meta['ref'] );
+	}
+	if ( ! empty( $meta['service'] ) ) {
+		$lines[] = __( 'Service', 'brightnest' ) . ': ' . wp_strip_all_tags( html_entity_decode( (string) $meta['service'], ENT_QUOTES, 'UTF-8' ) );
+	}
+	foreach ( brightnest_order_details( $meta ) as $label => $value ) {
+		$lines[] = $label . ': ' . $value;
+	}
+	return implode( "\n", $lines );
+}
+
+/**
+ * A saved booking's details, in the form brightnest_ajax_checkout() saved them.
+ */
+function brightnest_request_meta( $request_id ) {
+	$meta = array();
+	foreach ( array( 'ref', 'service', 'items', 'subtotal', 'freq_discount', 'discount', 'fee', 'area_fee', 'total', 'voucher', 'payment', 'frequency', 'name', 'phone', 'email', 'date', 'time', 'area', 'place', 'address', 'directions', 'message', 'payment_status' ) as $k ) {
+		$meta[ $k ] = (string) get_post_meta( $request_id, '_bn_' . $k, true );
+	}
+	return $meta;
+}
+
+/**
+ * "Booking details" box on the WooCommerce order screen, for every booking order old or new.
+ */
+function brightnest_order_box_add( $screen, $post_or_order ) {
+	$order = $post_or_order instanceof WC_Order ? $post_or_order : ( $post_or_order instanceof WP_Post ? wc_get_order( $post_or_order->ID ) : null );
+	$rid = $order ? brightnest_order_request_id( $order ) : 0;
+	if ( $rid && get_post( $rid ) ) { // Not when the booking was deleted.
+		add_meta_box( 'bn-booking-details', __( 'Booking details', 'brightnest' ), 'brightnest_order_box', $screen, 'normal', 'high' );
+	}
+}
+add_action( 'add_meta_boxes', 'brightnest_order_box_add', 10, 2 );
+
+function brightnest_order_box( $post_or_order ) {
+	$order = $post_or_order instanceof WC_Order ? $post_or_order : wc_get_order( $post_or_order->ID );
+	$id    = $order ? brightnest_order_request_id( $order ) : 0;
+	if ( ! $id ) {
+		return;
+	}
+	$meta = brightnest_request_meta( $id );
+	$cur  = $order->get_currency() . ' ';
+	$rows = array( __( 'Booking', 'brightnest' ) => '#' . $meta['ref'], __( 'Service', 'brightnest' ) => wp_strip_all_tags( html_entity_decode( $meta['service'], ENT_QUOTES, 'UTF-8' ) ) ) + brightnest_order_details( $meta );
+	// Money: for the team only; the area charge is not itemised for customers.
+	foreach ( array(
+		'subtotal'      => __( 'Subtotal', 'brightnest' ),
+		'freq_discount' => __( 'Frequency discount', 'brightnest' ),
+		'discount'      => __( 'Voucher discount', 'brightnest' ),
+		'area_fee'      => __( 'Area charge', 'brightnest' ),
+		'fee'           => __( 'Service fee', 'brightnest' ),
+		'total'         => __( 'Total', 'brightnest' ),
+	) as $k => $label ) {
+		if ( (float) $meta[ $k ] > 0 ) {
+			$rows[ $label ] = $cur . $meta[ $k ];
+		}
+	}
+	echo '<table class="widefat striped" style="border:0">';
+	foreach ( $rows as $label => $value ) {
+		echo '<tr><th style="width:170px;font-weight:600">' . esc_html( $label ) . '</th><td>' . nl2br( esc_html( $value ) ) . '</td></tr>';
+	}
+	echo '</table>';
+	echo '<p><a class="button" href="' . esc_url( admin_url( 'post.php?post=' . $id . '&action=edit' ) ) . '">' . esc_html__( 'Open the booking', 'brightnest' ) . '</a></p>';
 }
 
 /**

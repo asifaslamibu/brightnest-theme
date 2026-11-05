@@ -17,6 +17,25 @@ function brightnest_home_defaults() {
 		'home_seo_desc'  => 'Bright Nest Cleaning offers maid, deep, home, and office cleaning with customized plans, flexible scheduling, eco-friendly products, trained staff, and 24/7 same-day service in Dubai.',
 		'hero_more'      => 'We offer a complete range of residential and commercial cleaning solutions tailored to your unique needs, ensuring spotless spaces, a healthier environment, and complete peace of mind.',
 
+		// Order of the homepage sections (Settings → Homepage → Sections); the hero is always first.
+		'home_order'    => 'services,intro,clean,maint,process,numbers,why,reviews,blog,article,home_faq,promise,app',
+
+		// Button texts and small labels (empty = no button where that makes sense).
+		'hero_float1_title' => 'Vetted professionals',
+		'hero_float1_text'  => 'Satisfaction guarantee',
+		'hero_float2_title' => 'Secure online payment',
+		'tiles_btn'         => 'Book a service',
+		'intro_btn'         => 'Book a service',
+		'card_book_label'   => 'Book now',
+		'card_quote_label'  => 'Get a quote',
+		'love_btn'          => 'Book a service',
+		'blog_btn'          => 'All articles',
+		'guide_eyebrow'     => 'Cleaning guide',
+		'guide_btn'         => 'Read the full guide',
+		'guide_btn2'        => 'Book a service',
+		'promise_btn'       => 'Book a service',
+		'app_kicker'        => 'Book in a tap',
+
 		'show_intro'    => '1',
 		'show_clean'    => '1',
 		'show_maint'    => '1',
@@ -81,6 +100,31 @@ function brightnest_home_defaults() {
 			)
 		),
 	);
+}
+
+/**
+ * The homepage sections in the order set in Settings → Homepage (new sections go at the end).
+ *
+ * @return string[] Section keys.
+ */
+function brightnest_home_order() {
+	$all   = explode( ',', brightnest_home_defaults()['home_order'] );
+	$saved = array_filter( array_map( 'trim', explode( ',', (string) get_theme_mod( 'bn_home_order', '' ) ) ) );
+	$order = array_values( array_intersect( $saved, $all ) );
+	return array_merge( $order, array_diff( $all, $order ) );
+}
+
+/**
+ * A button text or label from the settings. While it is still the default English text it is
+ * translated like the rest of the theme (the Arabic site); once changed, it shows as typed.
+ *
+ * @param string $key      Setting key.
+ * @param string $fallback The same default text, inside __() so it gets translated.
+ */
+function brightnest_label( $key, $fallback ) {
+	$val  = (string) brightnest_opt( $key );
+	$defs = brightnest_home_defaults();
+	return ( isset( $defs[ $key ] ) && $val === $defs[ $key ] ) ? $fallback : $val;
 }
 
 /**

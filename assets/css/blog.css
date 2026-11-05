@@ -267,3 +267,26 @@ html[dir="rtl"] .bn-share [data-copied] { transform: translateX(50%); left: auto
 .bn-blog-archlink a:hover { color: var(--bn-brand); }
 .bn-blog-archlink .bn-icon:first-child { color: var(--bn-brand); }
 html[dir="rtl"] .bn-blog-archlink .bn-icon:last-child { transform: scaleX(-1); }
+
+/* Our Services (archive-bn_info.php) */
+.bn-ours-btns { margin: 18px 0 0; }
+.bn-ours-more { margin-top: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--bn-brand); font-weight: 700; font-size: 14px; }
+.bn-ours-more:hover { color: var(--bn-primary); }
+.bn-pc h2.bn-pc-title { font-size: 18px; }
+html[dir="rtl"] .bn-ours-more .bn-icon { transform: scaleX(-1); }
+.bn-jlf-h a { color: inherit; }
+
+/* Our Services: sections by category */
+.bn-ours-jump { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0 0 34px; }
+.bn-ours-jump a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1px solid #e3e6f0; background: #fff; color: var(--bn-ink); font-size: 14px; font-weight: 600; }
+.bn-ours-jump a .bn-icon { color: var(--bn-brand); }
+.bn-ours-jump a span { padding: 1px 8px; border-radius: 99px; background: #f1f3f9; color: var(--bn-muted); font-size: 12px; }
+.bn-ours-jump a:hover { border-color: var(--bn-brand); color: var(--bn-brand); }
+.bn-ours-sec { margin-bottom: 48px; scroll-margin-top: 110px; }
+.bn-ours-sec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #eceef4; }
+.bn-ours-sec-ic { flex: 0 0 auto; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: #fff1e8; color: var(--bn-brand); }
+.bn-ours-sec-head h2 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; color: var(--bn-ink); }
+.bn-ours-sec-head h2 small { padding: 2px 10px; border-radius: 99px; background: #f1f3f9; color: var(--bn-muted); font-size: 12.5px; font-weight: 600; }
+.bn-ours-sec-head p { margin: 4px 0 0; color: var(--bn-muted); font-size: 14.5px; }
+.bn-pc h3.bn-pc-title { font-size: 18px; }
+@media (max-width: 640px) { .bn-ours-sec-head h2 { font-size: 20px; } }

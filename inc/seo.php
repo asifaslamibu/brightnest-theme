@@ -14,7 +14,7 @@ function brightnest_seo_plugin_active() {
 }
 
 function brightnest_seo_meta_box() {
-	foreach ( array( 'bn_service', 'page', 'post' ) as $type ) {
+	foreach ( array( 'bn_service', 'bn_info', 'page', 'post' ) as $type ) {
 		add_meta_box( 'bn-seo', __( 'Google (SEO)', 'brightnest' ), 'brightnest_seo_meta_box_html', $type, 'normal', 'default' );
 	}
 }
@@ -64,6 +64,21 @@ function brightnest_seo_document_title( $title ) {
 	return '' !== $own ? $own : $title;
 }
 add_filter( 'pre_get_document_title', 'brightnest_seo_document_title', 20 );
+
+/**
+ * "Page | Bright Nest" instead of the en dash, and the booking and service-page hubs named as in the menu.
+ */
+add_filter( 'document_title_separator', function () {
+	return '|';
+} );
+add_filter( 'document_title_parts', function ( $parts ) {
+	if ( is_post_type_archive( 'bn_service' ) ) {
+		$parts['title'] = __( 'Booking', 'brightnest' );
+	} elseif ( is_post_type_archive( 'bn_info' ) ) {
+		$parts['title'] = __( 'Services', 'brightnest' );
+	}
+	return $parts;
+} );
 
 /**
  * Meta description typed in the box, or '' (English site only).

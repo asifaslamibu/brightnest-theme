@@ -7,13 +7,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BRIGHTNEST_VERSION', '3.32.0' );
+define( 'BRIGHTNEST_VERSION', '3.59.2' );
 define( 'BRIGHTNEST_DIR', get_template_directory() );
 define( 'BRIGHTNEST_URI', get_template_directory_uri() );
 
 require BRIGHTNEST_DIR . '/inc/i18n.php'; // First: it reads the /ar/ prefix before WordPress parses the request.
 require BRIGHTNEST_DIR . '/inc/icons.php';
 require BRIGHTNEST_DIR . '/inc/post-types.php';
+require BRIGHTNEST_DIR . '/inc/service-pages.php';
 require BRIGHTNEST_DIR . '/inc/areas.php';
 require BRIGHTNEST_DIR . '/inc/meta-boxes.php';
 require BRIGHTNEST_DIR . '/inc/customizer.php';
@@ -28,6 +29,10 @@ require BRIGHTNEST_DIR . '/inc/payments.php';
 require BRIGHTNEST_DIR . '/inc/reminders.php';
 require BRIGHTNEST_DIR . '/inc/cache.php';
 require BRIGHTNEST_DIR . '/inc/settings.php';
+require BRIGHTNEST_DIR . '/inc/home-editor.php';
+require BRIGHTNEST_DIR . '/inc/service-layout.php';
+require BRIGHTNEST_DIR . '/inc/content-update.php';
+require BRIGHTNEST_DIR . '/inc/page-layouts.php';
 if ( is_admin() ) {
 	require BRIGHTNEST_DIR . '/inc/admin.php';
 }
@@ -42,6 +47,7 @@ function brightnest_setup() {
 
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
+	add_post_type_support( 'page', 'excerpt' ); // Short line under the page title in the hero.
 	add_theme_support( 'automatic-feed-links' );
 	add_theme_support( 'responsive-embeds' );
 	add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );
@@ -75,7 +81,7 @@ function brightnest_assets() {
 	wp_enqueue_style( 'brightnest-main', BRIGHTNEST_URI . '/assets/css/main.css', array(), BRIGHTNEST_VERSION );
 	wp_enqueue_style( 'brightnest-home', BRIGHTNEST_URI . '/assets/css/home.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
 	wp_enqueue_style( 'brightnest-components', BRIGHTNEST_URI . '/assets/css/components.css', array( 'brightnest-home' ), BRIGHTNEST_VERSION );
-	if ( is_singular( 'bn_service' ) || is_post_type_archive( 'bn_service' ) || is_tax( 'bn_service_cat' ) || ( is_search() && 'bn_service' === get_query_var( 'post_type' ) ) ) {
+	if ( is_singular( array( 'bn_service', 'bn_info' ) ) || is_post_type_archive( 'bn_service' ) || is_tax( 'bn_service_cat' ) || ( is_search() && 'bn_service' === get_query_var( 'post_type' ) ) ) {
 		wp_enqueue_style( 'brightnest-service', BRIGHTNEST_URI . '/assets/css/service.css', array( 'brightnest-components' ), BRIGHTNEST_VERSION );
 	}
 	if ( is_front_page() ) {
@@ -86,11 +92,15 @@ function brightnest_assets() {
 
 	}
 	// Blog page, categories and articles.
-	if ( is_front_page() || is_home() || is_category() || is_tag() || is_date() || is_author() || is_page_template( 'page-templates/blog-archive.php' ) || is_page_template( 'page-templates/guide.php' ) || is_singular( 'post' ) || ( is_search() && 'bn_service' !== get_query_var( 'post_type' ) ) ) {
+	if ( is_front_page() || is_home() || is_category() || is_tag() || is_date() || is_author() || is_page_template( 'page-templates/blog-archive.php' ) || is_page_template( 'page-templates/guide.php' ) || is_singular( array( 'post', 'bn_info' ) ) || is_post_type_archive( 'bn_info' ) || ( is_search() && 'bn_service' !== get_query_var( 'post_type' ) ) ) {
 		wp_enqueue_style( 'brightnest-blog', BRIGHTNEST_URI . '/assets/css/blog.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
 	}
-	if ( is_page_template( 'page-templates/guide.php' ) ) {
-		// The cleaning guide: article laid out in cards (inc/guide.php).
+	if ( is_singular( 'bn_info' ) ) {
+		// Service pages: one narrow column (single-bn_info.php).
+		wp_enqueue_style( 'brightnest-info', BRIGHTNEST_URI . '/assets/css/info.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
+	}
+	if ( is_page_template( 'page-templates/guide.php' ) || is_front_page() ) {
+		// The cleaning guide (its page, and its text on the homepage): article laid out in cards (inc/guide.php).
 		wp_enqueue_style( 'brightnest-art', BRIGHTNEST_URI . '/assets/css/art.css', array( 'brightnest-blog' ), BRIGHTNEST_VERSION );
 		wp_enqueue_script( 'brightnest-art', BRIGHTNEST_URI . '/assets/js/art.js', array(), BRIGHTNEST_VERSION, true );
 	}
@@ -100,6 +110,8 @@ function brightnest_assets() {
 		wp_enqueue_style( 'brightnest-location', BRIGHTNEST_URI . '/assets/css/location.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION );
 		if ( $bn_hub_page ) {
 			wp_enqueue_style( 'brightnest-hub', BRIGHTNEST_URI . '/assets/css/hub.css', array( 'brightnest-components' ), BRIGHTNEST_VERSION );
+			wp_enqueue_style( 'brightnest-booking', BRIGHTNEST_URI . '/assets/css/booking.css', array( 'brightnest-hub' ), BRIGHTNEST_VERSION );
+			wp_enqueue_style( 'brightnest-blog', BRIGHTNEST_URI . '/assets/css/blog.css', array( 'brightnest-main' ), BRIGHTNEST_VERSION ); // Booking band at the end.
 		}
 		wp_enqueue_script( 'brightnest-hub', BRIGHTNEST_URI . '/assets/js/hub.js', array( 'brightnest-main' ), BRIGHTNEST_VERSION, true );
 		wp_localize_script(

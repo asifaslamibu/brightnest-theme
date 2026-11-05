@@ -541,3 +541,123 @@
 .bn-co-ro .bn-icon { position: absolute; inset-inline-start: 14px; top: 50%; transform: translateY(-50%); color: var(--bn-brand); pointer-events: none; }
 .bn-co-ro .bn-co-input[readonly] { padding-inline-start: 40px; background: #eef0f6; color: var(--bn-ink); font-weight: 600; cursor: default; }
 .bn-co-ro .bn-co-input[readonly]:focus { outline: none; box-shadow: none; border-color: transparent; }
+
+/* Justlife look: narrower and lighter --------------------------------------------------------- */
+@media (min-width: 961px) {
+	.bn-checkout-page .bn-co-top, .bn-checkout-page .bn-co-grid { max-width: 1020px; }
+	.bn-checkout-page .bn-co-grid { grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; }
+}
+.bn-checkout-page .bn-co-title { font-size: 22px; font-weight: 700; }
+.bn-checkout-page .bn-co-main { border-radius: 10px; box-shadow: none; border-color: #ececf0; }
+.bn-checkout-page .bn-co-tabs { border-radius: 10px 10px 0 0; }
+.bn-checkout-page .bn-co-side .bn-co-card { border-radius: 10px; box-shadow: none; border-color: #ececf0; }
+.bn-checkout-page .bn-co-step { padding: 0 0 20px; }
+.bn-checkout-page .bn-co-step > .bn-co-block { padding-inline: 22px; }
+
+/* Picture tabs */
+.bn-checkout-page .bn-co-tabs { gap: 10px; padding: 18px 22px 16px; margin: 0; border-bottom: 1px solid #ececf0; }
+.bn-checkout-page .bn-co-tab { flex: 0 0 74px; gap: 6px; padding: 0 0 6px; border: 1px solid transparent; border-radius: 8px; font-size: 12.5px; font-weight: 500; color: #333; }
+.bn-checkout-page .bn-co-tab-icon { height: 50px; border-radius: 6px 6px 0 0; overflow: hidden; }
+.bn-checkout-page .bn-co-tab-icon img { width: 100%; height: 100%; object-fit: cover; }
+.bn-checkout-page .bn-co-tab:hover { border-color: #e2e4ec; }
+.bn-checkout-page .bn-co-tab.is-active { border-color: var(--bn-brand); background: #fff7f1; color: var(--bn-brand); }
+
+/* Groups: a grey title band, then the items */
+.bn-checkout-page .bn-co-group, .bn-checkout-page .bn-co-group + .bn-co-group { margin: 0; padding: 0 22px; border-top: 0; }
+.bn-checkout-page .bn-co-group-title { margin: 0 -22px 4px; padding: 16px 22px; background: #f3f3f5; font-size: 18px; font-weight: 600; color: #222; }
+
+/* Items */
+.bn-checkout-page .bn-co-item { gap: 14px; padding: 16px 0; border-bottom-color: #f0f0f3; }
+.bn-checkout-page .bn-co-item-thumb { flex: 0 0 74px; height: 74px; border-radius: 6px; overflow: hidden; }
+.bn-checkout-page .bn-co-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.bn-checkout-page .bn-co-item h3 { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 4px; }
+.bn-checkout-page .bn-co-item p { font-size: 13px; line-height: 1.5; color: #555; margin-bottom: 8px; }
+.bn-checkout-page .bn-co-item-price strong { font-size: 14.5px; color: #222; }
+.bn-checkout-page .bn-co-item-price del { font-size: 13.5px; color: #9e9e9e; }
+.bn-checkout-page .bn-co-add { height: 30px; padding: 0 14px; border: 0; border-radius: 99px; background: var(--bn-brand); color: #fff; font-size: 13px; font-weight: 700; }
+.bn-checkout-page .bn-co-add:hover { background: var(--bn-primary); color: #fff; }
+
+/* Side cards */
+.bn-checkout-page .bn-co-card-title { font-size: 16px; font-weight: 600; }
+.bn-checkout-page .bn-co-dl { font-size: 13.5px; }
+
+/* Picture tabs: a soft brand tint behind each picture (Justlife style) */
+.bn-checkout-page .bn-co-tab { flex-basis: 80px; padding: 0 0 6px; border: 1.5px solid transparent; border-radius: 10px; }
+.bn-checkout-page .bn-co-tab-icon { height: 56px; padding: 4px; border-radius: 9px; background: #ffeee3; box-sizing: border-box; }
+.bn-checkout-page .bn-co-tab-icon img { border-radius: 6px; }
+.bn-checkout-page .bn-co-tab:nth-child(3n+2) .bn-co-tab-icon { background: #eef0fb; }
+.bn-checkout-page .bn-co-tab:nth-child(3n) .bn-co-tab-icon { background: #e7f6ee; }
+.bn-checkout-page .bn-co-tab:hover { border-color: #f3c7a8; }
+.bn-checkout-page .bn-co-tab.is-active { border-color: var(--bn-brand); background: #fff; color: var(--bn-brand); font-weight: 700; }
+.bn-checkout-page .bn-co-tab.is-active .bn-co-tab-icon { background: #ffe0cc; }
+
+/* Step 1: no Continue bar until something is added */
+.bn-co-bar[hidden], .bn-co-bar.is-empty .bn-co-bar-row, .bn-co-bar.is-empty .bn-co-error { display: none; }
+/* The added item: brand line on the left, "1x" before its name */
+.bn-checkout-page .bn-co-item { position: relative; }
+.bn-checkout-page .bn-co-item.is-selected::before { left: -22px; width: 4px; }
+.bn-checkout-page .bn-co-item-x { font-weight: 700; margin-inline-end: 4px; }
+
+/* Cover picture above a group's options (Justlife style) */
+.bn-co-group-banner { margin: 16px 0 6px; overflow: hidden; border-radius: 10px; background: #f3f3f5; }
+.bn-co-group-banner img { display: block; width: 100%; height: auto; max-height: 220px; object-fit: cover; }
+
+/* "Starts at" before an option's price */
+.bn-checkout-page .bn-co-item-price { align-items: baseline; gap: 5px; }
+.bn-co-item-from { color: #444; font-size: 14px; font-weight: 400; }
+
+/* Options with choices: "N Options" badge, and the choices popup (Justlife style) */
+.bn-co-item-thumb { position: relative; }
+.bn-checkout-page .bn-co-item.has-vars .bn-co-item-thumb { overflow: visible; }
+.bn-co-vars-badge { position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); padding: 2px 7px; border-radius: 5px; background: #8e44ad; color: #fff; font-size: 10.5px; font-style: normal; font-weight: 700; white-space: nowrap; }
+.bn-checkout-page .bn-co-item.has-vars .bn-co-item-thumb img { border-radius: 6px; }
+.bn-co-item.has-vars .bn-co-stepper output::after { content: ""; }
+.bn-vm .bn-vm-box { width: min(460px, 100%); max-height: min(720px, 92vh); border-radius: 12px; display: flex; flex-direction: column; }
+.bn-vm .bn-modal-head h2 { margin: 0; font-size: 17px; font-weight: 700; color: #212121; }
+.bn-vm-list { flex: 1; overflow-y: auto; display: grid; gap: 12px; padding: 18px 20px 22px; }
+.bn-vm-row { display: flex; gap: 14px; padding: 16px; border: 1.5px solid transparent; border-radius: 10px; background: #f4f4f6; }
+.bn-vm-row.is-selected { border-color: var(--bn-brand); background: #fff7f1; }
+.bn-vm-tag { flex: 0 0 52px; height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; background: #ffe7d6; color: #7a2f00; line-height: 1.1; }
+.bn-vm-tag b { font-size: 22px; }
+.bn-vm-tag small { font-size: 12px; }
+.bn-vm-body { flex: 1; min-width: 0; }
+.bn-vm-body h3 { margin: 0 0 6px; font-size: 15px; font-weight: 700; color: #222; }
+.bn-vm-body p { margin: 0 0 10px; color: #555; font-size: 13px; line-height: 1.5; }
+.bn-vm-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bn-vm-foot .bn-co-item-price strong { font-size: 14.5px; font-weight: 400; color: #222; }
+.bn-vm-foot .bn-co-item-price del { font-size: 13.5px; color: #9e9e9e; }
+.bn-vm .bn-co-add { height: 30px; padding: 0 14px; border: 0; border-radius: 99px; background: var(--bn-brand); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+.bn-vm .bn-vm-step { display: inline-flex; }
+
+/* Cover made automatically for a group without its own cover picture */
+.bn-co-cover { position: relative; display: grid; grid-template-columns: 46% 1fr; align-items: center; min-height: 150px; margin: 16px 0 6px; overflow: hidden; border-radius: 10px; background: linear-gradient(110deg, #fff4ec 0%, #ffe9db 55%, #fde2cf 100%); }
+.bn-co-cover-img { align-self: stretch; min-height: 150px; background: center / cover no-repeat; -webkit-mask-image: linear-gradient(90deg, #000 70%, transparent); mask-image: linear-gradient(90deg, #000 70%, transparent); }
+.bn-co-cover-copy { padding: 16px 20px 16px 6px; }
+.bn-co-cover-tag { position: absolute; top: 10px; left: 10px; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; background: #fff; color: #333; font-size: 10.5px; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .08); }
+.bn-co-cover-tag .bn-icon { color: var(--bn-brand); }
+.bn-co-cover-copy strong { display: block; margin-bottom: 8px; color: var(--bn-ink); font-size: 18px; line-height: 1.25; }
+.bn-co-cover-copy ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.bn-co-cover-copy li { display: flex; align-items: center; gap: 7px; color: #333; font-size: 12.5px; font-weight: 600; }
+.bn-co-cover-copy li .bn-icon { flex: 0 0 auto; width: 16px; height: 16px; padding: 2px; box-sizing: border-box; border-radius: 50%; background: var(--bn-primary); color: #fff; }
+html[dir="rtl"] .bn-co-cover-img { -webkit-mask-image: linear-gradient(270deg, #000 70%, transparent); mask-image: linear-gradient(270deg, #000 70%, transparent); }
+html[dir="rtl"] .bn-co-cover-tag { left: auto; right: 10px; }
+@media (max-width: 480px) { .bn-co-cover { grid-template-columns: 40% 1fr; min-height: 128px; } .bn-co-cover-copy strong { font-size: 15.5px; } }
+.bn-co-cover-copy { position: relative; z-index: 1; min-width: 0; }
+.bn-co-cover-img { min-width: 0; }
+@media (max-width: 480px) { .bn-co-cover { grid-template-columns: 38% minmax(0, 1fr); } .bn-co-cover-copy { padding: 34px 12px 12px 10px; } .bn-co-cover-copy li { font-size: 11.5px; } }
+@media (min-width: 481px) { .bn-co-cover-copy { padding-top: 40px; } }
+
+/* Text on a group's own cover picture (Services → Price list → cover heading / text). */
+.bn-co-group-banner { position: relative; }
+.bn-co-group-banner.has-text::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(20, 24, 60, .78) 0%, rgba(20, 24, 60, .45) 45%, rgba(20, 24, 60, 0) 80%); }
+.bn-co-banner-text { position: absolute; inset: 0 auto 0 0; z-index: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; max-width: 62%; padding: 18px 22px; color: #fff; }
+.bn-co-banner-text strong { font-size: 22px; line-height: 1.2; color: #fff; }
+.bn-co-banner-text span { font-size: 14px; line-height: 1.45; color: rgba(255, 255, 255, .92); }
+.bn-co-cover-sub { margin: -2px 0 8px; font-size: 13px; line-height: 1.45; color: #555; }
+html[dir="rtl"] .bn-co-group-banner.has-text::after { background: linear-gradient(270deg, rgba(20, 24, 60, .78) 0%, rgba(20, 24, 60, .45) 45%, rgba(20, 24, 60, 0) 80%); }
+html[dir="rtl"] .bn-co-banner-text { inset: 0 0 0 auto; }
+@media (max-width: 480px) {
+	.bn-co-banner-text { max-width: 78%; padding: 12px 14px; gap: 4px; }
+	.bn-co-banner-text strong { font-size: 16px; }
+	.bn-co-banner-text span { font-size: 12px; }
+}

@@ -192,4 +192,4 @@ function brightnest_greviews_hide_manual( $args, $type ) {
 	}
 	return $args;
 }
-add_filter( 'register_post_type_args', 'brightnest_greviews_hide_manual', 10, 2 );
+// Not hooked any more: the hand-typed reviews are shown again (front-page.php).

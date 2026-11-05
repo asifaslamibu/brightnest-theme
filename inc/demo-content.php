@@ -17,7 +17,7 @@ function brightnest_starter_catalog() {
 			'desc'     => 'Regular home cleaning, deep cleaning, move-in/move-out and more by trained, vetted cleaners.',
 			'services' => array(
 				array( 'Home Cleaning', 35, 'per hour', '2 - 6 hours', 'cleaning', true, 'Regular cleaning for apartments and villas by experienced, background-checked cleaners.', "Dusting & wiping all surfaces\nVacuuming & mopping floors\nKitchen counters & sink\nBathroom cleaning\nMaking beds & tidying up\nCleaning materials on request" ),
-				array( 'Deep Cleaning', 399, 'per apartment', '4 - 8 hours', 'deep-clean', true, 'Top-to-bottom intensive cleaning that reaches every corner — ideal before guests or seasonally.', "Inside cabinets & appliances\nDescaling bathrooms & tiles\nWindow & glass cleaning\nBalcony & terrace cleaning\nProfessional equipment & chemicals" ),
+				array( 'Deep Cleaning', 399, 'per apartment', '4 - 8 hours', 'deep-clean', true, 'Top-to-bottom intensive cleaning that reaches every corner, ideal before guests or seasonally.', "Inside cabinets & appliances\nDescaling bathrooms & tiles\nWindow & glass cleaning\nBalcony & terrace cleaning\nProfessional equipment & chemicals" ),
 				array( 'Move In / Move Out Cleaning', 499, 'per apartment', '5 - 9 hours', 'deep-clean', false, 'Get your deposit back or start fresh in your new home with a complete empty-property clean.', "Full kitchen degreasing\nWardrobes inside & out\nWalls spot cleaning\nBathrooms descaling\nFloors scrubbed" ),
 				array( 'Sofa & Carpet Cleaning', 149, 'per seat', '1 - 3 hours', 'sofa', true, 'Shampooing and steam extraction for sofas, carpets, rugs and mattresses.', "Stain treatment\nSteam / shampoo extraction\nDeodorising\nQuick-dry process" ),
 				array( 'Office Cleaning', 45, 'per hour', 'Flexible', 'cleaning', false, 'Daily, weekly or one-off cleaning for offices, clinics and retail spaces.', "Workstations & meeting rooms\nPantry & washrooms\nFloor care\nWaste removal" ),
@@ -140,7 +140,7 @@ function brightnest_create_starter_content() {
 				continue;
 			}
 			$content  = '<!-- wp:heading --><h2>Why book ' . esc_html( $title ) . ' with us?</h2><!-- /wp:heading -->';
-			$content .= '<!-- wp:paragraph --><p>Every professional on our team is vetted, trained and insured. You get upfront pricing, flexible time slots and a satisfaction guarantee — if something isn\'t right, we\'ll come back and fix it.</p><!-- /wp:paragraph -->';
+			$content .= '<!-- wp:paragraph --><p>Every professional on our team is vetted, trained and insured. You get upfront pricing, flexible time slots and a satisfaction guarantee. If something isn\'t right, we\'ll come back and fix it.</p><!-- /wp:paragraph -->';
 			$content .= '<!-- wp:heading --><h2>How it works</h2><!-- /wp:heading -->';
 			$content .= '<!-- wp:list --><ul><li>Choose your date and time and submit the booking form.</li><li>Our team calls to confirm the details and final price.</li><li>A trained professional arrives on time and gets the job done.</li></ul><!-- /wp:list -->';
 

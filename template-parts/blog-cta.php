@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+$GLOBALS['bn_cta_shown'] = true; // The footer then leaves out its own booking band.
 ?>
 <section class="bn-blog-cta">
 	<div class="bn-container">

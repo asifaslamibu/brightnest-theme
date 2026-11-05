@@ -31,6 +31,10 @@ $bn_example = $bn_example ? wp_strip_all_tags( html_entity_decode( get_the_title
 					<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo.png' ); ?>" width="720" height="200" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 				</a>
 			<?php endif; ?>
+			<?php // Arabic logo: shown instead when the page is in Arabic (right-to-left). ?>
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="bn-logo-img bn-logo-ar notranslate">
+				<img src="<?php echo esc_url( BRIGHTNEST_URI . '/assets/img/logo-ar.png' ); ?>" width="720" height="280" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+			</a>
 		</div>
 
 		<?php

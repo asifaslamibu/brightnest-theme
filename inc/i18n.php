@@ -158,7 +158,7 @@ add_action( 'wp_head', 'brightnest_hreflang', 2 );
 function brightnest_i18n_keys() {
 	static $keys = null;
 	if ( null === $keys ) {
-		$skip = array( 'currency', 'cities', 'phone', 'phone2', 'whatsapp', 'email', 'booking_email', 'promo_code', 'greviews_name', 'greviews_embed', 'greviews_write_url', 'offer_code', 'offer_link', 'offer_style', 'offer_days', 'vouchers', 'country_code', 'facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'slot_start', 'slot_end', 'lead_hours', 'days_ahead', 'slot_length', 'pay_online', 'remind_on', 'remind_hours', 'service_fee', 'min_amount', 'area_fees' );
+		$skip = array( 'currency', 'cities', 'phone', 'phone2', 'whatsapp', 'email', 'booking_email', 'promo_code', 'greviews_name', 'greviews_embed', 'greviews_write_url', 'offer_code', 'offer_link', 'offer_style', 'offer_days', 'offer_trigger', 'offer_delay', 'offer_scroll', 'offer_pages', 'offer_position', 'offer_bg', 'offer_color', 'offer_accent', 'offer_btn_text_color', 'offer_radius', 'offer_disc_type', 'offer_disc_value', 'vouchers', 'country_code', 'facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'slot_start', 'slot_end', 'lead_hours', 'days_ahead', 'slot_length', 'pay_online', 'remind_on', 'remind_hours', 'service_fee', 'min_amount', 'area_fees' );
 		$keys = array();
 		foreach ( brightnest_defaults() as $k => $v ) {
 			if ( is_string( $v ) && ! in_array( $k, $skip, true ) && 0 !== strpos( $k, 'show_' ) && ! preg_match( '/(_image|_img_\d|^hero_image)$/', $k ) && ! preg_match( '/^stat_\d_num$/', $k ) ) {
