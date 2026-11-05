@@ -942,7 +942,7 @@ function brightnest_ajax_checkout() {
 			$body[] = ucfirst( $k ) . ': ' . $v;
 		}
 	}
-	if ( $meta['location'] ) {
+	if ( ! empty( $meta['location'] ) ) {
 		$body[] = 'Map: https://www.google.com/maps?q=' . $meta['location'];
 	}
 	$body[] = admin_url( 'post.php?post=' . $post_id . '&action=edit' );

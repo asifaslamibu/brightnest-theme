@@ -270,6 +270,7 @@ function brightnest_content_update() {
 		'home-hero'     => 'brightnest_content_step_home_hero',
 		'photos-2'      => 'brightnest_content_step_photos', // Again: Contact was not found by its address before. Pages with a photo keep theirs.
 		'home-photos'   => 'brightnest_content_step_home_photos',
+		'order-notes'   => 'brightnest_content_step_order_notes',
 	);
 	$done = (array) get_option( 'bn_content_steps', array() );
 	if ( '2026-11-a' === get_option( 'bn_content_version' ) ) {
@@ -325,4 +326,18 @@ function brightnest_content_step_home_hero() {
 function brightnest_content_step_home_photos() {
 	set_theme_mod( 'bn_why_image', '' );
 	set_theme_mod( 'bn_guide_image', '' );
+}
+
+/* Booking orders made before the details moved to the order: the full booking in the customer note. */
+function brightnest_content_step_order_notes() {
+	if ( ! function_exists( 'wc_get_orders' ) ) {
+		return;
+	}
+	foreach ( wc_get_orders( array( 'limit' => 500, 'status' => 'any', 'orderby' => 'date', 'order' => 'DESC', 'meta_key' => '_bn_request_id', 'meta_compare' => 'EXISTS' ) ) as $order ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+		$id = brightnest_order_request_id( $order );
+		if ( $id && 'booking' === get_post_meta( $id, '_bn_type', true ) ) {
+			$order->set_customer_note( brightnest_order_note( brightnest_request_meta( $id ) ) );
+			$order->save();
+		}
+	}
 }
