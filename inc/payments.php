@@ -207,7 +207,8 @@ function brightnest_request_meta( $request_id ) {
  */
 function brightnest_order_box_add( $screen, $post_or_order ) {
 	$order = $post_or_order instanceof WC_Order ? $post_or_order : ( $post_or_order instanceof WP_Post ? wc_get_order( $post_or_order->ID ) : null );
-	if ( $order && get_post( brightnest_order_request_id( $order ) ) ) { // Not when the booking was deleted.
+	$rid = $order ? brightnest_order_request_id( $order ) : 0;
+	if ( $rid && get_post( $rid ) ) { // Not when the booking was deleted.
 		add_meta_box( 'bn-booking-details', __( 'Booking details', 'brightnest' ), 'brightnest_order_box', $screen, 'normal', 'high' );
 	}
 }
